@@ -1,0 +1,6 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+easyocr>=1.7
+opencv-python>=4.8
+numpy>=1.24

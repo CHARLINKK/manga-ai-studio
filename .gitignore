@@ -1,0 +1,33 @@
+# Ambientes Virtuais
+venv/
+venv_ocr/
+venv_ui/
+_venv_ocr_backup/
+_venv_ui_backup/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code / IDEs
+.vscode/
+.idea/
+
+# Outros
+*.log
+temp/
