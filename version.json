@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
-    "release_date": "2026-06-22",
-    "changelog": "Lançamento inicial da versão modular do Manga AI Studio."
+    "version": "1.0.1",
+    "release_date": "2026-06-25",
+    "changelog": "Lançamento inicial da versão modular do Manga AI Studio.\n- [Correção] Adicionado suporte para placas de vídeo NVIDIA da Série RTX 5000 (Blackwell) via CUDA 12.4."
 }
