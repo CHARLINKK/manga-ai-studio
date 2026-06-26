@@ -2021,16 +2021,10 @@ class MangaApp(ctk.CTk):
                     local_version = local_data.get("version", "1.0.0")
                     
             if remote_version != local_version:
-                msg = f"Nova versão encontrada: {remote_version}\nNovidades: {remote_data.get('changelog', '')}\n\nDeseja atualizar agora?"
+                msg = f"Nova versão encontrada: {remote_version}\nNovidades: {remote_data.get('changelog', '')}\n\nDeseja abrir a página de download agora?"
                 if messagebox.askyesno("Atualização Disponível", msg):
-                    updater_path = Path("updater.py")
-                    if updater_path.exists():
-                        # Lança o updater
-                        sys_python = Path("venv_ui/Scripts/python.exe") if Path("venv_ui/Scripts/python.exe").exists() else Path(sys.executable)
-                        subprocess.Popen(f'start cmd /c "{sys_python} updater.py --url {url_zip}"', shell=True)
-                        self.destroy()
-                    else:
-                        messagebox.showerror("Erro", "Script updater.py não encontrado.")
+                    import webbrowser
+                    webbrowser.open("https://github.com/CHARLINKK/manga-ai-studio/releases/latest")
             else:
                 messagebox.showinfo("Atualizado", "Você já está usando a versão mais recente!")
                 
