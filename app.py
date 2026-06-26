@@ -2001,8 +2001,8 @@ class MangaApp(ctk.CTk):
         import sys
         import subprocess
         
-        url_version = "https://raw.githubusercontent.com/CHARLINKK/MangaAIStudio/main/version.json"
-        url_zip = "https://github.com/CHARLINKK/MangaAIStudio/archive/refs/heads/main.zip"
+        url_version = "https://raw.githubusercontent.com/CHARLINKK/manga-ai-studio/main/version.json"
+        url_zip = "https://github.com/CHARLINKK/manga-ai-studio/archive/refs/heads/main.zip"
         
         self.log_ocr.configure(state="normal") # usando o log_ocr apenas para exibir mensagem temporaria ou a gente cria popup
         try:
