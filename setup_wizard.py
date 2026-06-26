@@ -132,6 +132,7 @@ class SetupWizard(ctk.CTk):
 
         self.is_silent = "--silent" in sys.argv
         if self.is_silent:
+            self.withdraw()  # Torna a janela 100% invisível
             self.title("Manga AI Studio – Atualizando...")
             self.lbl_title = None
 
