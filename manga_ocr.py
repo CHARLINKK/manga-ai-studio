@@ -22,6 +22,11 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
 import cv2
 import numpy as np
 
@@ -56,6 +61,11 @@ def create_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.55,
         help="Confiança mínima para aceitar uma detecção (0.0 a 1.0). Padrão: 0.55",
+    )
+    parser.add_argument(
+        "--append",
+        action="store_true",
+        help="Anexa os resultados a um arquivo .txt existente em vez de sobrescrever.",
     )
     parser.add_argument(
         "--no-preprocess",
@@ -355,137 +365,283 @@ def sort_and_merge_clusters(
                 else:
                     merged += line + (" " if i < len(lines) - 1 else "")
                     
-            sorted_texts.append(merged.strip())
+            merged = merged.strip()
+            
+            # Filtro de ruído visual extremo
+            merged_upper = merged.upper()
+            
+            # 1. Ignorar strings indesejadas exatas (marcas d'água ou alucinações comuns)
+            denylist = ['2MB', '1MB', '3MB', '4MB', '5MB', '000', 'OOO']
+            if merged_upper in denylist:
+                continue
+                
+            # 2. Se for 1 único caractere que não faz sentido sozinho em inglês, ignora
+            if len(merged) == 1 and merged_upper not in ['I', 'A', 'O', '?', '!']:
+                continue
+                
+            # 3. Se for muito curto e não tiver letras nem pontuação importante, ignora (ex: '1', '0', '..')
+            if len(merged) <= 2 and not any(c.isalpha() for c in merged):
+                if not any(c in '?!' for c in merged):
+                    continue
+                    
+            if merged:
+                sorted_texts.append(merged)
 
     return sorted_texts
 
 
 def process_image(
     image_path: Path,
-    reader,
-    confidence_threshold: float,
+    model,
+    processor,
+    device: str,
+    torch_dtype,
     reading_order: str,
-    preprocess: bool,
     verbose: bool,
-) -> list[str]:
+) -> tuple[list[str], str]:
     """
-    Processa uma única imagem e retorna lista de textos extraídos.
+    Processa uma única imagem e retorna (lista_de_textos, descricao_da_cena).
     """
-    # Carrega imagem usando numpy para suportar caminhos Unicode no Windows
-    image_array = np.fromfile(str(image_path), dtype=np.uint8)
-    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    from PIL import Image
     
-    if image is None:
+    try:
+        # Abre a imagem com PIL
+        image = Image.open(image_path).convert("RGB")
+    except Exception as e:
         print(f"  ⚠️  Não foi possível carregar: {image_path.name}")
         return []
 
-    # Pré-processamento opcional
-    if preprocess:
-        processed = preprocess_image(image)
-    else:
-        processed = image
-
-    # OCR - Parâmetros agressivos para maximizar qualidade
-    # mag_ratio=2.0 e adjust_contrast melhoram detecção de fontes pequenas
-    results = reader.readtext(
-        processed,
-        paragraph=False,
-        width_ths=0.5,
-        mag_ratio=2.0,
-        contrast_ths=0.1,
-        adjust_contrast=0.5
-    )
-
+    # Prompt para Florence-2
+    task_prompt = "<OCR_WITH_REGION>"
+    
+    # Slicing: Corta a imagem em 3 partes horizontais (Topo, Meio, Base) para triplicar a resolução
+    w, h = image.size
+    overlap = int(h * 0.05) # 5% de sobreposição
+    
+    slice_height = h // 3
+    
+    top_img = image.crop((0, 0, w, slice_height + overlap))
+    mid_img = image.crop((0, slice_height - overlap, w, (slice_height * 2) + overlap))
+    bottom_img = image.crop((0, (slice_height * 2) - overlap, w, h))
+    
+    all_quad_boxes = []
+    all_labels = []
+    
+    slices = [
+        (top_img, 0),
+        (mid_img, slice_height - overlap),
+        (bottom_img, (slice_height * 2) - overlap)
+    ]
+    
+    for idx, (slice_img, y_offset) in enumerate(slices):
+        inputs = processor(text=task_prompt, images=slice_img, return_tensors="pt").to(device, torch_dtype)
+        generated_ids = model.generate(
+            input_ids=inputs["input_ids"],
+            pixel_values=inputs["pixel_values"],
+            max_new_tokens=1024,
+            num_beams=3,
+            do_sample=False
+        )
+        generated_text = processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
+        parsed_answer = processor.post_process_generation(generated_text, task=task_prompt, image_size=(slice_img.width, slice_img.height))
+        
+        ocr_results = parsed_answer.get(task_prompt, {})
+        quad_boxes = ocr_results.get("quad_boxes", [])
+        labels = ocr_results.get("labels", [])
+        
+        for box, label in zip(quad_boxes, labels):
+            adjusted_box = [
+                box[0], box[1] + y_offset,
+                box[2], box[3] + y_offset,
+                box[4], box[5] + y_offset,
+                box[6], box[7] + y_offset
+            ]
+            
+            center_y = (adjusted_box[1] + adjusted_box[5]) / 2
+            
+            # Remove duplicatas nas áreas de sobreposição verificando em qual terço o centro Y está
+            if idx == 0 and center_y > slice_height:
+                continue
+            if idx == 1 and (center_y <= slice_height or center_y > slice_height * 2):
+                continue
+            if idx == 2 and center_y <= slice_height * 2:
+                continue
+                
+            all_quad_boxes.append(adjusted_box)
+            all_labels.append(label)
+            
+    quad_boxes = all_quad_boxes
+    labels = all_labels
+    
     if verbose:
-        print(f"  🔍 {len(results)} detecções brutas")
-
-    # Filtros Avançados de Ruído
+        print(f"  🔍 {len(labels)} detecções brutas encontradas.")
+    
     filtered = []
     import re
-    for bbox, text, conf in results:
-        if conf < confidence_threshold:
-            continue
-            
-        # 1. Filtro Físico: Ignora caixas absurdamente pequenas (poeira, screentones, bordas)
+    
+    # O confidence não é retornado pelo Florence nativamente, usaremos 1.0 como dummy
+    for i in range(len(labels)):
+        text = labels[i]
+        box = quad_boxes[i] # [x1, y1, x2, y2, x3, y3, x4, y4]
+        
+        # Converte para o formato esperado pelo cluster_text_blocks: [[x,y], [x,y], [x,y], [x,y]]
+        bbox = [
+            [box[0], box[1]],
+            [box[2], box[3]],
+            [box[4], box[5]],
+            [box[6], box[7]]
+        ]
+        
+        # Filtros Semânticos e Físicos
         xs = [p[0] for p in bbox]
         ys = [p[1] for p in bbox]
         width = max(xs) - min(xs)
         height = max(ys) - min(ys)
         
-        # Em mangás de qualidade média/alta, letras têm pelo menos ~12px de altura
-        if height < 12 or width < 8:
+        if height < 10 or width < 6:
             continue
             
-        # 2. Filtro Semântico: Ignora "alucinações" do OCR compostas de lixo
         t = text.strip()
         if not t:
             continue
             
-        # Se tem pelo menos uma letra ou número, é considerado válido
+        # Pula onomatopeias óbvias se quiser, Florence é bom em ler sons de impacto
         has_alnum = re.search(r'[a-zA-Z0-9]', t)
-        
-        # Se NÃO tem letra/número, só salvamos se for uma pontuação clássica isolada (ex: "!!", "?", "...")
-        # Lixo comum do EasyOCR: "}_", "||", "\\/", "][", etc.
-        is_valid_punctuation = re.fullmatch(r'[!?.\-,~…"\']+', t)
-        
-        # 3. Filtro Anti-Onomatopeia e Speedlines (Opcional, mas forte para mangás)
-        # Remove lixo como "SWSH", "TMP", "WCH", "FS @VER", etc.
-        words = t.split()
-        if len(words) <= 3:
-            # Se a string inteira não tiver nenhuma vogal e tiver letras, é quase certeza que é speedline/SFX (ex: SWSH, TMP, WCH)
-            alpha_only = re.sub(r'[^a-zA-Z]', '', t).lower()
-            if alpha_only and not re.search(r'[aeiouy]', alpha_only):
-                continue
-                
-            # Lista de onomatopeias muito comuns
-            sfx_blacklist = {'boom', 'bam', 'wham', 'thud', 'grab', 'swish', 'fwoosh', 'whoosh', 'whack', 'thrash', 'slide', 'whiff', 'whirl', 'sigh', 'gasp', 'pant'}
-            if alpha_only in sfx_blacklist:
-                continue
+        if not has_alnum and not re.fullmatch(r'[!?.\-,~…"\']+', t):
+            continue
+            
+        filtered.append((bbox, t, 1.0))
 
-        filtered.append((bbox, text, conf))
 
     if verbose:
-        removed = len(results) - len(filtered)
+        removed = len(labels) - len(filtered)
         if removed > 0:
-            print(f"  🗑️  {removed} detecções removidas (confiança < {confidence_threshold})")
+            print(f"  🗑️  {removed} detecções removidas (tamanho mínimo ou lixo)")
 
     # Agrupa detecções próximas em clusters (balões de fala)
-    img_h, img_w = image.shape[:2]
+    img_h, img_w = image.height, image.width
     clusters = cluster_text_blocks(filtered, img_h, img_w)
 
     if verbose:
-        print(f"  💬 {len(clusters)} balão(ões) detectado(s)")
+        print(f"  💬 {len(clusters)} balão(ões) detectado(s). Iniciando Fase 2 (Sniper OCR)...")
+
+    # Fase 2: Sniper OCR (Two-Pass Zoom)
+    # Recorta a imagem em volta de cada balão detectado para dar um zoom extremo no Florence-2
+    sniper_task_prompt = "<OCR>"
+    sniper_clusters = []
+    
+    for cluster in clusters:
+        # Pega a bounding box do cluster inteiro (cada item é um dict)
+        min_x = min(p[0] for item in cluster for p in item["bbox"])
+        min_y = min(p[1] for item in cluster for p in item["bbox"])
+        max_x = max(p[0] for item in cluster for p in item["bbox"])
+        max_y = max(p[1] for item in cluster for p in item["bbox"])
+        
+        # Adiciona uma margem de segurança (padding) dinâmica
+        # Para textos muito pequenos, 15px é muita coisa e captura lixo ao redor.
+        # Usa 10% do tamanho, com mínimo de 5px e máximo de 15px.
+        bw = max_x - min_x
+        bh = max_y - min_y
+        pad = max(5, min(15, int(min(bw, bh) * 0.15)))
+        
+        crop_x1 = max(0, min_x - pad)
+        crop_y1 = max(0, min_y - pad)
+        crop_x2 = min(img_w, max_x + pad)
+        crop_y2 = min(img_h, max_y + pad)
+        
+        if (crop_x2 - crop_x1) < 10 or (crop_y2 - crop_y1) < 10:
+            sniper_clusters.append(cluster)
+            continue
+            
+        cropped_img = image.crop((crop_x1, crop_y1, crop_x2, crop_y2))
+        
+        # Roda o Florence-2 na imagem minúscula (agora redimensionada para gigante internamente)
+        c_inputs = processor(text=sniper_task_prompt, images=cropped_img, return_tensors="pt").to(device, torch_dtype)
+        c_generated_ids = model.generate(
+            input_ids=c_inputs["input_ids"],
+            pixel_values=c_inputs["pixel_values"],
+            max_new_tokens=512,
+            num_beams=3,
+            do_sample=False
+        )
+        c_generated_text = processor.batch_decode(c_generated_ids, skip_special_tokens=False)[0]
+        c_parsed_answer = processor.post_process_generation(c_generated_text, task=sniper_task_prompt, image_size=(cropped_img.width, cropped_img.height))
+        
+        sniper_text = c_parsed_answer.get(sniper_task_prompt, "").replace("\n", " ")
+        import re
+        
+        # 1. Trata hífens: Remove hífen seguido de espaço (to- morrow -> tomorrow), 
+        # mas preserva hífens normais (Spider-Man).
+        sniper_text = re.sub(r'-\s+', '', sniper_text)
+        
+        # 2. Filtra alucinações de caracteres japoneses/chineses (Kanji, Hiragana, Katakana)
+        sniper_text = re.sub(r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]', '', sniper_text)
+        
+        # 3. Filtro de "Stuttering" (Repetição de caracteres)
+        # Se uma letra se repete 4 ou mais vezes seguidas de forma anormal (ex: AAAAAAA), reduz para 3.
+        sniper_text = re.sub(r'([a-zA-Z])\1{3,}', r'\1\1\1', sniper_text)
+        
+        # 4. Filtro Anti-Rachadura/Ruído Visual
+        # Se a string contém pontuações mas NENHUMA letra/número, ignora completamente (vira vazio).
+        if not re.search(r'[a-zA-Z0-9]', sniper_text) and len(re.findall(r'[^\w\s]', sniper_text)) > 0:
+            sniper_text = ""
+        
+        if sniper_text.strip():
+            global_bbox = [[crop_x1, crop_y1], [crop_x2, crop_y1], [crop_x2, crop_y2], [crop_x1, crop_y2]]
+            sniper_clusters.append([{
+                "bbox": global_bbox,
+                "text": sniper_text,
+                "confidence": 1.0,
+                "center_x": (crop_x1 + crop_x2) / 2,
+                "center_y": (crop_y1 + crop_y2) / 2,
+                "min_y": crop_y1,
+                "max_y": crop_y2,
+                "min_x": crop_x1,
+                "max_x": crop_x2,
+                "height": crop_y2 - crop_y1,
+                "cluster": -1
+            }])
+        else:
+            sniper_clusters.append(cluster)
+            
+    clusters = sniper_clusters
 
     # Ordena clusters na ordem de leitura e junta texto
     texts = sort_and_merge_clusters(clusters, reading_order)
 
-    return texts
+    # Removido: Descrição da cena para contexto multimodal (economia de VRAM)
+    page_caption = ""
+    
+    import torch
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
+    return texts, page_caption
 
 def generate_output(
     pages: list[dict],
     output_path: Path,
+    append_mode: bool = False,
 ) -> None:
     """
     Gera o arquivo .txt de saída com o texto extraído.
-    
-    Formato:
-    ========================================
-    PÁGINA 1: nome_do_arquivo.png
-    ========================================
-    
-    Texto extraído...
     """
-    # Cria diretório de saída se necessário
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     lines = []
+    if append_mode and output_path.exists():
+        lines.append("")  # Adiciona linha extra no início para separar
+        
     for page in pages:
         separator = "=" * 50
         lines.append(separator)
         lines.append(f"PÁGINA {page['number']}: {page['filename']}")
         lines.append(separator)
         lines.append("")
+
+        if page.get("caption"):
+            lines.append(f"[CONTEXT]: {page['caption']}")
+            lines.append("")
 
         if page["texts"]:
             for text in page["texts"]:
@@ -496,9 +652,11 @@ def generate_output(
             lines.append("")
 
     content = "\n".join(lines)
-
-    with open(output_path, "w", encoding="utf-8-sig") as f:
+    
+    mode = "a" if append_mode else "w"
+    with open(output_path, mode, encoding="utf-8-sig") as f:
         f.write(content)
+        f.write("\n")
 
 
 def determine_output_path(input_path: str, output_arg: str | None) -> Path:
@@ -561,22 +719,28 @@ def main():
     # Determina saída
     output_path = determine_output_path(args.input, args.output)
 
-    # Inicializa EasyOCR
-    print("🚀 Inicializando EasyOCR...")
+    # Inicializa Florence-2
+    print("🚀 Inicializando Microsoft Florence-2-Large...")
     gpu_status = "GPU (CUDA)" if args.gpu else "CPU"
     print(f"   Dispositivo: {gpu_status}")
-    print(f"   Idioma: Inglês (en)")
+    print(f"   Modo: <OCR_WITH_REGION>")
     print()
 
     try:
-        import easyocr
-        reader = easyocr.Reader(
-            ["en"],
-            gpu=args.gpu,
-            verbose=False,
-        )
+        import torch
+        import transformers.dynamic_module_utils
+        transformers.dynamic_module_utils.check_imports = lambda filename: []
+        from transformers import AutoProcessor, AutoModelForCausalLM
+        from PIL import Image
+        
+        device = "cuda" if args.gpu and torch.cuda.is_available() else "cpu"
+        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+
+        model_id = "microsoft/Florence-2-large"
+        processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch_dtype, trust_remote_code=True).to(device)
     except Exception as e:
-        print(f"❌ Erro ao inicializar EasyOCR: {e}")
+        print(f"❌ Erro ao inicializar Florence-2: {e}")
         if args.gpu:
             print("   💡 Tente rodar sem --gpu, ou verifique se CUDA está instalado.")
         sys.exit(1)
@@ -584,8 +748,6 @@ def main():
     # Processa cada imagem
     print(f"🔄 Processando {len(images)} página(s)...")
     print(f"   Ordem de leitura: {'Manga (direita->esquerda)' if args.reading_order == 'manga' else 'Comic (esquerda->direita)'}")
-    print(f"   Pré-processamento: {'Ativado' if not args.no_preprocess else 'Desativado'}")
-    print(f"   Confiança mínima: {args.confidence}")
     print()
 
     pages = []
@@ -593,15 +755,16 @@ def main():
     start_time = time.time()
 
     for i, image_path in enumerate(images, 1):
-        print(f"  [{i}/{len(images)}] 📄 {image_path.name}", end="")
+        print(f"  [{i}/{len(images)}] 📄 {image_path.name}", end="", flush=True)
 
         page_start = time.time()
-        texts = process_image(
+        texts, page_caption = process_image(
             image_path=image_path,
-            reader=reader,
-            confidence_threshold=args.confidence,
+            model=model,
+            processor=processor,
+            device=device,
+            torch_dtype=torch_dtype,
             reading_order=args.reading_order,
-            preprocess=not args.no_preprocess,
             verbose=args.verbose,
         )
         page_elapsed = time.time() - page_start
@@ -610,19 +773,23 @@ def main():
             "number": i,
             "filename": image_path.name,
             "texts": texts,
+            "caption": page_caption,
         })
 
         total_texts += len(texts)
         print(f"  ->  {len(texts)} texto(s)  ({page_elapsed:.1f}s)")
 
     elapsed = time.time() - start_time
+    
+    # Limpa VRAM
+    if device == "cuda":
+        torch.cuda.empty_cache()
 
     # Gera arquivo de saída
-    generate_output(pages, output_path)
+    generate_output(pages, output_path, append_mode=args.append)
 
     # Resumo
     print_summary(len(pages), total_texts, elapsed, output_path)
-
 
 if __name__ == "__main__":
     main()

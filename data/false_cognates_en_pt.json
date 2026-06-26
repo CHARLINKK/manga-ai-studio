@@ -1,0 +1,1666 @@
+{
+  "_description": "English → Brazilian Portuguese False Cognates & Common Mistranslation Database for Manga Translation",
+  "_version": "1.0",
+  "_total_entries": 330,
+  "_last_updated": "2026-06-26",
+  "_notes": "This database covers false cognates, idiomatic expressions, and context-dependent words commonly encountered in manga, anime, light novel, and entertainment translation from English to Brazilian Portuguese.",
+
+  "false_cognates": {
+    "actually": {
+      "wrong_pt": "atualmente",
+      "correct_pt": "na verdade / de fato",
+      "context": "'Atualmente' means 'currently/nowadays'. 'Actually' means 'na verdade'."
+    },
+    "agenda": {
+      "wrong_pt": "agenda (caderneta)",
+      "correct_pt": "pauta / ordem do dia",
+      "context": "In English, 'agenda' is a list of topics for a meeting. Portuguese 'agenda' is a planner/notebook or schedule book."
+    },
+    "anthem": {
+      "wrong_pt": "antena",
+      "correct_pt": "hino",
+      "context": "'Antena' means 'antenna'. 'Anthem' is a song of praise, like a national anthem = hino nacional."
+    },
+    "apparel": {
+      "wrong_pt": "aparelho",
+      "correct_pt": "vestuário / roupa",
+      "context": "'Aparelho' means 'device/appliance'. 'Apparel' means clothing."
+    },
+    "application": {
+      "wrong_pt": "aplicação (financeira)",
+      "correct_pt": "inscrição / candidatura / requerimento",
+      "context": "Portuguese 'aplicação' usually refers to a financial investment. English 'application' commonly means a formal request or software app."
+    },
+    "appointment": {
+      "wrong_pt": "apontamento",
+      "correct_pt": "consulta / compromisso / hora marcada",
+      "context": "'Apontamento' means 'note/annotation'. 'Appointment' is a scheduled meeting."
+    },
+    "assist": {
+      "wrong_pt": "assistir",
+      "correct_pt": "ajudar / auxiliar",
+      "context": "'Assistir' means 'to watch/attend'. 'Assist' means 'ajudar'."
+    },
+    "assume": {
+      "wrong_pt": "assumir",
+      "correct_pt": "supor / presumir",
+      "context": "'Assumir' means 'to take on/accept responsibility'. 'Assume' means 'to suppose'."
+    },
+    "attend": {
+      "wrong_pt": "atender",
+      "correct_pt": "comparecer / participar de / frequentar",
+      "context": "'Atender' means 'to answer (phone)/serve (customer)'. 'Attend' means 'to be present at'."
+    },
+    "balcony": {
+      "wrong_pt": "balcão",
+      "correct_pt": "sacada / varanda",
+      "context": "'Balcão' means 'counter/countertop'. 'Balcony' is a projecting platform on a building."
+    },
+    "beef": {
+      "wrong_pt": "bife",
+      "correct_pt": "carne bovina / carne de boi",
+      "context": "'Bife' means 'steak (a cut)'. 'Beef' is the general term for cattle meat."
+    },
+    "brave": {
+      "wrong_pt": "bravo",
+      "correct_pt": "corajoso / valente",
+      "context": "'Bravo' in Portuguese means 'angry/fierce'. 'Brave' means 'corajoso'."
+    },
+    "camp": {
+      "wrong_pt": "campo",
+      "correct_pt": "acampamento",
+      "context": "'Campo' means 'field/countryside'. 'Camp' is a place with temporary shelters."
+    },
+    "cape": {
+      "wrong_pt": "capa",
+      "correct_pt": "capa (correto em contexto de super-herói) / cabo (geográfico)",
+      "context": "'Capa' can mean 'cover/layer'. As a garment, 'cape' = 'capa' is correct. As geography, 'cape' = 'cabo'."
+    },
+    "casualty": {
+      "wrong_pt": "casualidade",
+      "correct_pt": "vítima / baixa (militar)",
+      "context": "'Casualidade' means 'chance/coincidence'. 'Casualty' means a person killed or injured."
+    },
+    "cigar": {
+      "wrong_pt": "cigarro",
+      "correct_pt": "charuto",
+      "context": "'Cigarro' means 'cigarette'. 'Cigar' is the larger rolled tobacco = 'charuto'."
+    },
+    "college": {
+      "wrong_pt": "colégio",
+      "correct_pt": "faculdade / universidade",
+      "context": "'Colégio' means 'high school/secondary school'. 'College' is higher education."
+    },
+    "collar": {
+      "wrong_pt": "colar",
+      "correct_pt": "gola / coleira / colarinho",
+      "context": "'Colar' means 'necklace' or 'to glue'. 'Collar' is the part around the neck of a shirt or a pet collar."
+    },
+    "commodity": {
+      "wrong_pt": "comodidade",
+      "correct_pt": "mercadoria / produto básico",
+      "context": "'Comodidade' means 'comfort/convenience'. 'Commodity' is a raw material or basic good."
+    },
+    "comprehensive": {
+      "wrong_pt": "compreensivo",
+      "correct_pt": "abrangente / completo / detalhado",
+      "context": "'Compreensivo' means 'understanding (empathetic)'. 'Comprehensive' means 'thorough/complete'."
+    },
+    "compromise": {
+      "wrong_pt": "compromisso",
+      "correct_pt": "acordo / meio-termo / concessão mútua",
+      "context": "'Compromisso' means 'commitment/appointment'. 'Compromise' is reaching a middle ground."
+    },
+    "contest": {
+      "wrong_pt": "contestar",
+      "correct_pt": "competição / concurso",
+      "context": "'Contestar' means 'to dispute/challenge'. 'Contest' (noun) is a competition."
+    },
+    "costume": {
+      "wrong_pt": "costume",
+      "correct_pt": "fantasia / traje",
+      "context": "'Costume' in Portuguese means 'habit/custom'. English 'costume' is clothing worn for a role."
+    },
+    "data": {
+      "wrong_pt": "data",
+      "correct_pt": "dados / informações",
+      "context": "'Data' in Portuguese means 'date (calendar)'. English 'data' means information/facts."
+    },
+    "deception": {
+      "wrong_pt": "decepção",
+      "correct_pt": "engano / fraude / embuste",
+      "context": "'Decepção' means 'disappointment'. 'Deception' means deliberate trickery."
+    },
+    "defendant": {
+      "wrong_pt": "defendente",
+      "correct_pt": "réu / acusado",
+      "context": "Legal term. The accused in a court case."
+    },
+    "diary": {
+      "wrong_pt": "diário (jornal)",
+      "correct_pt": "diário (pessoal) / agenda",
+      "context": "'Diário' in Portuguese can also mean 'daily newspaper'. English 'diary' is a personal journal."
+    },
+    "disgrace": {
+      "wrong_pt": "desgraça",
+      "correct_pt": "vergonha / desonra",
+      "context": "'Desgraça' means 'misfortune/calamity'. 'Disgrace' means 'shame/dishonor'."
+    },
+    "educated": {
+      "wrong_pt": "educado",
+      "correct_pt": "instruído / culto / formado",
+      "context": "'Educado' means 'polite/well-mannered'. 'Educated' means 'having received education'."
+    },
+    "embarrassed": {
+      "wrong_pt": "embaraçado",
+      "correct_pt": "envergonhado / com vergonha / constrangido",
+      "context": "'Embaraçado' can mean 'tangled/confused'. 'Embarrassed' means feeling ashamed."
+    },
+    "engineer": {
+      "wrong_pt": "engenheiro (always correct)",
+      "correct_pt": "engenheiro / maquinista (train context)",
+      "context": "'Engineer' can also mean 'train driver' = 'maquinista', not just the profession."
+    },
+    "enroll": {
+      "wrong_pt": "enrolar",
+      "correct_pt": "matricular / inscrever",
+      "context": "'Enrolar' means 'to roll up / to stall / to deceive'. 'Enroll' means 'to register'."
+    },
+    "eventually": {
+      "wrong_pt": "eventualmente",
+      "correct_pt": "finalmente / por fim / no final das contas",
+      "context": "'Eventualmente' means 'occasionally/possibly'. 'Eventually' means 'in the end'."
+    },
+    "excited": {
+      "wrong_pt": "excitado",
+      "correct_pt": "empolgado / animado / entusiasmado",
+      "context": "'Excitado' in Brazilian Portuguese has a strong sexual connotation. Use 'empolgado' or 'animado' for general excitement."
+    },
+    "exit": {
+      "wrong_pt": "êxito",
+      "correct_pt": "saída",
+      "context": "'Êxito' means 'success'. 'Exit' means 'way out'."
+    },
+    "expert": {
+      "wrong_pt": "esperto",
+      "correct_pt": "especialista / perito",
+      "context": "'Esperto' means 'clever/cunning/smart'. 'Expert' means someone with deep knowledge."
+    },
+    "exquisite": {
+      "wrong_pt": "esquisito",
+      "correct_pt": "requintado / primoroso / refinado",
+      "context": "'Esquisito' means 'weird/strange'. 'Exquisite' means 'extremely beautiful/refined'."
+    },
+    "fabric": {
+      "wrong_pt": "fábrica",
+      "correct_pt": "tecido / pano",
+      "context": "'Fábrica' means 'factory'. 'Fabric' is cloth/textile material."
+    },
+    "figure": {
+      "wrong_pt": "figura",
+      "correct_pt": "número / cifra / forma / silhueta",
+      "context": "'Figura' can mean 'picture/image'. 'Figure' has many meanings: number, shape, person."
+    },
+    "genial": {
+      "wrong_pt": "genial",
+      "correct_pt": "cordial / afável / simpático",
+      "context": "'Genial' in Portuguese means 'brilliant/genius'. English 'genial' means 'friendly/cheerful'."
+    },
+    "gratuity": {
+      "wrong_pt": "gratuidade",
+      "correct_pt": "gorjeta",
+      "context": "'Gratuidade' means 'something free of charge'. 'Gratuity' means 'tip (money)'."
+    },
+    "grip": {
+      "wrong_pt": "gripe",
+      "correct_pt": "aperto / aderência / pegada / empunhadura",
+      "context": "'Gripe' means 'flu/influenza'. 'Grip' is the act of holding firmly."
+    },
+    "hazard": {
+      "wrong_pt": "azar",
+      "correct_pt": "perigo / risco",
+      "context": "'Azar' means 'bad luck'. 'Hazard' means 'danger/risk'."
+    },
+    "humor": {
+      "wrong_pt": "humor (estado de ânimo)",
+      "correct_pt": "senso de humor / graça",
+      "context": "'Humor' in Portuguese often means 'mood'. English 'humor' usually refers to comedy."
+    },
+    "idiom": {
+      "wrong_pt": "idioma",
+      "correct_pt": "expressão idiomática / gíria",
+      "context": "'Idioma' means 'language'. 'Idiom' is a figurative expression."
+    },
+    "impersonation": {
+      "wrong_pt": "impersonificação",
+      "correct_pt": "imitação / personificação falsa",
+      "context": "The act of pretending to be someone else."
+    },
+    "injury": {
+      "wrong_pt": "injúria",
+      "correct_pt": "lesão / ferimento / machucado",
+      "context": "'Injúria' means 'insult/offense (legal term)'. 'Injury' is physical harm."
+    },
+    "intend": {
+      "wrong_pt": "entender",
+      "correct_pt": "pretender / ter a intenção de / tencionar",
+      "context": "'Entender' means 'to understand'. 'Intend' means 'to plan/purpose'."
+    },
+    "intoxication": {
+      "wrong_pt": "intoxicação (alimentar)",
+      "correct_pt": "embriaguez / estado de embriaguez",
+      "context": "'Intoxicação' in Portuguese usually means 'food poisoning'. English 'intoxication' typically means drunkenness."
+    },
+    "journal": {
+      "wrong_pt": "jornal",
+      "correct_pt": "diário / periódico / revista científica",
+      "context": "'Jornal' means 'newspaper'. 'Journal' is a diary or academic publication."
+    },
+    "lecture": {
+      "wrong_pt": "leitura",
+      "correct_pt": "palestra / aula expositiva / sermão",
+      "context": "'Leitura' means 'reading'. 'Lecture' is a talk/presentation or a scolding."
+    },
+    "legend": {
+      "wrong_pt": "legenda",
+      "correct_pt": "lenda",
+      "context": "'Legenda' means 'subtitle/caption'. 'Legend' is a mythical story = 'lenda'. Though 'lenda' also exists in PT."
+    },
+    "library": {
+      "wrong_pt": "livraria",
+      "correct_pt": "biblioteca",
+      "context": "'Livraria' means 'bookstore'. 'Library' is where you borrow books = 'biblioteca'."
+    },
+    "local": {
+      "wrong_pt": "local (lugar)",
+      "correct_pt": "morador local / da região",
+      "context": "As a noun, 'a local' means a person from the area, not just the place."
+    },
+    "lunch": {
+      "wrong_pt": "lanche",
+      "correct_pt": "almoço",
+      "context": "'Lanche' means 'snack/light meal'. 'Lunch' is the midday meal = 'almoço'."
+    },
+    "magazine": {
+      "wrong_pt": "magazine (loja)",
+      "correct_pt": "revista",
+      "context": "'Magazine' in Portuguese can mean a department store. English 'magazine' is a periodical publication."
+    },
+    "major": {
+      "wrong_pt": "major (patente militar apenas)",
+      "correct_pt": "principal / importante / grave / curso principal",
+      "context": "English 'major' has many meanings beyond the military rank: important, serious, university specialization."
+    },
+    "medicine": {
+      "wrong_pt": "medicina (o curso)",
+      "correct_pt": "remédio / medicamento",
+      "context": "'Medicina' is the field of study. When someone says 'take your medicine', it means 'tome seu remédio'."
+    },
+    "misery": {
+      "wrong_pt": "miséria",
+      "correct_pt": "sofrimento / tristeza profunda / infelicidade",
+      "context": "'Miséria' means 'extreme poverty'. 'Misery' means emotional suffering."
+    },
+    "motel": {
+      "wrong_pt": "motel (de encontro)",
+      "correct_pt": "hotel de estrada / pousada de beira de estrada",
+      "context": "In Brazil, 'motel' implies a love hotel for couples. English 'motel' is just a roadside hotel."
+    },
+    "notice": {
+      "wrong_pt": "notícia",
+      "correct_pt": "aviso / perceber (verb)",
+      "context": "'Notícia' means 'news'. 'Notice' is a warning/announcement or to become aware of."
+    },
+    "novel": {
+      "wrong_pt": "novela",
+      "correct_pt": "romance (literário)",
+      "context": "'Novela' means 'soap opera/telenovela'. A 'novel' is a long fictional book = 'romance'."
+    },
+    "obligation": {
+      "wrong_pt": "obrigação (always correct but...)",
+      "correct_pt": "obrigação / dever",
+      "context": "Generally correct, but in manga context 'no obligation' should be 'sem compromisso' not 'sem obrigação'."
+    },
+    "office": {
+      "wrong_pt": "ofício",
+      "correct_pt": "escritório / consultório / gabinete",
+      "context": "'Ofício' means 'craft/trade/official document'. 'Office' is a workplace."
+    },
+    "ordinary": {
+      "wrong_pt": "ordinário",
+      "correct_pt": "comum / normal / simples",
+      "context": "'Ordinário' means 'vulgar/crude/low-quality'. 'Ordinary' means 'normal/common'."
+    },
+    "parents": {
+      "wrong_pt": "parentes",
+      "correct_pt": "pais",
+      "context": "'Parentes' means 'relatives'. 'Parents' are specifically mother and father."
+    },
+    "particular": {
+      "wrong_pt": "particular (privado)",
+      "correct_pt": "específico / determinado / exigente",
+      "context": "'Particular' in Portuguese means 'private'. English 'particular' usually means 'specific' or 'fussy'."
+    },
+    "patron": {
+      "wrong_pt": "patrão",
+      "correct_pt": "mecenas / patrocinador / cliente frequente",
+      "context": "'Patrão' means 'boss/employer'. 'Patron' is a supporter or regular customer."
+    },
+    "physician": {
+      "wrong_pt": "físico",
+      "correct_pt": "médico",
+      "context": "'Físico' means 'physicist' or 'physique'. 'Physician' is a medical doctor."
+    },
+    "policy": {
+      "wrong_pt": "polícia",
+      "correct_pt": "política / norma / apólice (insurance)",
+      "context": "'Polícia' means 'police'. 'Policy' is a set of rules or an insurance document."
+    },
+    "prejudice": {
+      "wrong_pt": "prejuízo",
+      "correct_pt": "preconceito",
+      "context": "'Prejuízo' means 'financial loss/damage'. 'Prejudice' is bias against a group."
+    },
+    "preservative": {
+      "wrong_pt": "preservativo",
+      "correct_pt": "conservante",
+      "context": "'Preservativo' means 'condom'. 'Preservative' is a food additive = 'conservante'."
+    },
+    "pretend": {
+      "wrong_pt": "pretender",
+      "correct_pt": "fingir / fazer de conta",
+      "context": "'Pretender' means 'to intend/plan'. 'Pretend' means 'to fake/act as if'."
+    },
+    "private": {
+      "wrong_pt": "privado (banheiro)",
+      "correct_pt": "particular / reservado / privativo",
+      "context": "'Privado' can mean 'deprived'. 'Private' as an adjective means 'particular/pessoal'."
+    },
+    "professor": {
+      "wrong_pt": "professor (de escola)",
+      "correct_pt": "professor universitário / catedrático",
+      "context": "In English, 'professor' is specifically a university-level teacher, not a school teacher."
+    },
+    "propaganda": {
+      "wrong_pt": "propaganda (comercial/anúncio)",
+      "correct_pt": "propaganda (política/ideológica)",
+      "context": "Portuguese 'propaganda' includes advertising. English 'propaganda' has a negative connotation of biased information."
+    },
+    "pull": {
+      "wrong_pt": "pule",
+      "correct_pt": "puxe",
+      "context": "On doors: 'Pull' = 'Puxe'. Not to be confused with 'pule' (cry/whimper)."
+    },
+    "push": {
+      "wrong_pt": "empurre (only verb)",
+      "correct_pt": "empurre (door) / pressionar / apertar (button)",
+      "context": "'Push' can mean to press a button = 'apertar/pressionar', not just physical pushing."
+    },
+    "rat": {
+      "wrong_pt": "rato (only the animal)",
+      "correct_pt": "rato / traidor / dedo-duro / cagueta",
+      "context": "In slang, 'rat' means 'traitor/snitch'. Very common in manga crime/yakuza context."
+    },
+    "realize": {
+      "wrong_pt": "realizar",
+      "correct_pt": "perceber / dar-se conta de",
+      "context": "'Realizar' means 'to accomplish/carry out'. 'Realize' means 'to become aware of'."
+    },
+    "recipe": {
+      "wrong_pt": "receita (médica)",
+      "correct_pt": "receita (culinária)",
+      "context": "Both use 'receita' but in different contexts. In manga cooking scenes, it's always culinary."
+    },
+    "record": {
+      "wrong_pt": "recordar",
+      "correct_pt": "gravar / registrar / recorde (noun)",
+      "context": "'Recordar' means 'to remember'. 'Record' means 'to capture on media' or a best achievement."
+    },
+    "refrigerant": {
+      "wrong_pt": "refrigerante (bebida)",
+      "correct_pt": "refrigerante (substância química / fluido refrigerante)",
+      "context": "'Refrigerante' in Portuguese is 'soda/soft drink'. English 'refrigerant' is a cooling chemical."
+    },
+    "report": {
+      "wrong_pt": "reportar (apenas jornalístico)",
+      "correct_pt": "relatar / denunciar / relatório (noun)",
+      "context": "'Reportar' is narrower in Portuguese. 'Report' can mean to inform, to file a complaint, or a document."
+    },
+    "resume": {
+      "wrong_pt": "resumo",
+      "correct_pt": "currículo",
+      "context": "'Resumo' means 'summary'. 'Resume' (CV) is 'currículo'."
+    },
+    "retire": {
+      "wrong_pt": "retirar",
+      "correct_pt": "aposentar-se",
+      "context": "'Retirar' means 'to remove/withdraw'. 'Retire' means 'to stop working permanently'."
+    },
+    "scholar": {
+      "wrong_pt": "escolar",
+      "correct_pt": "estudioso / acadêmico / bolsista",
+      "context": "'Escolar' means 'school-related (adj)'. 'Scholar' is a learned person or scholarship holder."
+    },
+    "sensible": {
+      "wrong_pt": "sensível",
+      "correct_pt": "sensato / prudente / razoável",
+      "context": "'Sensível' means 'sensitive'. 'Sensible' means 'practical/reasonable'."
+    },
+    "service": {
+      "wrong_pt": "serviço (always correct but...)",
+      "correct_pt": "culto (religious) / atendimento (customer)",
+      "context": "'Service' can mean 'culto religioso' or 'atendimento ao cliente', not just generic 'serviço'."
+    },
+    "signature": {
+      "wrong_pt": "assinatura (de revista)",
+      "correct_pt": "assinatura (nome escrito)",
+      "context": "Both meanings exist in Portuguese. Context matters: signing a document vs. subscription."
+    },
+    "stamp": {
+      "wrong_pt": "estampa",
+      "correct_pt": "selo / carimbo",
+      "context": "'Estampa' means 'print/pattern on fabric'. 'Stamp' is a postage stamp or rubber stamp."
+    },
+    "support": {
+      "wrong_pt": "suportar",
+      "correct_pt": "apoiar / dar suporte a",
+      "context": "'Suportar' means 'to endure/bear/tolerate'. 'Support' means 'to help/back up'."
+    },
+    "sympathy": {
+      "wrong_pt": "simpatia",
+      "correct_pt": "compaixão / solidariedade / pêsames",
+      "context": "'Simpatia' means 'friendliness/charm'. 'Sympathy' means 'compassion for suffering'."
+    },
+    "tax": {
+      "wrong_pt": "taxa",
+      "correct_pt": "imposto",
+      "context": "'Taxa' means 'fee/rate'. 'Tax' is a government-imposed charge = 'imposto'."
+    },
+    "turn": {
+      "wrong_pt": "turno",
+      "correct_pt": "vez / virada / curva",
+      "context": "'Turno' means 'shift (work)'. 'Turn' can mean 'vez' (your turn) or 'curva' (road turn)."
+    },
+    "vaccine": {
+      "wrong_pt": "vacina (always correct)",
+      "correct_pt": "vacina",
+      "context": "This is actually a true cognate. Both mean the same thing."
+    },
+    "vicious": {
+      "wrong_pt": "vicioso",
+      "correct_pt": "cruel / feroz / violento",
+      "context": "'Vicioso' means 'addicted'. 'Vicious' means 'extremely cruel or violent'."
+    },
+    "amass": {
+      "wrong_pt": "amassar",
+      "correct_pt": "acumular / juntar",
+      "context": "'Amassar' means 'to crush/crumple'. 'Amass' means 'to gather a large amount'."
+    },
+    "anticipate": {
+      "wrong_pt": "antecipar (adiantar)",
+      "correct_pt": "prever / esperar / aguardar",
+      "context": "'Antecipar' means 'to bring forward in time'. 'Anticipate' means 'to expect/foresee'."
+    },
+    "argument": {
+      "wrong_pt": "argumento (de filme)",
+      "correct_pt": "discussão / briga verbal",
+      "context": "'Argumento' in Portuguese often means 'plot/storyline'. 'Argument' usually means 'a heated debate'."
+    },
+    "assign": {
+      "wrong_pt": "assinar",
+      "correct_pt": "atribuir / designar",
+      "context": "'Assinar' means 'to sign'. 'Assign' means 'to allocate/delegate'."
+    },
+    "billions": {
+      "wrong_pt": "bilhões (correct in BR-PT)",
+      "correct_pt": "bilhões",
+      "context": "In BR-PT, 'bilhão' = billion (10^9). In EU-PT, 'bilião' = trillion. For manga, use 'bilhões'."
+    },
+    "chief": {
+      "wrong_pt": "chefe (not always wrong)",
+      "correct_pt": "chefe / líder / cacique (indigenous context)",
+      "context": "In manga, 'chief' often appears in police/tribal contexts. 'Chefe de polícia' or 'cacique'."
+    },
+    "claim": {
+      "wrong_pt": "clamar",
+      "correct_pt": "alegar / reivindicar / afirmar",
+      "context": "'Clamar' means 'to cry out/beg'. 'Claim' means 'to assert/demand'."
+    },
+    "collar_verb": {
+      "wrong_pt": "colar (grudar)",
+      "correct_pt": "agarrar / prender pelo colarinho",
+      "context": "To 'collar someone' means to grab them, often by law enforcement."
+    },
+    "confidence": {
+      "wrong_pt": "confidência",
+      "correct_pt": "confiança / autoconfiança",
+      "context": "'Confidência' means 'a secret told in trust'. 'Confidence' means 'self-assurance'."
+    },
+    "consistent": {
+      "wrong_pt": "consistente (textura)",
+      "correct_pt": "coerente / constante / regular",
+      "context": "'Consistente' in Portuguese refers to texture/thickness. 'Consistent' means 'steady/coherent'."
+    },
+    "constipated": {
+      "wrong_pt": "constipado",
+      "correct_pt": "com prisão de ventre / com intestino preso",
+      "context": "'Constipado' in Portuguese means 'having a cold'. 'Constipated' is a digestive issue."
+    },
+    "convict": {
+      "wrong_pt": "convicto",
+      "correct_pt": "condenado / presidiário / detento",
+      "context": "'Convicto' means 'convinced/certain'. A 'convict' is a prisoner."
+    },
+    "demand": {
+      "wrong_pt": "demandar (processar)",
+      "correct_pt": "exigir / demandar (requerer)",
+      "context": "'Demandar' in Portuguese often means 'to sue'. 'Demand' means 'to insist forcefully'."
+    },
+    "dislocate": {
+      "wrong_pt": "deslocar-se (viajar)",
+      "correct_pt": "deslocar (uma articulação)",
+      "context": "'Deslocar-se' means 'to travel/move to'. 'Dislocate' is specifically about joints."
+    },
+    "domestic": {
+      "wrong_pt": "doméstico (animal)",
+      "correct_pt": "doméstico / nacional / interno",
+      "context": "'Domestic flight' = 'voo doméstico/nacional'. 'Domestic violence' = 'violência doméstica'. Both correct."
+    },
+    "dose": {
+      "wrong_pt": "dose (de bebida)",
+      "correct_pt": "dose (de remédio)",
+      "context": "In Portuguese, 'dose' commonly means a shot of liquor. In English, it usually means medicine amount."
+    },
+    "estate": {
+      "wrong_pt": "estado",
+      "correct_pt": "propriedade / patrimônio / herança",
+      "context": "'Estado' means 'state'. 'Estate' is property, especially in legal/inheritance contexts."
+    },
+    "expense": {
+      "wrong_pt": "experiência",
+      "correct_pt": "despesa / gasto",
+      "context": "Not to be confused. 'Expense' = cost/expenditure."
+    },
+    "familiar": {
+      "wrong_pt": "familiar (de família)",
+      "correct_pt": "familiar / conhecido / habitual",
+      "context": "'Familiar' in Portuguese emphasizes family relation. English 'familiar' means 'well-known/recognized'."
+    },
+    "fastidious": {
+      "wrong_pt": "fastidioso",
+      "correct_pt": "meticuloso / exigente / perfeccionista",
+      "context": "'Fastidioso' means 'tedious/boring' in Portuguese. 'Fastidious' means 'very attentive to detail'."
+    },
+    "formal": {
+      "wrong_pt": "formal (correto na maioria)",
+      "correct_pt": "formal / oficial",
+      "context": "Usually a true cognate, but 'formal complaint' = 'queixa formal/oficial', not just 'formal'."
+    },
+    "fortunate": {
+      "wrong_pt": "fortunado",
+      "correct_pt": "sortudo / afortunado / com sorte",
+      "context": "'Fortunado' is rarely used. Prefer 'sortudo' in casual manga dialogue."
+    },
+    "front": {
+      "wrong_pt": "fronte",
+      "correct_pt": "frente / fachada",
+      "context": "'Fronte' is archaic for forehead. 'Front' = 'frente' or 'fachada' (fake business)."
+    },
+    "general": {
+      "wrong_pt": "general (militar apenas)",
+      "correct_pt": "geral / genérico",
+      "context": "'General' as adjective means 'geral'. As military rank, 'general' is correct."
+    },
+    "grand": {
+      "wrong_pt": "grande",
+      "correct_pt": "grandioso / magnífico / mil (slang for $1000)",
+      "context": "'Grand' often means 'magnificent' or in slang '$1000'. Not simply 'grande' (big)."
+    },
+    "guardian": {
+      "wrong_pt": "guardião (only spiritual)",
+      "correct_pt": "tutor / responsável legal / guardião",
+      "context": "In legal context, 'guardian' = 'tutor/responsável'. In fantasy manga, 'guardião' works."
+    },
+    "herb": {
+      "wrong_pt": "herba",
+      "correct_pt": "erva",
+      "context": "Simple translation but commonly misspelled in auto-translation."
+    },
+    "honest": {
+      "wrong_pt": "honesto (mostly correct)",
+      "correct_pt": "honesto / sincero / franco",
+      "context": "True cognate but 'to be honest' = 'pra ser sincero/franco', not 'pra ser honesto' in casual speech."
+    },
+    "ingenious": {
+      "wrong_pt": "ingênuo",
+      "correct_pt": "engenhoso / genial / criativo",
+      "context": "'Ingênuo' means 'naive/innocent'. 'Ingenious' means 'cleverly inventive'."
+    },
+    "introduce": {
+      "wrong_pt": "introduzir",
+      "correct_pt": "apresentar (people) / introduzir (topic)",
+      "context": "'Introduzir' means 'to insert'. 'To introduce someone' = 'apresentar alguém'."
+    },
+    "invest": {
+      "wrong_pt": "investir (contra)",
+      "correct_pt": "investir (dinheiro) / atacar (in PT can mean to charge at)",
+      "context": "'Investir' in Portuguese can also mean 'to charge/attack'. Context matters in battle manga."
+    },
+    "large": {
+      "wrong_pt": "largo",
+      "correct_pt": "grande / amplo",
+      "context": "'Largo' means 'wide'. 'Large' means 'big/grande'."
+    },
+    "lame": {
+      "wrong_pt": "lame (doesn't exist)",
+      "correct_pt": "manco / patético / sem graça",
+      "context": "In slang 'lame' = 'sem graça/patético'. Literally 'manco' (unable to walk properly)."
+    },
+    "luxurious": {
+      "wrong_pt": "luxurioso",
+      "correct_pt": "luxuoso",
+      "context": "'Luxurioso' means 'lustful/lecherous'. 'Luxurious' means 'opulent' = 'luxuoso'."
+    },
+    "notorious": {
+      "wrong_pt": "notório (neutro)",
+      "correct_pt": "famigerado / notório (negativo)",
+      "context": "'Notório' in Portuguese is neutral (well-known). English 'notorious' implies famous for something bad."
+    },
+    "obsequious": {
+      "wrong_pt": "obsequioso",
+      "correct_pt": "bajulador / puxa-saco / servil",
+      "context": "'Obsequioso' means 'polite/accommodating'. 'Obsequious' means 'excessively submissive'."
+    },
+    "pane": {
+      "wrong_pt": "pane (defeito)",
+      "correct_pt": "vidraça / painel de vidro",
+      "context": "'Pane' in Portuguese means 'breakdown/malfunction'. English 'pane' is a glass panel."
+    },
+    "pasta": {
+      "wrong_pt": "pasta (de documentos)",
+      "correct_pt": "massa / macarrão",
+      "context": "'Pasta' in Portuguese is a folder/briefcase. English 'pasta' is Italian food = 'massa/macarrão'."
+    },
+    "prospect": {
+      "wrong_pt": "prospecto (folheto)",
+      "correct_pt": "perspectiva / possibilidade / candidato potencial",
+      "context": "'Prospecto' means 'brochure/flyer'. 'Prospect' means 'possibility/potential candidate'."
+    },
+    "range": {
+      "wrong_pt": "rango (gíria para comida)",
+      "correct_pt": "alcance / faixa / variedade / campo de tiro",
+      "context": "'Rango' is slang for 'food'. 'Range' means 'extent/scope' or 'shooting range'."
+    },
+    "refund": {
+      "wrong_pt": "refundar",
+      "correct_pt": "reembolso / devolução (do dinheiro)",
+      "context": "'Refundar' means 'to re-found'. 'Refund' is getting money back."
+    },
+    "rental": {
+      "wrong_pt": "rental (doesn't exist in PT)",
+      "correct_pt": "aluguel / locação",
+      "context": "Simple translation often missed by AI: 'rental car' = 'carro alugado'."
+    },
+    "require": {
+      "wrong_pt": "requerer (solicitar)",
+      "correct_pt": "exigir / precisar de / necessitar",
+      "context": "'Requerer' means 'to request formally'. 'Require' means 'to need/demand'."
+    },
+    "respectable": {
+      "wrong_pt": "respeitável",
+      "correct_pt": "respeitável / considerável",
+      "context": "Mostly correct. But 'a respectable amount' = 'uma quantia considerável', not just 'respeitável'."
+    },
+    "rude": {
+      "wrong_pt": "rude (áspero)",
+      "correct_pt": "grosso / mal-educado / rude",
+      "context": "'Rude' exists in Portuguese but 'grosso' or 'mal-educado' is more natural in dialogue."
+    },
+    "savage": {
+      "wrong_pt": "selvagem (only wild)",
+      "correct_pt": "selvagem / brutal / cruel / bárbaro (slang: insano)",
+      "context": "In modern slang, 'savage' can mean 'insanely impressive'. In manga combat: 'brutal/feroz'."
+    },
+    "sentence": {
+      "wrong_pt": "sentença (judicial apenas)",
+      "correct_pt": "frase / oração (grammar) / sentença (legal)",
+      "context": "'Sentença' is mostly legal. A grammatical 'sentence' = 'frase'."
+    },
+    "serial": {
+      "wrong_pt": "serial",
+      "correct_pt": "em série",
+      "context": "'Serial killer' = 'assassino em série', not 'assassino serial'. Portuguese doesn't use 'serial' as adjective."
+    },
+    "stranger": {
+      "wrong_pt": "estrangeiro",
+      "correct_pt": "desconhecido / estranho",
+      "context": "'Estrangeiro' means 'foreigner'. 'Stranger' means 'someone unknown' = 'desconhecido'."
+    },
+    "tenure": {
+      "wrong_pt": "tenura",
+      "correct_pt": "mandato / posse / estabilidade (emprego)",
+      "context": "Academic/professional: period of holding a position."
+    },
+    "terrific": {
+      "wrong_pt": "terrífico",
+      "correct_pt": "incrível / fantástico / excelente",
+      "context": "'Terrífico' means 'terrifying'. 'Terrific' means 'wonderful/great'."
+    },
+    "topic": {
+      "wrong_pt": "tópico (ponto específico)",
+      "correct_pt": "assunto / tema",
+      "context": "'Tópico' is a specific point within a subject. 'Topic' as general theme = 'assunto/tema'."
+    },
+    "ultimate": {
+      "wrong_pt": "último",
+      "correct_pt": "supremo / definitivo / máximo",
+      "context": "'Último' means 'last/final'. 'Ultimate' means 'the best/supreme'. Very common in manga power descriptions."
+    },
+    "venture": {
+      "wrong_pt": "ventura",
+      "correct_pt": "empreendimento / aventura comercial / arriscar-se",
+      "context": "'Ventura' means 'luck/fortune'. 'Venture' is a business undertaking or to dare."
+    }
+  },
+
+  "expression_corrections": {
+    "box cutter": {
+      "wrong_pt": "cortador de caixa / faca de caixa",
+      "correct_pt": "estilete",
+      "context": "Common tool in manga scenes. Always translate as 'estilete'."
+    },
+    "mixer (social event)": {
+      "wrong_pt": "misturador / mixer",
+      "correct_pt": "social / encontro / confraternização",
+      "context": "A social gathering, often in school/romance manga. In Japanese context (goukon): 'encontro em grupo'."
+    },
+    "gym war": {
+      "wrong_pt": "guerra de ginástica",
+      "correct_pt": "guerra de academias / guerra entre academias",
+      "context": "Common in martial arts manga where dojos/gyms compete."
+    },
+    "serial rapist": {
+      "wrong_pt": "estuprador serial",
+      "correct_pt": "estuprador em série",
+      "context": "Portuguese uses 'em série' not 'serial' as adjective."
+    },
+    "serial killer": {
+      "wrong_pt": "assassino serial / killer serial",
+      "correct_pt": "assassino em série",
+      "context": "Standard Portuguese. Never use 'serial' as a Portuguese adjective."
+    },
+    "thanks to you (sarcastic)": {
+      "wrong_pt": "obrigado a você / graças a você",
+      "correct_pt": "por sua causa / por culpa sua",
+      "context": "When used sarcastically/blaming, 'por sua causa' conveys the negative meaning."
+    },
+    "sliced to ribbons": {
+      "wrong_pt": "cortado em fitas / fatiado em fitas",
+      "correct_pt": "retalhado / feito em tiras / cortado em pedaços",
+      "context": "Action manga expression for being badly cut up."
+    },
+    "got some nerve": {
+      "wrong_pt": "tem algum nervo / tem nervos",
+      "correct_pt": "tem muita cara de pau / que audácia / que atrevimento",
+      "context": "Expression of indignation at someone's boldness."
+    },
+    "drinking someone under the table": {
+      "wrong_pt": "bebendo alguém sob a mesa",
+      "correct_pt": "beber mais que alguém / aguentar mais bebida que alguém",
+      "context": "Outdrinking someone. Common in manga bar/festival scenes."
+    },
+    "go out with a bang": {
+      "wrong_pt": "sair com um estrondo / sair com uma explosão",
+      "correct_pt": "sair com chave de ouro / dar um show no final / sair por cima",
+      "context": "To end something spectacularly."
+    },
+    "set in your ways": {
+      "wrong_pt": "preso às suas maneiras / fixado nos seus caminhos",
+      "correct_pt": "teimoso / cabeça-dura / não muda nunca",
+      "context": "Describes someone who refuses to change. Common for stubborn old characters."
+    },
+    "old fart": {
+      "wrong_pt": "velho peido / peido velho",
+      "correct_pt": "velho caduco / velho gagá / coroa / tiozão",
+      "context": "Disrespectful term for an old person. Common in manga insults."
+    },
+    "under the table (bribery)": {
+      "wrong_pt": "sob a mesa / debaixo da mesa",
+      "correct_pt": "por baixo dos panos / por fora / no sigilo",
+      "context": "Illicit/secret dealings, especially bribery."
+    },
+    "piece of cake": {
+      "wrong_pt": "pedaço de bolo / fatia de bolo",
+      "correct_pt": "moleza / mamão com açúcar / fichinha / barbada",
+      "context": "Something very easy to do."
+    },
+    "break a leg": {
+      "wrong_pt": "quebre uma perna / quebre a perna",
+      "correct_pt": "boa sorte / merda (theater tradition) / arrebenta!",
+      "context": "Wishing good luck, especially before a performance."
+    },
+    "hit the sack": {
+      "wrong_pt": "bata no saco / acerte o saco",
+      "correct_pt": "ir dormir / cair na cama / ir pra cama / ir deitar",
+      "context": "To go to sleep. NEVER translate literally — 'bata no saco' is vulgar in Portuguese."
+    },
+    "spill the beans": {
+      "wrong_pt": "derrame os feijões / entorne os feijões",
+      "correct_pt": "abrir o bico / entregar o ouro / contar tudo / dar com a língua nos dentes",
+      "context": "To reveal a secret."
+    },
+    "cost an arm and a leg": {
+      "wrong_pt": "custar um braço e uma perna",
+      "correct_pt": "custar os olhos da cara / custar uma fortuna / custar um rim",
+      "context": "Very expensive. Note: in Fullmetal Alchemist context, the literal meaning IS intended."
+    },
+    "beat around the bush": {
+      "wrong_pt": "bater ao redor do arbusto / bater no mato",
+      "correct_pt": "enrolar / fazer rodeios / enrolar pra falar",
+      "context": "To avoid getting to the point."
+    },
+    "once in a blue moon": {
+      "wrong_pt": "uma vez em uma lua azul / uma vez na lua azul",
+      "correct_pt": "muito raramente / de vez em nunca / uma vez na vida",
+      "context": "Something that happens very rarely."
+    },
+    "kick the bucket": {
+      "wrong_pt": "chutar o balde",
+      "correct_pt": "bater as botas / esticar as canelas / ir dessa pra melhor",
+      "context": "To die. NOTE: 'chutar o balde' in Portuguese means 'to give up caring/go all out', NOT to die!"
+    },
+    "the last straw": {
+      "wrong_pt": "a última palha / o último canudo",
+      "correct_pt": "a gota d'água / o limite / a última gota",
+      "context": "The final thing that causes a reaction."
+    },
+    "burn bridges": {
+      "wrong_pt": "queimar pontes",
+      "correct_pt": "queimar o filme / fechar portas / cortar laços",
+      "context": "To destroy relationships/opportunities. 'Queimar pontes' is becoming accepted but the traditional expressions are preferred."
+    },
+    "it's raining cats and dogs": {
+      "wrong_pt": "está chovendo gatos e cachorros",
+      "correct_pt": "está chovendo canivetes / caindo o mundo / chovendo muito / um pé-d'água",
+      "context": "Heavy rain."
+    },
+    "when pigs fly": {
+      "wrong_pt": "quando porcos voarem",
+      "correct_pt": "quando a vaca tossir / no dia de São Nunca / quando chover pra cima",
+      "context": "Something that will never happen."
+    },
+    "to have a chip on your shoulder": {
+      "wrong_pt": "ter um chip no ombro",
+      "correct_pt": "ser ressentido / guardar mágoa / ter uma pedra no sapato",
+      "context": "To be resentful or easily offended."
+    },
+    "to pull someone's leg": {
+      "wrong_pt": "puxar a perna de alguém",
+      "correct_pt": "brincar / zoar / tirar sarro / estar de brincadeira",
+      "context": "To joke with someone."
+    },
+    "let the cat out of the bag": {
+      "wrong_pt": "deixar o gato sair da bolsa",
+      "correct_pt": "deixar escapar / revelar o segredo / entregar o jogo",
+      "context": "To accidentally reveal a secret."
+    },
+    "to stab someone in the back": {
+      "wrong_pt": "esfaquear alguém nas costas",
+      "correct_pt": "apunhalar pelas costas / trair / dar uma facada nas costas",
+      "context": "To betray someone. In literal manga fight scenes, the physical translation may be correct."
+    },
+    "over my dead body": {
+      "wrong_pt": "sobre meu corpo morto",
+      "correct_pt": "só por cima do meu cadáver / nem morto(a)",
+      "context": "Strong refusal."
+    },
+    "to bite the bullet": {
+      "wrong_pt": "morder a bala",
+      "correct_pt": "engolir o choro / aguentar firme / encarar de frente",
+      "context": "To endure something painful but necessary."
+    },
+    "to be on thin ice": {
+      "wrong_pt": "estar no gelo fino",
+      "correct_pt": "estar por um fio / estar pisando em ovos / estar numa corda bamba",
+      "context": "To be in a risky situation."
+    },
+    "to have butterflies in your stomach": {
+      "wrong_pt": "ter borboletas no estômago",
+      "correct_pt": "estar com frio na barriga / nervoso(a) / ansioso(a)",
+      "context": "Feeling nervous or excited. Very common in romance manga."
+    },
+    "to add fuel to the fire": {
+      "wrong_pt": "adicionar combustível ao fogo",
+      "correct_pt": "jogar lenha na fogueira / botar mais lenha na fogueira",
+      "context": "To make a bad situation worse."
+    },
+    "not my cup of tea": {
+      "wrong_pt": "não é minha xícara de chá",
+      "correct_pt": "não é a minha praia / não faz meu tipo / não é meu estilo",
+      "context": "Not something one enjoys or is interested in."
+    },
+    "to turn a blind eye": {
+      "wrong_pt": "virar um olho cego",
+      "correct_pt": "fazer vista grossa / fingir que não viu",
+      "context": "To deliberately ignore something."
+    },
+    "to bite off more than you can chew": {
+      "wrong_pt": "morder mais do que pode mastigar",
+      "correct_pt": "dar um passo maior que a perna / abraçar o mundo",
+      "context": "To take on more than one can handle."
+    },
+    "that's the way the cookie crumbles": {
+      "wrong_pt": "é assim que o biscoito se esfarela",
+      "correct_pt": "é a vida / fazer o quê / assim é a vida",
+      "context": "Accepting an unfortunate situation."
+    },
+    "to get cold feet": {
+      "wrong_pt": "ficar com os pés frios",
+      "correct_pt": "amarelar / dar pra trás / ficar com medo",
+      "context": "To become too scared to do something. Common in romance/confession manga scenes."
+    },
+    "to go the extra mile": {
+      "wrong_pt": "ir a milha extra",
+      "correct_pt": "ir além / se esforçar ao máximo / dar o sangue",
+      "context": "To make an extra effort."
+    },
+    "to let sleeping dogs lie": {
+      "wrong_pt": "deixar cães dormindo em paz",
+      "correct_pt": "não cutucar a onça com vara curta / deixar quieto / não mexer em time que tá ganhando",
+      "context": "To avoid bringing up old problems."
+    },
+    "to play devil's advocate": {
+      "wrong_pt": "jogar o advogado do diabo",
+      "correct_pt": "fazer o papel de advogado do diabo / bancar o advogado do diabo",
+      "context": "To argue the opposing side for debate. The concept exists in PT but the verb usage differs."
+    },
+    "a blessing in disguise": {
+      "wrong_pt": "uma benção disfarçada",
+      "correct_pt": "um mal que veio para bem / uma benção disfarçada (acceptable)",
+      "context": "Something bad that turns out good. Both versions are somewhat used in Portuguese."
+    },
+    "to hit the nail on the head": {
+      "wrong_pt": "acertar o prego na cabeça",
+      "correct_pt": "acertar na mosca / acertar em cheio",
+      "context": "To be exactly right."
+    },
+    "to see eye to eye": {
+      "wrong_pt": "ver olho a olho",
+      "correct_pt": "concordar / ver da mesma forma / estar de acordo",
+      "context": "To agree with someone."
+    },
+    "cut to the chase": {
+      "wrong_pt": "corte para a perseguição",
+      "correct_pt": "ir direto ao ponto / sem rodeios / desembucha",
+      "context": "Get to the point. Very common in action manga dialogue."
+    },
+    "to call it a day": {
+      "wrong_pt": "chamar isso de um dia",
+      "correct_pt": "dar o dia por encerrado / parar por hoje / encerrar o expediente",
+      "context": "To stop working for the day."
+    },
+    "to be at the end of your rope": {
+      "wrong_pt": "estar no final da sua corda",
+      "correct_pt": "estar no limite / não aguentar mais / estar esgotado(a)",
+      "context": "To have no more patience or energy."
+    },
+    "to throw in the towel": {
+      "wrong_pt": "jogar a toalha (actually used in PT!)",
+      "correct_pt": "jogar a toalha / desistir / se render",
+      "context": "This expression actually works in Portuguese! 'Jogar a toalha' is widely used."
+    },
+    "to bark up the wrong tree": {
+      "wrong_pt": "latir para a árvore errada",
+      "correct_pt": "estar enganado / procurar no lugar errado / errar o alvo",
+      "context": "To make a wrong assumption about something."
+    },
+    "to keep your chin up": {
+      "wrong_pt": "manter o queixo erguido",
+      "correct_pt": "manter a cabeça erguida / não desanimar / firme e forte",
+      "context": "To stay positive. Common encouragement in sports/battle manga."
+    },
+    "to be a couch potato": {
+      "wrong_pt": "ser uma batata de sofá",
+      "correct_pt": "ser um(a) largado(a) / viver jogado(a) no sofá / ser sedentário(a)",
+      "context": "A lazy person who watches too much TV."
+    },
+    "to cry over spilled milk": {
+      "wrong_pt": "chorar pelo leite derramado",
+      "correct_pt": "chorar pelo leite derramado (correct! Used in PT)",
+      "context": "This expression exists in Portuguese. Rare case of direct translation working."
+    },
+    "to be in hot water": {
+      "wrong_pt": "estar em água quente",
+      "correct_pt": "estar encrencado / estar numa fria / estar em maus lençóis",
+      "context": "To be in trouble. Ironic: Portuguese uses 'cold' (numa fria) where English uses 'hot'."
+    },
+    "to get your act together": {
+      "wrong_pt": "juntar seu ato",
+      "correct_pt": "se ajeitar / tomar jeito / se organizar / criar vergonha na cara",
+      "context": "To start behaving properly. Common in school manga."
+    },
+    "what a letdown": {
+      "wrong_pt": "que descida",
+      "correct_pt": "que decepção / que droga / que furada",
+      "context": "Expressing disappointment."
+    },
+    "you're kidding me": {
+      "wrong_pt": "você está me fazendo de criança",
+      "correct_pt": "você tá de brincadeira / tá me zoando / tá de sacanagem / cê tá de sacanagem",
+      "context": "Expression of disbelief. Very common in manga dialogue."
+    },
+    "get lost": {
+      "wrong_pt": "fique perdido",
+      "correct_pt": "cai fora / some daqui / vaza / se manda",
+      "context": "Telling someone to go away. Common in delinquent/tough character dialogue."
+    },
+    "my bad": {
+      "wrong_pt": "meu mal / meu ruim",
+      "correct_pt": "foi mal / falha minha / desculpa aí",
+      "context": "Casual apology."
+    },
+    "no way": {
+      "wrong_pt": "sem caminho / nenhum caminho",
+      "correct_pt": "de jeito nenhum / impossível / sem chance / nem fodendo (vulgar)",
+      "context": "Expression of refusal or disbelief."
+    },
+    "you bet": {
+      "wrong_pt": "você aposta",
+      "correct_pt": "com certeza / pode apostar / pode crer",
+      "context": "Emphatic agreement."
+    },
+    "shut up": {
+      "wrong_pt": "feche-se",
+      "correct_pt": "cala a boca / fica quieto(a) / fecha a matraca",
+      "context": "Very common manga expression. Register depends on context."
+    },
+    "what the hell": {
+      "wrong_pt": "que o inferno / o que o inferno",
+      "correct_pt": "que droga / que diabos / que merda / mas que porra (vulgar)",
+      "context": "Exclamation of surprise or anger. Extremely common in manga."
+    },
+    "give me a break": {
+      "wrong_pt": "me dê uma pausa / me dê um intervalo",
+      "correct_pt": "me poupe / para com isso / me dá um tempo / pelo amor de Deus",
+      "context": "Expression of frustration or disbelief."
+    },
+    "hang in there": {
+      "wrong_pt": "pendure-se ali / fique pendurado",
+      "correct_pt": "aguenta firme / não desista / segura as pontas",
+      "context": "Encouragement to persevere. Equivalent to Japanese 'ganbatte'."
+    },
+    "I'm counting on you": {
+      "wrong_pt": "estou contando em você",
+      "correct_pt": "conto com você / estou contando com você / confio em você",
+      "context": "Common manga phrase, especially in team/battle contexts."
+    },
+    "watch your back": {
+      "wrong_pt": "assista suas costas / olhe suas costas",
+      "correct_pt": "cuidado / fique esperto / se cuida / olha as costas",
+      "context": "Warning of danger or threat."
+    },
+    "long time no see": {
+      "wrong_pt": "longo tempo sem ver",
+      "correct_pt": "há quanto tempo / faz tempo / quanto tempo",
+      "context": "Greeting after not seeing someone for a while."
+    },
+    "serves you right": {
+      "wrong_pt": "te serve certo / serve você direito",
+      "correct_pt": "bem feito / mereceu / tomou",
+      "context": "When someone gets what they deserve."
+    },
+    "I can't help it": {
+      "wrong_pt": "eu não posso ajudar isso",
+      "correct_pt": "não consigo evitar / não tem jeito / é mais forte que eu",
+      "context": "Inability to control something. Common in romance manga."
+    },
+    "mind your own business": {
+      "wrong_pt": "mente seu próprio negócio",
+      "correct_pt": "cuide da sua vida / meta o nariz onde te chamam / não se meta",
+      "context": "Telling someone not to interfere."
+    },
+    "it can't be helped": {
+      "wrong_pt": "isso não pode ser ajudado",
+      "correct_pt": "não tem jeito / fazer o quê / paciência / não há nada a fazer",
+      "context": "Japanese 'shikata ga nai/shouganai'. Extremely common in manga."
+    },
+    "just in case": {
+      "wrong_pt": "apenas no caso",
+      "correct_pt": "por via das dúvidas / só por precaução / vai que...",
+      "context": "As a precautionary measure."
+    },
+    "to have the upper hand": {
+      "wrong_pt": "ter a mão superior",
+      "correct_pt": "ter vantagem / estar por cima / levar a melhor",
+      "context": "To have an advantage in a fight or situation. Very common in battle manga."
+    },
+    "to turn the tables": {
+      "wrong_pt": "virar as mesas",
+      "correct_pt": "virar o jogo / dar a volta por cima / inverter a situação",
+      "context": "To reverse a disadvantageous situation. Classic manga battle moment."
+    },
+    "that's a low blow": {
+      "wrong_pt": "isso é um golpe baixo",
+      "correct_pt": "golpe baixo (correct!) / isso foi baixo / isso foi covardia",
+      "context": "'Golpe baixo' is actually used in Portuguese for both literal and figurative contexts."
+    },
+    "to take the fall": {
+      "wrong_pt": "tomar a queda / levar a queda",
+      "correct_pt": "levar a culpa / ser o bode expiatório / pagar o pato",
+      "context": "To accept blame, especially for someone else."
+    },
+    "to sell someone out": {
+      "wrong_pt": "vender alguém",
+      "correct_pt": "trair / dedurar / entregar / caguetar",
+      "context": "To betray someone for personal gain."
+    },
+    "mark my words": {
+      "wrong_pt": "marque minhas palavras",
+      "correct_pt": "pode anotar / lembre-se do que eu disse / guarde minhas palavras",
+      "context": "A warning/prediction. Common villain or rival dialogue."
+    },
+    "to look down on someone": {
+      "wrong_pt": "olhar para baixo em alguém",
+      "correct_pt": "menosprezar / olhar com desprezo / subestimar / desprezar",
+      "context": "To regard someone as inferior. Extremely common in manga, especially battle and school settings."
+    },
+    "I won't hold back": {
+      "wrong_pt": "eu não vou segurar para trás",
+      "correct_pt": "não vou pegar leve / vou com tudo / não vou me segurar",
+      "context": "Classic battle manga declaration before going all-out."
+    },
+    "don't underestimate me": {
+      "wrong_pt": "não me subestime (correct but stiff)",
+      "correct_pt": "não me subestime / não me menospreze / não me subestime!",
+      "context": "Common battle cry. 'Não me subestime' is actually correct and widely used."
+    },
+    "that's rich": {
+      "wrong_pt": "isso é rico",
+      "correct_pt": "essa é boa / olha quem fala / tem graça",
+      "context": "Ironic/sarcastic response to something hypocritical."
+    },
+    "to snap out of it": {
+      "wrong_pt": "estalar fora disso",
+      "correct_pt": "acorda! / cai na real / se recompõe / volta a si",
+      "context": "To stop being in a daze or emotional state. Common when a character is shocked."
+    },
+    "you asked for it": {
+      "wrong_pt": "você pediu por isso",
+      "correct_pt": "você que pediu / você procurou / quem mandou / bem feito",
+      "context": "Telling someone they caused their own problem."
+    },
+    "don't push your luck": {
+      "wrong_pt": "não empurre sua sorte",
+      "correct_pt": "não abuse da sorte / não força a barra / não tenta a sorte",
+      "context": "Warning not to take too many risks after getting lucky."
+    },
+    "to raise the stakes": {
+      "wrong_pt": "levantar as estacas",
+      "correct_pt": "aumentar a aposta / elevar o risco / subir a parada",
+      "context": "To increase what's at risk in a conflict/game."
+    },
+    "to settle the score": {
+      "wrong_pt": "estabelecer a pontuação / fixar o placar",
+      "correct_pt": "acertar as contas / ajustar as contas / se vingar",
+      "context": "To get revenge or resolve a grudge. Very common rivalry manga trope."
+    },
+    "in the blink of an eye": {
+      "wrong_pt": "no piscar de um olho",
+      "correct_pt": "num piscar de olhos / num instante / num estalar de dedos",
+      "context": "Very quickly. Common speed-based battle description."
+    },
+    "to go all out": {
+      "wrong_pt": "ir todo para fora",
+      "correct_pt": "dar tudo de si / ir com tudo / soltar tudo / não segurar nada",
+      "context": "To use maximum effort. Battle manga staple."
+    },
+    "I owe you one": {
+      "wrong_pt": "eu te devo um",
+      "correct_pt": "te devo uma / fico te devendo / vou te retribuir",
+      "context": "Expression of gratitude with promise of repayment."
+    },
+    "head over heels": {
+      "wrong_pt": "cabeça sobre calcanhares",
+      "correct_pt": "perdidamente apaixonado(a) / de quatro / caído(a) de amores",
+      "context": "Deeply in love. Romance manga essential."
+    },
+    "to play hard to get": {
+      "wrong_pt": "jogar difícil de conseguir",
+      "correct_pt": "se fazer de difícil / bancar o(a) difícil / fazer charme",
+      "context": "Pretending not to be interested romantically."
+    },
+    "butterfingers": {
+      "wrong_pt": "dedos de manteiga",
+      "correct_pt": "mão de manteiga / mão-boba / desastrado(a)",
+      "context": "Someone who drops things. Note: Portuguese uses 'mão' (hand) not 'dedos' (fingers)."
+    },
+    "to chicken out": {
+      "wrong_pt": "sair de frango / frangar",
+      "correct_pt": "amarelar / dar pra trás / acovardar-se",
+      "context": "To become too scared to do something."
+    },
+    "back to square one": {
+      "wrong_pt": "de volta ao quadrado um",
+      "correct_pt": "de volta à estaca zero / começar do zero / volta ao início",
+      "context": "Starting over from the beginning."
+    },
+    "you've got guts": {
+      "wrong_pt": "você tem tripas / tem intestinos",
+      "correct_pt": "você tem coragem / tem peito / é corajoso(a) / tem culhões (vulgar)",
+      "context": "Admiring someone's bravery. Common in action manga."
+    },
+    "to lose your cool": {
+      "wrong_pt": "perder seu legal / perder seu frio",
+      "correct_pt": "perder a calma / perder a cabeça / sair do sério",
+      "context": "To become angry or agitated."
+    },
+    "to pick a fight": {
+      "wrong_pt": "escolher uma briga / pegar uma briga",
+      "correct_pt": "arrumar briga / comprar briga / provocar",
+      "context": "To intentionally start a fight. Very common in delinquent manga."
+    },
+    "to be dead meat": {
+      "wrong_pt": "ser carne morta",
+      "correct_pt": "estar ferrado(a) / ser homem morto / estar morto(a)",
+      "context": "Threat that someone will be in serious trouble."
+    },
+    "rookie mistake": {
+      "wrong_pt": "erro de novato (mostly correct)",
+      "correct_pt": "erro de novato / erro de principiante / erro de amador",
+      "context": "Actually 'erro de novato' works well in Portuguese. All three options are natural."
+    },
+    "the gloves are off": {
+      "wrong_pt": "as luvas estão fora",
+      "correct_pt": "a coisa ficou séria / agora é pra valer / sem dó nem piedade",
+      "context": "No more holding back. Escalation of conflict."
+    },
+    "I'll make you pay": {
+      "wrong_pt": "vou fazer você pagar (acceptable)",
+      "correct_pt": "você vai me pagar / vai se arrepender / vai pagar caro",
+      "context": "Threat of revenge. Common villain line."
+    },
+    "don't let your guard down": {
+      "wrong_pt": "não deixe sua guarda cair (acceptable in martial arts)",
+      "correct_pt": "não baixe a guarda / fique atento / não descuide",
+      "context": "Warning to stay alert. Common in battle manga."
+    },
+    "like father like son": {
+      "wrong_pt": "como pai como filho",
+      "correct_pt": "tal pai, tal filho / filho de peixe, peixinho é",
+      "context": "The son resembles the father."
+    },
+    "speak of the devil": {
+      "wrong_pt": "fale do diabo",
+      "correct_pt": "falando no diabo / falando nele(a) / por falar nisso",
+      "context": "When someone you were just talking about appears."
+    },
+    "my hands are tied": {
+      "wrong_pt": "minhas mãos estão amarradas",
+      "correct_pt": "estou de mãos atadas / não posso fazer nada / não depende de mim",
+      "context": "Unable to help due to restrictions."
+    },
+    "to keep tabs on someone": {
+      "wrong_pt": "manter abas em alguém",
+      "correct_pt": "ficar de olho em / vigiar / monitorar",
+      "context": "To monitor or watch someone closely."
+    },
+    "to be wrapped around someone's finger": {
+      "wrong_pt": "estar enrolado no dedo de alguém",
+      "correct_pt": "estar na mão de alguém / ser controlado(a) / ser manipulado(a)",
+      "context": "To be completely under someone's control."
+    },
+    "to give the cold shoulder": {
+      "wrong_pt": "dar o ombro frio",
+      "correct_pt": "dar um gelo / ignorar / tratar com frieza",
+      "context": "To deliberately ignore someone."
+    },
+    "to have a bone to pick": {
+      "wrong_pt": "ter um osso para escolher",
+      "correct_pt": "ter contas a ajustar / ter assunto pendente / ter uma questão",
+      "context": "Having an issue to discuss/resolve with someone."
+    },
+    "spit it out": {
+      "wrong_pt": "cuspa isso / cuspa fora",
+      "correct_pt": "desembucha / fala logo / manda / diz de uma vez",
+      "context": "Demanding someone speak. Very common in intense manga scenes."
+    },
+    "to throw shade": {
+      "wrong_pt": "jogar sombra",
+      "correct_pt": "alfinetar / mandar indiretas / provocar",
+      "context": "To subtly disrespect or criticize someone."
+    },
+    "to be at each other's throats": {
+      "wrong_pt": "estar na garganta um do outro",
+      "correct_pt": "estar se matando / estar brigando feio / estar se estranhando",
+      "context": "To be in intense conflict."
+    },
+    "bottom line": {
+      "wrong_pt": "linha de baixo / linha inferior",
+      "correct_pt": "resumindo / no final das contas / o que importa é",
+      "context": "The most important point."
+    },
+    "to be caught red-handed": {
+      "wrong_pt": "ser pego com as mãos vermelhas",
+      "correct_pt": "ser pego com a mão na massa / ser pego no flagra / ser pego no ato",
+      "context": "Caught in the act of doing something wrong."
+    },
+    "to raise eyebrows": {
+      "wrong_pt": "levantar sobrancelhas",
+      "correct_pt": "causar estranhamento / dar o que falar / chamar atenção",
+      "context": "To cause surprise or suspicion."
+    }
+  },
+
+  "manga_specific": {
+    "master (martial arts)": {
+      "wrong_pt": "mestre (always)",
+      "correct_pt": "mestre / sensei",
+      "context": "In martial arts manga, 'mestre' is correct. 'Sensei' is also acceptable and often kept."
+    },
+    "master (butler/servant context)": {
+      "wrong_pt": "mestre",
+      "correct_pt": "senhor / amo / patrão",
+      "context": "When a servant addresses their employer. 'Mestre' sounds wrong in this context."
+    },
+    "master (gaming/skill)": {
+      "wrong_pt": "mestre",
+      "correct_pt": "especialista / craque / fera / mestre (in RPG context)",
+      "context": "Context-dependent. In RPG manga, 'mestre' works. In skill context, 'especialista' is better."
+    },
+    "master (young master)": {
+      "wrong_pt": "jovem mestre",
+      "correct_pt": "jovem senhor / senhorzinho / jovem amo",
+      "context": "'Young master' in manhua/manhwa/manga with aristocratic settings."
+    },
+    "coach (sports)": {
+      "wrong_pt": "carruagem / treinador",
+      "correct_pt": "técnico / treinador",
+      "context": "'Coach' in sports manga. 'Técnico' is preferred for team sports in Brazil."
+    },
+    "dummy (insult)": {
+      "wrong_pt": "boneco / manequim",
+      "correct_pt": "idiota / burro(a) / bobo(a) / tapado(a)",
+      "context": "When used as an insult between characters. Common in tsundere dialogue."
+    },
+    "dummy (training)": {
+      "wrong_pt": "idiota",
+      "correct_pt": "boneco de treino / manequim / espantalho",
+      "context": "A practice target in martial arts/combat training."
+    },
+    "rat (insult/snitch)": {
+      "wrong_pt": "rato (just the animal)",
+      "correct_pt": "rato / traidor / dedo-duro / cagueta / X9",
+      "context": "In crime/yakuza manga, 'rat' means snitch/traitor."
+    },
+    "chicken (coward)": {
+      "wrong_pt": "frango / galinha",
+      "correct_pt": "covarde / medroso(a) / frouxo(a) / cagão/cagona",
+      "context": "'Galinha' in Portuguese means 'promiscuous person', NOT coward!"
+    },
+    "fox (cunning person)": {
+      "wrong_pt": "raposa (just the animal)",
+      "correct_pt": "raposa / esperto(a) / ardiloso(a) / velhaco(a)",
+      "context": "In manga, calling someone a fox means they're cunning/crafty."
+    },
+    "dog (insult)": {
+      "wrong_pt": "cachorro (just the animal)",
+      "correct_pt": "cachorro / cão / desgraçado / maldito",
+      "context": "As an insult, 'dog' implies someone is despicable or a lackey."
+    },
+    "snake (betrayer)": {
+      "wrong_pt": "cobra (just the animal)",
+      "correct_pt": "cobra / traíra / duas caras / falso(a) / víbora",
+      "context": "Calling someone a snake implies treachery."
+    },
+    "pig (insult)": {
+      "wrong_pt": "porco (only dirty)",
+      "correct_pt": "porco(a) / nojento(a) / imundo(a) / pervertido(a) (if sexual context)",
+      "context": "Context-dependent: can mean dirty, greedy, or perverted in manga."
+    },
+    "wolf (predator)": {
+      "wrong_pt": "lobo (just the animal)",
+      "correct_pt": "lobo / predador / tarado / safado",
+      "context": "In romance/seinen manga, 'wolf' often refers to a predatory man."
+    },
+    "bug (annoyance)": {
+      "wrong_pt": "inseto / besouro",
+      "correct_pt": "inseto / verme / lixo (as insult)",
+      "context": "In battle manga, calling someone a 'bug' means they're insignificant/worthless."
+    },
+    "vessel": {
+      "wrong_pt": "vaso / navio",
+      "correct_pt": "receptáculo / hospedeiro / corpo (for spirits/demons)",
+      "context": "In supernatural manga, a 'vessel' is a body that hosts a spirit/demon."
+    },
+    "familiar": {
+      "wrong_pt": "familiar (parente)",
+      "correct_pt": "familiar (servo mágico) / servo espiritual",
+      "context": "In fantasy manga, a 'familiar' is a magical servant/companion animal."
+    },
+    "party": {
+      "wrong_pt": "festa",
+      "correct_pt": "grupo / equipe / party (in RPG/isekai context)",
+      "context": "In isekai/RPG manga, 'party' means adventuring group, not a celebration."
+    },
+    "guild": {
+      "wrong_pt": "guilda (acceptable in fantasy)",
+      "correct_pt": "guilda / corporação / associação",
+      "context": "'Guilda' has been adopted in Brazilian Portuguese for fantasy/gaming contexts."
+    },
+    "dungeon": {
+      "wrong_pt": "calabouço / masmorra",
+      "correct_pt": "dungeon / masmorra / calabouço",
+      "context": "In modern isekai, 'dungeon' is often kept in English. 'Masmorra' is the proper translation."
+    },
+    "level up": {
+      "wrong_pt": "nível acima / subir de nível",
+      "correct_pt": "subir de nível / upar / evoluir / level up (kept in English)",
+      "context": "Gaming term. 'Upar' is the common Brazilian gamer slang."
+    },
+    "quest": {
+      "wrong_pt": "questão / pergunta",
+      "correct_pt": "missão / quest (kept in gaming context)",
+      "context": "In RPG/isekai manga, 'quest' = 'missão' or kept as 'quest'."
+    },
+    "spawn": {
+      "wrong_pt": "desovar",
+      "correct_pt": "surgir / aparecer / spawnar (gamer slang)",
+      "context": "In gaming manga, monsters 'spawn' = 'surgem/aparecem'. 'Spawnar' is used in BR gaming."
+    },
+    "tank (role)": {
+      "wrong_pt": "tanque (military vehicle)",
+      "correct_pt": "tank / tanque (RPG role) / defensor",
+      "context": "In RPG manga, 'tank' is the frontline defender role. Often kept as 'tank' in BR."
+    },
+    "healer": {
+      "wrong_pt": "curador",
+      "correct_pt": "curandeiro(a) / healer / suporte de cura",
+      "context": "In RPG/isekai context. 'Curandeiro' is the traditional word, 'healer' is often kept."
+    },
+    "buff/debuff": {
+      "wrong_pt": "fortalecimento/enfraquecimento",
+      "correct_pt": "buff/debuff (kept in English) / bônus/penalidade",
+      "context": "Gaming terms usually kept in English in Brazilian gaming culture."
+    },
+    "mana": {
+      "wrong_pt": "maná (biblical bread)",
+      "correct_pt": "mana / energia mágica / poder mágico",
+      "context": "'Mana' is the magical energy in RPG/fantasy. Not to be confused with biblical 'maná'."
+    },
+    "skill": {
+      "wrong_pt": "habilidade (always)",
+      "correct_pt": "habilidade / skill / técnica / perícia",
+      "context": "In RPG manga, 'skill' is often kept in English in Brazilian translations."
+    },
+    "boss (game)": {
+      "wrong_pt": "chefe (workplace)",
+      "correct_pt": "chefe / boss / chefão",
+      "context": "Final enemy in a dungeon/game. Both 'chefe' and 'chefão' work. 'Boss' is also kept."
+    },
+    "sensei": {
+      "wrong_pt": "professor (only school)",
+      "correct_pt": "professor(a) / mestre / sensei (often kept)",
+      "context": "Can mean teacher, master, doctor, or any respected authority. Often kept as 'sensei' in manga."
+    },
+    "senpai": {
+      "wrong_pt": "veterano (only school)",
+      "correct_pt": "veterano(a) / senpai (often kept) / mais velho(a)",
+      "context": "Upper-level student or senior colleague. Usually kept as 'senpai' in BR manga."
+    },
+    "kouhai": {
+      "wrong_pt": "calouro (only school)",
+      "correct_pt": "novato(a) / calouro(a) / kouhai (sometimes kept)",
+      "context": "Junior student or colleague. Less commonly kept than 'senpai'."
+    },
+    "onee-san/onii-san": {
+      "wrong_pt": "irmã/irmão (only biological)",
+      "correct_pt": "moça / moço / senhorita / jovem / irmã(o) (if biological) / mana / mano",
+      "context": "Can be used for older strangers, not just siblings. Context determines translation."
+    },
+    "nakama": {
+      "wrong_pt": "amigo",
+      "correct_pt": "companheiro(a) / camarada / parceiro(a)",
+      "context": "'Nakama' implies deeper bond than friend — comrade, companion in battle/adventure."
+    },
+    "bento": {
+      "wrong_pt": "almoço / lanche",
+      "correct_pt": "bentô / marmita / lancheira",
+      "context": "Japanese boxed lunch. 'Marmita' is the Brazilian equivalent, 'bentô' is used for the Japanese style."
+    },
+    "shonen/shounen": {
+      "wrong_pt": "garoto (literal)",
+      "correct_pt": "shonen (manga genre) / garoto (if referring to actual boy)",
+      "context": "As a genre label, keep 'shonen'. As a word meaning 'boy', translate to 'garoto/menino'."
+    },
+    "otaku": {
+      "wrong_pt": "nerd / geek",
+      "correct_pt": "otaku (widely understood in BR) / fã obcecado / nerd (casual)",
+      "context": "'Otaku' is well-known in Brazil. Can be kept or translated based on target audience."
+    },
+    "power-up": {
+      "wrong_pt": "aumento de poder",
+      "correct_pt": "power-up (kept) / evolução / aumento de poder",
+      "context": "Usually kept as 'power-up' in Brazilian manga/gaming."
+    },
+    "training arc": {
+      "wrong_pt": "arco de treinamento",
+      "correct_pt": "arco de treinamento / saga de treinamento",
+      "context": "Actually 'arco de treinamento' is acceptable and commonly used."
+    },
+    "filler": {
+      "wrong_pt": "enchimento / preenchimento",
+      "correct_pt": "filler (kept in English) / episódio de enrolação",
+      "context": "Non-canon content in anime/manga. Always kept as 'filler' in Brazil."
+    },
+    "chapter": {
+      "wrong_pt": "chapter (kept in English)",
+      "correct_pt": "capítulo",
+      "context": "Always translate to 'capítulo' in manga."
+    },
+    "volume": {
+      "wrong_pt": "volume (sound level)",
+      "correct_pt": "volume / tomo / tankōbon",
+      "context": "A collected manga book. 'Volume' is correct. 'Tomo' is also used."
+    },
+    "raw": {
+      "wrong_pt": "cru",
+      "correct_pt": "raw (kept - untranslated manga) / cru (food context)",
+      "context": "In scanlation context, 'raw' means the untranslated original. Keep as 'raw'."
+    },
+    "flag": {
+      "wrong_pt": "bandeira",
+      "correct_pt": "flag (romance/death flag) / sinal / indicativo",
+      "context": "In manga discussion, 'flag' refers to story tropes (death flag, romance flag). Often kept."
+    },
+    "combo": {
+      "wrong_pt": "combinação",
+      "correct_pt": "combo / sequência de golpes / combinação de ataques",
+      "context": "Series of attacks in battle manga. 'Combo' is universally understood."
+    },
+    "final form": {
+      "wrong_pt": "forma final (correct)",
+      "correct_pt": "forma final / transformação final",
+      "context": "Character's ultimate transformation. 'Forma final' is correct and natural."
+    },
+    "release (sword/power)": {
+      "wrong_pt": "soltar / liberar",
+      "correct_pt": "liberar / libertar / ativar / despertar",
+      "context": "Releasing a sealed power. 'Liberar/libertar' works. In Bleach context: 'libere' (for zanpakuto)."
+    },
+    "plot armor": {
+      "wrong_pt": "armadura de enredo",
+      "correct_pt": "plot armor / proteção do roteiro / imunidade do protagonista",
+      "context": "Meta term for characters surviving impossible situations. Usually kept as 'plot armor'."
+    },
+    "cliffhanger": {
+      "wrong_pt": "pendurado no penhasco",
+      "correct_pt": "cliffhanger / gancho / suspense final",
+      "context": "Suspenseful ending. 'Cliffhanger' is widely understood, 'gancho' is the Portuguese equivalent."
+    },
+    "flashback": {
+      "wrong_pt": "volta ao passado",
+      "correct_pt": "flashback (kept) / cena retrospectiva",
+      "context": "'Flashback' is universally used in Brazilian Portuguese."
+    },
+    "tsundere": {
+      "wrong_pt": "bipolar / temperamental",
+      "correct_pt": "tsundere (kept - widely known anime term)",
+      "context": "Character archetype. Always kept as 'tsundere' in manga context."
+    },
+    "yandere": {
+      "wrong_pt": "obsessivo(a) / louco(a)",
+      "correct_pt": "yandere (kept - widely known anime term)",
+      "context": "Character archetype. Always kept as 'yandere' in manga context."
+    },
+    "kuudere": {
+      "wrong_pt": "frio(a) / indiferente",
+      "correct_pt": "kuudere (kept - known in anime community)",
+      "context": "Cool/cold character archetype. Kept in otaku context."
+    },
+    "isekai": {
+      "wrong_pt": "outro mundo",
+      "correct_pt": "isekai (kept - genre name) / outro mundo (descriptive)",
+      "context": "Genre where character goes to another world. Always kept as 'isekai' in BR."
+    },
+    "truck-kun": {
+      "wrong_pt": "caminhão-kun",
+      "correct_pt": "truck-kun (kept as meme) / caminhão-kun (humorous translation)",
+      "context": "The isekai trope of being hit by a truck. Both versions used humorously."
+    },
+    "chibi": {
+      "wrong_pt": "pequeno / miniatura",
+      "correct_pt": "chibi (kept) / super deformed / SD",
+      "context": "Art style with cute, small proportions. Always kept as 'chibi'."
+    },
+    "to power through": {
+      "wrong_pt": "energizar através",
+      "correct_pt": "superar na força / aguentar firme / forçar passagem",
+      "context": "To overcome through sheer force/willpower. Common in battle manga."
+    },
+    "awakening": {
+      "wrong_pt": "acordando",
+      "correct_pt": "despertar / awakening (power context)",
+      "context": "When a character unlocks a new power. 'Despertar' is the standard translation."
+    },
+    "domain expansion": {
+      "wrong_pt": "expansão de domínio (too literal)",
+      "correct_pt": "expansão de domínio (JJK official translation) / território expandido",
+      "context": "Jujutsu Kaisen technique. The official BR translation uses 'expansão de domínio'."
+    },
+    "bankai": {
+      "wrong_pt": "liberação final",
+      "correct_pt": "bankai (always kept in original Japanese)",
+      "context": "Bleach technique. Never translated, always kept as 'bankai'."
+    },
+    "rasengan": {
+      "wrong_pt": "esfera espiral",
+      "correct_pt": "rasengan (always kept in original Japanese)",
+      "context": "Naruto technique. Never translated, always kept as 'rasengan'."
+    },
+    "stand": {
+      "wrong_pt": "ficar de pé / suporte",
+      "correct_pt": "stand (JoJo term - always kept)",
+      "context": "JoJo's Bizarre Adventure power system. Never translated."
+    }
+  }
+}

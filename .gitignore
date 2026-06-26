@@ -1,7 +1,9 @@
 # Ambientes Virtuais
 venv/
+.venv/
 venv_ocr/
 venv_ui/
+venv_test_ocr/
 _venv_ocr_backup/
 _venv_ui_backup/
 
@@ -9,6 +11,7 @@ _venv_ui_backup/
 build/
 dist/
 *.spec
+*.exe
 
 # Python
 __pycache__/

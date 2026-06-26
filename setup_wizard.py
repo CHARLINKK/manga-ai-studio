@@ -21,7 +21,7 @@ def global_exception_handler(exctype, value, tb):
 sys.excepthook = global_exception_handler
 
 # --- Constantes ---
-VERSION = "1.0.0"
+VERSION = "1.3.3"
 PYTHON_DOWNLOAD_URL = "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe"
 TEMP_DIR = Path(os.environ.get("TEMP", "C:/Temp")) / "MangaAIStudioSetup"
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -129,6 +129,11 @@ class SetupWizard(ctk.CTk):
         if icon_path.exists():
             try: self.iconbitmap(str(icon_path))
             except: pass
+
+        self.is_silent = "--silent" in sys.argv
+        if self.is_silent:
+            self.title("Manga AI Studio – Atualizando...")
+            self.lbl_title = None
 
         self._build_shell()
         self.after(200, self._run_step_0)
@@ -253,6 +258,8 @@ class SetupWizard(ctk.CTk):
         ctk.CTkButton(dir_frm, text="Alterar", width=90, fg_color="#2c3e7a", hover_color="#3d52a0", command=self._pick_dir).pack(side="right", padx=10, pady=10)
 
         self._footer_buttons(buttons_right=[("Próximo →", C_ACCENT, "#c0392b", self._confirm_dir, "btn0")])
+        if self.is_silent:
+            self.after(500, self._confirm_dir)
 
     def _pick_dir(self):
         import tkinter.filedialog as fd
@@ -284,6 +291,8 @@ class SetupWizard(ctk.CTk):
             area.pack(fill="x", padx=36)
             self._status_row(area, "Python 3.12", f"✅  {py_ver}", C_GREEN)
             self._footer_buttons(back_cmd=self._run_step_0, buttons_right=[("Próximo →", C_GREEN, "#27ae60", self._run_step_2, None)])
+            if self.is_silent:
+                self.after(500, self._run_step_2)
             return
 
         self._header("Instalação do Python", "Python 3.12 será baixado e instalado automaticamente.")
@@ -304,6 +313,8 @@ class SetupWizard(ctk.CTk):
         self.bar1.set(0)
 
         self._footer_buttons(back_cmd=self._run_step_0, buttons_right=[("⬇ Instalar Python", C_ACCENT, "#c0392b", self._do_install_python, "btn1_install")])
+        if self.is_silent:
+            self.after(500, self._do_install_python)
 
     def _do_install_python(self):
         self.btn1_install.configure(state="disabled", text="⏳ Baixando Python...")
@@ -323,6 +334,8 @@ class SetupWizard(ctk.CTk):
                 if py_f and py_o:
                     self._log(self.log1, f"✅ Python instalado: {py_v}")
                     self.after(0, lambda: self.btn1_install.configure(text="✅ Próximo →", fg_color=C_GREEN, state="normal", command=self._run_step_2))
+                    if self.is_silent:
+                        self.after(500, self._run_step_2)
                 else:
                     self._log(self.log1, "❌ Instalação concluída mas versão 3.12 não detectada. Reinicie o PC e tente novamente.")
                     self.after(0, lambda: self.btn1_install.configure(text="⬇ Tentar Novamente", state="normal"))
@@ -352,6 +365,8 @@ class SetupWizard(ctk.CTk):
         self.bar2.set(0)
 
         self._footer_buttons(back_cmd=self._run_step_1, buttons_right=[("Iniciar Cópia", C_ACCENT, "#c0392b", self._do_copy_files, "btn2_copy")])
+        if self.is_silent:
+            self.after(500, self._do_copy_files)
 
     def _do_copy_files(self):
         self.btn2_copy.configure(state="disabled", text="⏳ Copiando...")
@@ -386,6 +401,8 @@ class SetupWizard(ctk.CTk):
                 self._log(self.log2, "✅ Todos os arquivos foram copiados com sucesso!")
                 
                 self.after(0, lambda: self.btn2_copy.configure(text="✅ Próximo →", fg_color=C_GREEN, state="normal", command=self._run_step_3))
+                if self.is_silent:
+                    self.after(500, self._run_step_3)
             except Exception as e:
                 self._log(self.log2, f"❌ Erro ao copiar arquivos: {e}")
                 self.after(0, lambda: self.btn2_copy.configure(text="Tentar Novamente", state="normal"))
@@ -415,8 +432,12 @@ class SetupWizard(ctk.CTk):
             self.bar3.configure(progress_color=C_GREEN)
             self._log(self.log3, "✅ Dependências já estão instaladas no ambiente virtual!")
             self._footer_buttons(back_cmd=self._run_step_2, buttons_right=[("Próximo →", C_GREEN, "#27ae60", self._run_step_4, "btn3")])
+            if self.is_silent:
+                self.after(500, self._run_step_4)
         else:
             self._footer_buttons(back_cmd=self._run_step_2, buttons_right=[("⬇ Instalar Dependências", C_ACCENT, "#c0392b", self._do_install_deps, "btn3_install")])
+            if self.is_silent:
+                self.after(500, self._do_install_deps)
 
     def _do_install_deps(self):
         self.btn3_install.configure(state="disabled", text="⏳ Instalando (pode demorar)...")
@@ -452,6 +473,8 @@ class SetupWizard(ctk.CTk):
                     self._log(self.log3, "✅ Dependências instaladas com sucesso!")
                     self.bar3.configure(progress_color=C_GREEN)
                     self.after(0, lambda: self.btn3_install.configure(text="✅ Próximo →", fg_color=C_GREEN, state="normal", command=self._run_step_4))
+                    if self.is_silent:
+                        self.after(500, self._run_step_4)
                 else:
                     self._log(self.log3, f"❌ Erro na instalação:\n{proc.stderr}")
                     self.after(0, lambda: self.btn3_install.configure(text="Tentar Novamente", state="normal"))
@@ -491,6 +514,8 @@ class SetupWizard(ctk.CTk):
         ctk.CTkCheckBox(opts_frame, text="Iniciar Manga AI Studio agora", variable=self.var_open, font=ctk.CTkFont(size=13)).pack(anchor="w", pady=6)
 
         self._footer_buttons(buttons_right=[("Concluir e Fechar", C_ACCENT, "#c0392b", self._finish, None)])
+        if self.is_silent:
+            self.after(1500, self._finish)
 
     def _finish(self):
         venv_pythonw = self.install_dir / "venv_ui" / "Scripts" / "pythonw.exe"

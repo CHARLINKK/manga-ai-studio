@@ -1,61 +1,88 @@
-# Manga AI Studio 🤖
-
-![Manga AI Studio](icon.ico) <!-- Substitua por um banner depois! -->
-
-O **Manga AI Studio** é um ecossistema completo de extração (OCR), correção e tradução de Mangás e Quadrinhos utilizando inteligência artificial de ponta operando **100% offline e localmente** na sua máquina.
-
-Construído para não depender de APIs pagas, nuvem ou vazamento de dados, o Manga AI Studio baixa os próprios "Cérebros Artificiais" (LLMs e OCR) e roda tudo pelo seu computador.
+<div align="center">
+  <h1>Manga AI Studio</h1>
+  <p><i>A modular, offline pipeline for automated extraction, processing, and translation of manga and comics.</i></p>
+</div>
 
 ---
 
-## 🌟 Principais Funcionalidades
+## 📌 Overview
 
-1. **OCR Avançado para Mangás (Extração de Texto)**
-   - Utiliza `EasyOCR` com algoritmos proprietários de redimensionamento e agrupamento matemático de balões de fala, garantindo a ordem certa de leitura (Direita ➔ Esquerda).
-2. **Polimento de IA (Zero "Engrish")**
-   - Transforma extrações falhas do OCR em um inglês 99,9% puro usando o LLM `Gemma3:4b`.
-3. **Tradução Contextual RAG**
-   - Usa Memória RAG (Vector Database com `ChromaDB`) para lembrar como nomes de personagens e ataques foram traduzidos nos capítulos anteriores.
-4. **Instalador Modular**
-   - Não quer queimar a sua franquia de dados baixando 10GB de IA? O app conta com um **Wizard de Instalação Inteligente**: ele instala apenas os módulos que você desejar (OCR Base, Aceleração NVIDIA CUDA, Motor de Tradução e Motor de Memória RAG).
-5. **Modo Editor Visual (Em Breve)**
-   - Arraste, solte e edite os textos diretamente na página do mangá!
+**Manga AI Studio** is a standalone, fully offline desktop application designed to automate the translation workflow for manga and comic book scans. The system integrates advanced Optical Character Recognition (OCR), Large Language Models (LLMs) for text polishing, and Retrieval-Augmented Generation (RAG) for maintaining contextual consistency across chapters. 
+
+The architecture is highly modular, ensuring that intensive AI models (such as LLMs and CUDA dependencies) are optional and locally executed, completely bypassing third-party APIs or cloud infrastructure.
 
 ---
 
-## ⚙️ Instalação Rápida
+## ⚙️ Core Architecture & Pipeline
 
-1. Baixe o executável `Manga_AI_Studio_Setup.exe` [disponível nas Releases](https://github.com/SEU-USUARIO/SEU-REPOSITORIO/releases) (ou na raiz do repositório).
-2. Abra o aplicativo.
-3. Vá na aba **Gerenciador de Módulos (IA)**.
-4. Baixe os módulos que deseja utilizar. **Recomendado:** Baixe a `Aceleração NVIDIA` se você tiver uma placa de vídeo da NVIDIA (GTX/RTX) para deixar a extração em menos de 1 segundo!
+The processing pipeline is executed sequentially through the following modules:
 
----
-
-## 🚀 Como Usar o Pipeline
-
-1. Vá para a aba **Processamento**.
-2. Selecione uma pasta contendo suas páginas brutas (`.jpg`, `.png`).
-3. Escolha o Tom da Tradução (ex: *Shounen Enérgico*, *Seinen Maduro*, etc).
-4. Clique em **Iniciar Pipeline Mágico**!
-5. Os textos serão processados, corrigidos, traduzidos e salvos na mesma pasta ou na pasta Temp do sistema!
+1. **OCR Engine (EasyOCR + Custom Algorithms):**
+   - Implements bounding box detection tailored for right-to-left reading formats.
+   - Applies geometric clustering to preserve the natural reading order of text bubbles in complex panel layouts.
+2. **Text Polishing Engine (LLM):**
+   - Intercepts raw OCR output and utilizes an LLM (e.g., `Gemma3:4b` via Ollama) to correct hallucinated characters and syntax errors (often referred to as "Engrish").
+3. **Translation Engine & RAG Integration:**
+   - Processes the corrected text through localized LLMs for contextual translation.
+   - Connects to a `ChromaDB` vector database to retrieve historical translation entities (e.g., character names, specific jargon, location names) using `SentenceTransformers`, guaranteeing consistency across volumes.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technology Stack
 
-- **Frontend:** CustomTkinter (Python)
-- **IA e LLM:** Ollama (Gemma3:4b)
-- **Vector DB (RAG):** ChromaDB & SentenceTransformers
-- **Computer Vision:** OpenCV & EasyOCR
-- **Pacotes:** PyInstaller (Standalone App)
+- **Application Interface:** Python (`CustomTkinter`)
+- **LLM Runtime:** Ollama API
+- **Computer Vision & OCR:** `OpenCV`, `PyTorch`, `EasyOCR`
+- **Vector Database (RAG):** `ChromaDB`, `SentenceTransformers`
+- **Distribution:** `PyInstaller` (Standalone executable bundle)
 
 ---
 
-## 👥 Contribuição
-Fique à vontade para fazer um **Fork** deste projeto e enviar **Pull Requests**! Para rodar do código-fonte:
+## 🖥️ System Requirements & Limitations
+
+### Recommended Specifications
+To ensure smooth execution of the localized OCR and LLM translation models, the following hardware is recommended:
+- **CPU:** Modern multi-core processor (e.g., Intel Core i5 10th Gen / AMD Ryzen 5 3600 or higher).
+- **RAM:** 16 GB minimum (32 GB recommended if running heavily quantized LLMs alongside RAG).
+- **Storage:** 50 GB of free space on an **SSD** (NVMe preferred) for fast model loading and storing multiple AI weights (Ollama models, PyTorch CUDA binaries, etc.). HDD is not recommended due to high I/O latency when parsing models.
+- **Internet Speed:** 50 Mbps or higher is strongly recommended during the initial setup to download the heavy AI models (Ollama weights, PyTorch binaries, and OCR datasets). Completely offline post-installation.
+
+### Hardware Limitations
+- **AMD GPUs:** Currently **NOT supported** by the standalone CUDA acceleration module. PyTorch with ROCm is not natively bundled for Windows environments. Processing will fallback to CPU.
+- **NVIDIA RTX 5000 Series:** Due to unresolved compatibility issues in the bundled PyTorch/CUDA 11.x and 12.x wheels on PyInstaller, the RTX 5000 series is currently **unsupported** and will cause silent crashes or fallback to CPU processing.
+
+---
+
+## 📥 Installation
+
+Manga AI Studio utilizes a proprietary silent Auto-Updater and Setup Wizard to manage isolated environments and heavy dependencies.
+
+1. Navigate to the **[Releases](https://github.com/CHARLINKK/manga-ai-studio/releases)** page.
+2. Download the latest `.zip` archive.
+3. Extract the contents and execute the provided `Setup.exe`. The installer will automatically provision a dedicated Python environment (`venv_ui`).
+4. Upon launching the application, access the **Central de Módulos (IA)** tab to download and install optional modules (e.g., NVIDIA CUDA acceleration, Ollama runtime, OCR datasets).
+
+---
+
+## 💻 Developer & Contribution Guide
+
+The project is structured to run locally for development and debugging. Pull Requests optimizing the OCR clustering algorithms or the RAG database interactions are encouraged.
+
+### Local Environment Setup
+
 ```bash
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+# Clone the repository
+git clone https://github.com/CHARLINKK/manga-ai-studio.git
 cd manga-ocr-extractor
+
+# Create a virtual environment and install dependencies
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-ocr.txt
+
+# Launch the application
 python app.py
 ```
+
+*Note: Ensure you have compatible NVIDIA drivers and the CUDA toolkit installed if you intend to test GPU-accelerated OCR workflows locally.*

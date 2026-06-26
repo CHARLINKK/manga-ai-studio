@@ -1,6 +1,8 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
-easyocr>=1.7
+transformers==4.38.2
+Pillow
+einops
+timm
 opencv-python>=4.8
-numpy>=1.24

@@ -1,5 +1,6 @@
 {
-    "version": "1.0.1",
-    "release_date": "2026-06-25",
-    "changelog": "Lançamento inicial da versão modular do Manga AI Studio.\n- [Correção] Adicionado suporte para placas de vídeo NVIDIA da Série RTX 5000 (Blackwell) via CUDA 12.4."
+    "version": "v1.3.11",
+    "release_date": "2026-06-26",
+    "changelog": "Adicionado Auto-Updater silencioso, melhorias de OCR, interface refinada na aba de módulos e limpeza automática de cache.",
+    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.3.11/Manga_AI_Studio_v1.3.11.zip"
 }
