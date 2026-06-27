@@ -21,7 +21,7 @@ def global_exception_handler(exctype, value, tb):
 sys.excepthook = global_exception_handler
 
 # --- Constantes ---
-VERSION = "1.3.12"
+VERSION = "1.4.0"
 PYTHON_DOWNLOAD_URL = "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe"
 TEMP_DIR = Path(os.environ.get("TEMP", "C:/Temp")) / "MangaAIStudioSetup"
 TEMP_DIR.mkdir(parents=True, exist_ok=True)

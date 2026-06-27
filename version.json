@@ -1,6 +1,6 @@
 {
-    "version": "v1.3.14",
+    "version": "v1.4.0",
     "release_date": "2026-06-27",
-    "changelog": "Otimização visual dos consoles na aba de módulos e melhoria da UX da atualização automática (modo silencioso reformulado com barra de progresso em tempo real).",
-    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.3.14/Manga_AI_Studio_Setup_v1.3.14.zip"
+    "changelog": "Lançamento oficial do Light Mode (Engine de Tema). Refatoração visual da Central de Módulos com novos Cards de Status. Resolução de bugs críticos no instalador do motor RAG (crash silencioso e log oculto). Otimização e estabilização de UX.",
+    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.4.0/Manga_AI_Studio_Setup_v1.4.0.zip"
 }
