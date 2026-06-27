@@ -446,8 +446,6 @@ class SetupWizard(ctk.CTk):
     def _do_install_deps(self):
         self.btn3_install.configure(state="disabled", text="⏳ Instalando (pode demorar)...")
         self.bar3.set(0)
-        self.bar3.configure(mode="indeterminate")
-        self.bar3.start()
 
         def worker():
             try:
@@ -456,6 +454,7 @@ class SetupWizard(ctk.CTk):
 
                 if not venv_python.exists():
                     self._log(self.log3, "▶ Criando ambiente da interface (venv_ui)...")
+                    self.bar3.set(0.1)
                     subprocess.run(["py", "-3.12", "-m", "venv", str(venv_dir)], capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
 
                 req = self.install_dir / "requirements.txt"
@@ -464,13 +463,28 @@ class SetupWizard(ctk.CTk):
                     req.write_text("Pillow>=10.0\nnatsort>=8.4\nrequests>=2.31\ncustomtkinter")
 
                 self._log(self.log3, "▶ Instalando pacotes base no venv_ui...")
-                proc = subprocess.run(
+                self.bar3.set(0.2)
+                
+                proc = subprocess.Popen(
                     [str(venv_python), "-m", "pip", "install", "-r", str(req)],
-                    capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, creationflags=subprocess.CREATE_NO_WINDOW
                 )
+                
+                progress = 0.2
+                for line in iter(proc.stdout.readline, ""):
+                    if line:
+                        line_str = line.strip()
+                        if "Collecting" in line_str or "Downloading" in line_str or "Installing" in line_str:
+                            progress = min(0.95, progress + 0.05)
+                            self.after(0, lambda p=progress: self.bar3.set(p))
+                        
+                        # Only log important lines to not lag UI
+                        if "Collecting" in line_str or "Successfully installed" in line_str:
+                            self._log(self.log3, f"  {line_str}")
+                
+                proc.stdout.close()
+                proc.wait()
 
-                self.bar3.stop()
-                self.bar3.configure(mode="determinate")
                 self.bar3.set(1.0)
 
                 if proc.returncode == 0:
@@ -528,6 +542,7 @@ class SetupWizard(ctk.CTk):
         if self.var_shortcut.get():
             icon = self.install_dir / "icon.ico"
             create_shortcut(target=venv_pythonw, name="Manga AI Studio", icon=icon, arguments=str(app_py), working_dir=self.install_dir)
+            create_shortcut(target=venv_pythonw, name="Manga AI Studio", icon=icon, dest_dir=self.install_dir, arguments=str(app_py), working_dir=self.install_dir)
             
         if self.var_open.get() and venv_pythonw.exists():
             subprocess.Popen([str(venv_pythonw), str(app_py)], cwd=str(self.install_dir), creationflags=subprocess.CREATE_NO_WINDOW)

@@ -34,3 +34,6 @@ Thumbs.db
 # Outros
 *.log
 temp/
+
+# Agent configs
+.agents/
