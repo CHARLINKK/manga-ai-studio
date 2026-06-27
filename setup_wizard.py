@@ -21,7 +21,7 @@ def global_exception_handler(exctype, value, tb):
 sys.excepthook = global_exception_handler
 
 # --- Constantes ---
-VERSION = "1.4.0"
+VERSION = "1.4.1"
 PYTHON_DOWNLOAD_URL = "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe"
 TEMP_DIR = Path(os.environ.get("TEMP", "C:/Temp")) / "MangaAIStudioSetup"
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -402,6 +402,8 @@ class SetupWizard(ctk.CTk):
         def worker():
             try:
                 self.install_dir.mkdir(parents=True, exist_ok=True)
+                # Concede permissão total ao grupo Usuários local para permitir download de modelos e criação de venvs
+                subprocess.run(["icacls", str(self.install_dir), "/grant", "*S-1-5-32-545:(OI)(CI)F", "/T"], capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
                 src_dir = get_bundled_dir()
                 
                 total = len(PROGRAM_FILES) + 1 # +1 for modules

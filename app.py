@@ -2453,7 +2453,7 @@ class MangaApp(ctk.CTk):
             env.pop("PYTHONHOME", None)
             
             self._ui_log(self.log_rag, " [Etapa 2/3]  Iniciando download via PIP (ChromaDB + Pacotes)...")
-            proc = subprocess.Popen([pip_exe, "install", "chromadb", "sentence-transformers", "rapidfuzz"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", creationflags=0x08000000, startupinfo=startupinfo, env=env)
+            proc = subprocess.Popen([pip_exe, "install", "--no-user", "chromadb", "sentence-transformers", "rapidfuzz"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", creationflags=0x08000000, startupinfo=startupinfo, env=env)
             
             for line in proc.stdout:
                 line = line.strip()
@@ -2655,7 +2655,7 @@ class MangaApp(ctk.CTk):
             download_url = remote_data.get("download_url", "")
             
             # Lê versão local
-            local_version = "v1.4.0"
+            local_version = "v1.4.1"
             version_file = Path("version.json")
             if version_file.exists():
                 with open(version_file, "r", encoding="utf-8") as f:
@@ -3755,7 +3755,7 @@ class MangaApp(ctk.CTk):
                 
                 # Usa venv_ocr_python, remove quiet para mostrar logs
                 cmd = [
-                    str(venv_ocr_python), "-m", "pip", "install", "-r", str(req), 
+                    str(venv_ocr_python), "-m", "pip", "install", "--no-user", "-r", str(req), 
                     "--default-timeout=1000"
                 ]
                 startupinfo = subprocess.STARTUPINFO()
