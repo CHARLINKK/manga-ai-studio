@@ -2477,16 +2477,19 @@ class MangaApp(ctk.CTk):
         ctk.CTkLabel(self.card_ocr, text=" Motor de Extração de Texto (OCR Base)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
         ctk.CTkLabel(self.card_ocr, text="Necessário para a Etapa 1. Florence-2-Large (GPU/CPU). Tamanho: ~2.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
         
-        self.lbl_status_ocr = ctk.CTkLabel(self.card_ocr, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
+        row_ocr = ctk.CTkFrame(self.card_ocr, fg_color="transparent")
+        row_ocr.pack(fill="x", padx=0, pady=0)
+        
+        self.lbl_status_ocr = ctk.CTkLabel(row_ocr, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
         self.lbl_status_ocr.pack(side="left", padx=15, pady=15)
-        self.pb_ocr = ctk.CTkProgressBar(self.card_ocr, mode="determinate", width=150)
+        self.pb_ocr = ctk.CTkProgressBar(row_ocr, mode="determinate", width=150)
         self.pb_ocr.pack(side="left", padx=10, pady=15)
         self.pb_ocr.set(0)
         
-        self.btn_install_ocr = ctk.CTkButton(self.card_ocr, text="Baixar e Instalar", fg_color="#e94560", hover_color="#c0392b", command=self.install_ocr)
+        self.btn_install_ocr = ctk.CTkButton(row_ocr, text="Baixar e Instalar", fg_color="#e94560", hover_color="#c0392b", command=self.install_ocr)
         self.btn_install_ocr.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_uninstall_ocr = ctk.CTkButton(self.card_ocr, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("ocr"))
+        self.btn_uninstall_ocr = ctk.CTkButton(row_ocr, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("ocr"))
         self.btn_uninstall_ocr.pack(side="right", padx=(15, 5), pady=15)
         
         self.log_ocr = ctk.CTkTextbox(self.card_ocr, height=100, state="disabled", fg_color="#000")
@@ -2498,23 +2501,26 @@ class MangaApp(ctk.CTk):
         ctk.CTkLabel(self.card_cuda, text=" Aceleração NVIDIA (CUDA)", font=ctk.CTkFont(size=16, weight="bold"), text_color="#2ecc71").pack(anchor="w", padx=15, pady=(15, 5))
         ctk.CTkLabel(self.card_cuda, text="Exclusivo para placas NVIDIA. Acelera drasticamente a extração OCR. Tamanho: ~2.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
 
-        self.lbl_status_cuda = ctk.CTkLabel(self.card_cuda, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
+        row_cuda = ctk.CTkFrame(self.card_cuda, fg_color="transparent")
+        row_cuda.pack(fill="x", padx=0, pady=0)
+
+        self.lbl_status_cuda = ctk.CTkLabel(row_cuda, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
         self.lbl_status_cuda.pack(side="left", padx=15, pady=15)
-        self.pb_cuda = ctk.CTkProgressBar(self.card_cuda, mode="determinate", width=100)
+        self.pb_cuda = ctk.CTkProgressBar(row_cuda, mode="determinate", width=100)
         self.pb_cuda.pack(side="left", padx=10, pady=15)
         self.pb_cuda.set(0)
 
         self.var_use_gpu = ctk.BooleanVar(value=True)
-        self.switch_gpu = ctk.CTkSwitch(self.card_cuda, text="Forçar Uso da GPU no OCR", variable=self.var_use_gpu, font=ctk.CTkFont(weight="bold"), fg_color="#444", progress_color="#2ecc71")
+        self.switch_gpu = ctk.CTkSwitch(row_cuda, text="Forçar Uso da GPU no OCR", variable=self.var_use_gpu, font=ctk.CTkFont(weight="bold"), fg_color="#444", progress_color="#2ecc71")
         self.switch_gpu.pack(side="left", padx=15, pady=15)
 
-        self.btn_test_gpu = ctk.CTkButton(self.card_cuda, text=" Testar Placa de Vídeo", fg_color="#8e44ad", hover_color="#9b59b6", width=160, command=self.verify_cuda_support)
+        self.btn_test_gpu = ctk.CTkButton(row_cuda, text=" Testar Placa de Vídeo", fg_color="#8e44ad", hover_color="#9b59b6", width=160, command=self.verify_cuda_support)
         self.btn_test_gpu.pack(side="right", padx=(5, 15), pady=15)
         
-        self.btn_install_cuda = ctk.CTkButton(self.card_cuda, text="Baixar Suporte CUDA", fg_color="#2ecc71", hover_color="#27ae60", text_color="black", command=self.install_cuda_support)
+        self.btn_install_cuda = ctk.CTkButton(row_cuda, text="Baixar Suporte CUDA", fg_color="#2ecc71", hover_color="#27ae60", text_color="black", command=self.install_cuda_support)
         self.btn_install_cuda.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_uninstall_cuda = ctk.CTkButton(self.card_cuda, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("cuda"))
+        self.btn_uninstall_cuda = ctk.CTkButton(row_cuda, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("cuda"))
         self.btn_uninstall_cuda.pack(side="right", padx=(15, 5), pady=15)
 
         self.log_cuda = ctk.CTkTextbox(self.card_cuda, height=80, state="disabled", fg_color="#000")
@@ -2619,19 +2625,22 @@ class MangaApp(ctk.CTk):
         ctk.CTkLabel(self.card_rag, text=" Motor de Memória (RAG Vector DB)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
         ctk.CTkLabel(self.card_rag, text="Busca semântica no histórico de traduções usando ChromaDB. Tamanho: ~1.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
         
-        self.lbl_status_rag = ctk.CTkLabel(self.card_rag, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
+        row_rag = ctk.CTkFrame(self.card_rag, fg_color="transparent")
+        row_rag.pack(fill="x", padx=0, pady=0)
+        
+        self.lbl_status_rag = ctk.CTkLabel(row_rag, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
         self.lbl_status_rag.pack(side="left", padx=15, pady=15)
-        self.pb_rag = ctk.CTkProgressBar(self.card_rag, mode="determinate", width=150)
+        self.pb_rag = ctk.CTkProgressBar(row_rag, mode="determinate", width=150)
         self.pb_rag.pack(side="left", padx=10, pady=15)
         self.pb_rag.set(0)
         
-        self.sw_rag = ctk.CTkSwitch(self.card_rag, text="Ativar Memória de Contexto", variable=self.var_use_rag, font=ctk.CTkFont(weight="bold"), fg_color="#444", progress_color="#e94560")
+        self.sw_rag = ctk.CTkSwitch(row_rag, text="Ativar Memória de Contexto", variable=self.var_use_rag, font=ctk.CTkFont(weight="bold"), fg_color="#444", progress_color="#e94560")
         self.sw_rag.pack(side="left", padx=15, pady=15)
         
-        self.btn_install_rag = ctk.CTkButton(self.card_rag, text="Baixar e Instalar", fg_color="#e94560", hover_color="#c0392b", command=self.install_rag)
+        self.btn_install_rag = ctk.CTkButton(row_rag, text="Baixar e Instalar", fg_color="#e94560", hover_color="#c0392b", command=self.install_rag)
         self.btn_install_rag.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_uninstall_rag = ctk.CTkButton(self.card_rag, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("rag"))
+        self.btn_uninstall_rag = ctk.CTkButton(row_rag, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("rag"))
         self.btn_uninstall_rag.pack(side="right", padx=(15, 5), pady=15)
         
         self.log_rag = ctk.CTkTextbox(self.card_rag, height=100, state="disabled", fg_color="#000")

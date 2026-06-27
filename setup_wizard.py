@@ -135,18 +135,41 @@ class SetupWizard(ctk.CTk):
 
         self.is_silent = "--silent" in sys.argv
         if self.is_silent:
-            self.withdraw()  # Torna a janela 100% invisível
             self.title("Manga AI Studio – Atualizando...")
+            self.geometry("450x160")
+            self.resizable(False, False)
+            self.attributes("-topmost", True)
             self.lbl_title = None
+            
+            self.silent_frame = ctk.CTkFrame(self, fg_color=C_BG)
+            self.silent_frame.pack(fill="both", expand=True)
+            
+            ctk.CTkLabel(self.silent_frame, text="🚀 Atualizando Manga AI Studio", font=ctk.CTkFont(size=18, weight="bold"), text_color="white").pack(pady=(20, 5))
+            self.silent_lbl = ctk.CTkLabel(self.silent_frame, text="Preparando instalação...", font=ctk.CTkFont(size=13), text_color=C_MUTED)
+            self.silent_lbl.pack(pady=5)
+            
+            self.silent_pb = ctk.CTkProgressBar(self.silent_frame, width=350, progress_color=C_ACCENT)
+            self.silent_pb.pack(pady=15)
+            self.silent_pb.set(0)
+            
+            self.after(200, self._update_silent_progress)
 
+        self.root = ctk.CTkFrame(self, fg_color=C_BG)
+        if not self.is_silent:
+            self.root.pack(fill="both", expand=True)
+            
         self._build_shell()
         self.after(200, self._run_step_0)
 
+    def _update_silent_progress(self):
+        v1 = self.bar1.get() if hasattr(self, 'bar1') else 0
+        v2 = self.bar2.get() if hasattr(self, 'bar2') else 0
+        v3 = self.bar3.get() if hasattr(self, 'bar3') else 0
+        self.silent_pb.set((v1 + v2 + v3) / 3.0)
+        self.after(100, self._update_silent_progress)
+
     def _build_shell(self):
-        root = ctk.CTkFrame(self, fg_color=C_BG)
-        root.pack(fill="both", expand=True)
-        
-        self.sidebar = ctk.CTkFrame(root, width=280, fg_color="#12182b", corner_radius=0)
+        self.sidebar = ctk.CTkFrame(self.root, width=280, fg_color="#12182b", corner_radius=0)
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
         
@@ -166,7 +189,7 @@ class SetupWizard(ctk.CTk):
             lbl.pack(side="left", padx=(10, 0))
             self.step_labels.append((dot, lbl))
             
-        self.content_area = ctk.CTkFrame(root, fg_color=C_BG, corner_radius=0)
+        self.content_area = ctk.CTkFrame(self.root, fg_color=C_BG, corner_radius=0)
         self.content_area.pack(side="right", fill="both", expand=True)
         
         self.header_frame = ctk.CTkFrame(self.content_area, fg_color="transparent", height=100)
