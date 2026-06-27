@@ -1,6 +1,6 @@
 {
-    "version": "v1.3.12",
+    "version": "v1.3.13",
     "release_date": "2026-06-27",
-    "changelog": "Adicionado suporte estável ao CUDA 12.4 para acelerar OCR (Sem erro Win206), corrigido bugs visuais no semáforo (Explorador e Aba Módulos) para suportar múltiplas resoluções, silenciados logs inúteis do Hugging Face, corrigido bug de tamanho do console de processamento.",
-    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.3.12/Manga_AI_Studio_v1.3.12.zip"
+    "changelog": "Adicionado suporte estável ao CUDA 12.4 para acelerar OCR (Sem erro Win206), corrigido bugs visuais no semáforo (Explorador e Aba Módulos) para suportar múltiplas resoluções, silenciados logs inúteis do Hugging Face, corrigido bug de tamanho do console de processamento. Instalador inteligente com atalho raiz e barra de progresso em tempo real.",
+    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.3.13/Manga_AI_Studio_Setup_v1.3.13.exe"
 }
