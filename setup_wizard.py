@@ -402,8 +402,9 @@ class SetupWizard(ctk.CTk):
         def worker():
             try:
                 self.install_dir.mkdir(parents=True, exist_ok=True)
-                # Concede permissão total ao grupo Usuários local para permitir download de modelos e criação de venvs
-                subprocess.run(["icacls", str(self.install_dir), "/grant", "*S-1-5-32-545:(OI)(CI)F", "/T"], capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                # Concede permissão total ao grupo Usuários local. (OI)(CI) garante que todos os arquivos e pastas criadas futuramente herdem a permissão.
+                # Não usamos /T para não travar a instalação caso o usuário já tenha 200.000 arquivos de venv na pasta de uma instalação anterior.
+                subprocess.run(["icacls", str(self.install_dir), "/grant", "*S-1-5-32-545:(OI)(CI)F"], capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
                 src_dir = get_bundled_dir()
                 
                 total = len(PROGRAM_FILES) + 1 # +1 for modules

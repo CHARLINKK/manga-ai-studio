@@ -2477,16 +2477,15 @@ class MangaApp(ctk.CTk):
         try:
             if getattr(sys, 'frozen', False):
                 install_dir = Path(sys.executable).parent
-                site_packages = install_dir / "venv_ocr" / "Lib" / "site-packages"
-                if not site_packages.exists(): return False
-                if not (site_packages / "transformers").exists(): return False
-                if not (site_packages / "einops").exists(): return False
-                return True
             else:
-                import transformers
-                import einops
-                return True
-        except:
+                install_dir = Path(__file__).parent
+                
+            site_packages = install_dir / "venv_ocr" / "Lib" / "site-packages"
+            if not site_packages.exists(): return False
+            if not (site_packages / "transformers").exists(): return False
+            if not (site_packages / "einops").exists(): return False
+            return True
+        except Exception as e:
             return False
 
     def check_module_translation(self):
@@ -2736,7 +2735,8 @@ class MangaApp(ctk.CTk):
                 self.after(0, lambda: lbl_status.configure(text="Instalando..."))
                 self.after(0, lambda: pb.set(1.0))
                 
-                subprocess.Popen([str(exe_path), "--silent"], creationflags=subprocess.CREATE_NO_WINDOW)
+                import ctypes
+                ctypes.windll.shell32.ShellExecuteW(None, "runas", str(exe_path), "--silent", None, 1)
                 self.after(500, sys.exit)
                 
             except Exception as e:
