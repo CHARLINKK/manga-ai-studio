@@ -37,7 +37,7 @@ class DraggableBlock(ctk.CTkFrame):
         self.parent_app = parent_app
         self.original_text = original_text
         
-        self.handle = ctk.CTkLabel(self, text="≡", cursor="fleur", font=ctk.CTkFont(size=20, weight="bold"), width=30)
+        self.handle = ctk.CTkLabel(self, text="", cursor="fleur", font=ctk.CTkFont(size=20, weight="bold"), width=30)
         self.handle.pack(side="left", fill="y", padx=(5, 0))
         
         # Calculate dynamic height based on lines and word wrapping
@@ -133,16 +133,16 @@ class MangaApp(ctk.CTk):
         self.label_workspace = ctk.CTkLabel(self.sidebar_frame, text="EXPLORADOR", font=ctk.CTkFont(size=14, weight="bold"))
         self.label_workspace.pack(pady=(10, 0), padx=10, anchor="w")
         
-        self.btn_set_workspace = ctk.CTkButton(self.sidebar_frame, text="📂 Definir Pasta Base", fg_color="#444", hover_color="#555", command=self.set_workspace)
+        self.btn_set_workspace = ctk.CTkButton(self.sidebar_frame, text=" Definir Pasta Base", fg_color="#444", hover_color="#555", command=self.set_workspace)
         self.btn_set_workspace.pack(pady=(10, 5), padx=10, fill="x")
         
         header_actions = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
         header_actions.pack(fill="x", padx=10, pady=(0, 5))
         
-        self.btn_refresh = ctk.CTkButton(header_actions, text="🔄", width=30, fg_color="#444", hover_color="#555", command=self.refresh_workspace)
+        self.btn_refresh = ctk.CTkButton(header_actions, text="↻", width=36, font=ctk.CTkFont(size=22, weight="bold"), fg_color="#444", hover_color="#555", command=self.refresh_workspace)
         self.btn_refresh.pack(side="left", padx=(0, 5))
         
-        self.btn_queue = ctk.CTkButton(header_actions, text="▶ Processar Fila", fg_color="#2b7a4b", hover_color="#3c9d64", command=self.action_process_queue)
+        self.btn_queue = ctk.CTkButton(header_actions, text=" Processar Fila", fg_color="#2b7a4b", hover_color="#3c9d64", command=self.action_process_queue)
         self.btn_queue.pack(side="left", fill="x", expand=True)
         
         self.workspace_checkboxes = {}
@@ -155,7 +155,7 @@ class MangaApp(ctk.CTk):
         self.main_content_frame.pack(side="right", fill="both", expand=True)
 
         # Título
-        self.label_title = ctk.CTkLabel(self.main_content_frame, text="📖 Manga AI Studio", font=ctk.CTkFont(size=24, weight="bold"))
+        self.label_title = ctk.CTkLabel(self.main_content_frame, text=" Manga AI Studio", font=ctk.CTkFont(size=24, weight="bold"))
         self.label_title.pack(pady=(10, 5))
         
         # Criando as Abas (Tabs)
@@ -209,7 +209,7 @@ class MangaApp(ctk.CTk):
         frame = ctk.CTkFrame(self.workspace_list, fg_color="#333", corner_radius=5)
         frame.pack(fill="x", pady=5, padx=5)
         
-        # Lógica de Status (Semáforo) — lê o status.json da Temp
+        # Lógica de Status (Semáforo)  lê o status.json da Temp
         temp_dir = Path(os.environ["USERPROFILE"]) / "Documents" / "Manga AI Studio" / "Biblioteca" / "Temp"
         status_file = temp_dir / "status.json"
         
@@ -248,13 +248,13 @@ class MangaApp(ctk.CTk):
         btn_frame = ctk.CTkFrame(frame, fg_color="#333")
         btn_frame.pack(fill="x", padx=5, pady=(0, 5))
         
-        btn_proc = ctk.CTkButton(btn_frame, text="▶ Processar", width=40, font=ctk.CTkFont(size=11), command=lambda p=folder_path: self.action_process_workspace(p))
+        btn_proc = ctk.CTkButton(btn_frame, text=" Processar", width=40, font=ctk.CTkFont(size=11), command=lambda p=folder_path: self.action_process_workspace(p))
         btn_proc.pack(side="left", fill="x", expand=True, padx=2)
         
-        btn_edit = ctk.CTkButton(btn_frame, text="👁 Editor", width=40, font=ctk.CTkFont(size=11), command=lambda p=folder_path: self.action_editor_workspace(p))
+        btn_edit = ctk.CTkButton(btn_frame, text=" Editor", width=40, font=ctk.CTkFont(size=11), command=lambda p=folder_path: self.action_editor_workspace(p))
         btn_edit.pack(side="left", fill="x", expand=True, padx=2)
         
-        btn_studio = ctk.CTkButton(btn_frame, text="🌍 Estúdio", width=40, font=ctk.CTkFont(size=11), command=lambda p=folder_path: self.action_studio_workspace(p))
+        btn_studio = ctk.CTkButton(btn_frame, text=" Estúdio", width=40, font=ctk.CTkFont(size=11), command=lambda p=folder_path: self.action_studio_workspace(p))
         btn_studio.pack(side="left", fill="x", expand=True, padx=2)
         
         # Clicar no nome do capítulo ainda recolhe/expande os botões
@@ -281,15 +281,15 @@ class MangaApp(ctk.CTk):
         selected = [p for p, var in self.workspace_checkboxes.items() if var.get()]
         if not selected:
             self.tabview.set("Processamento")
-            self.log("\n⚠️ Fila Vazia: Marque pelo menos um capítulo para processar.")
+            self.log("\n Fila Vazia: Marque pelo menos um capítulo para processar.")
             return
             
         self.tabview.set("Processamento")
-        self.log(f"\n📦 INICIANDO FILA DE PROCESSAMENTO GLOBAL ({len(selected)} itens)")
+        self.log(f"\n INICIANDO FILA DE PROCESSAMENTO GLOBAL ({len(selected)} itens)")
         
         # Desabilita botões
-        self.btn_run.configure(state="disabled", text="⏳ PROCESSANDO FILA...")
-        self.btn_cancel.configure(state="normal", text="⏹ CANCELAR")
+        self.btn_run.configure(state="disabled", text=" PROCESSANDO FILA...")
+        self.btn_cancel.configure(state="normal", text=" CANCELAR")
         self.progress_bar.set(0)
         self.textbox_log.configure(state="normal")
         self.textbox_log.delete("0.0", "end")
@@ -303,13 +303,13 @@ class MangaApp(ctk.CTk):
         
         # Validação Modular
         if run_ocr and not self.check_module_ocr():
-            self.log("⚠️ ATENÇÃO: O Motor OCR não está instalado.")
+            self.log(" ATENÇÃO: O Motor OCR não está instalado.")
             self.log("Vá até a aba 'Central de Módulos' e instale-o antes de usar a Etapa 1.")
             self.tabview.set("Central de Módulos")
             return
             
         if (run_correct or run_translate) and not self.check_module_translation():
-            self.log("⚠️ ATENÇÃO: O Motor de Tradução (IA) não está instalado.")
+            self.log(" ATENÇÃO: O Motor de Tradução (IA) não está instalado.")
             self.log("Vá até a aba 'Central de Módulos' e instale-o antes de usar as Etapas 2 e 3.")
             self.tabview.set("Central de Módulos")
             return
@@ -322,16 +322,16 @@ class MangaApp(ctk.CTk):
         def queue_thread():
             for i, p in enumerate(selected):
                 self.log(f"\n\n==================================================")
-                self.log(f"📦 ITEM {i+1}/{len(selected)} DA FILA: {Path(p).name}")
+                self.log(f" ITEM {i+1}/{len(selected)} DA FILA: {Path(p).name}")
                 self.log(f"==================================================")
                 self.process_pipeline(p, out_path, run_ocr, run_correct, run_translate, dict_global, dict_local, bilingual, pause_ocr)
                 
-            self.log("\n✅✅ FILA DE PROCESSAMENTO CONCLUÍDA! ✅✅")
+            self.log("\n FILA DE PROCESSAMENTO CONCLUÍDA! ")
             self.after(0, self.refresh_workspace)
             
             # Reabilita botões
-            self.after(0, lambda: self.btn_run.configure(state="normal", text="▶ INICIAR PROCESSAMENTO"))
-            self.after(0, lambda: self.btn_cancel.configure(state="disabled", text="⏹ CANCELAR"))
+            self.after(0, lambda: self.btn_run.configure(state="normal", text=" INICIAR PROCESSAMENTO"))
+            self.after(0, lambda: self.btn_cancel.configure(state="disabled", text=" CANCELAR"))
 
         threading.Thread(target=queue_thread, daemon=True).start()
 
@@ -339,7 +339,7 @@ class MangaApp(ctk.CTk):
         self.tabview.set("Processamento")
         self.entry_path.delete(0, "end")
         self.entry_path.insert(0, str(folder_path))
-        self.log(f"\n📂 Projeto '{folder_path.name}' selecionado para Processamento.")
+        self.log(f"\n Projeto '{folder_path.name}' selecionado para Processamento.")
 
     def _find_newest_txt_for_workspace(self, folder_path, valid_suffixes):
         """Busca genérica usada pela auto-mesclagem no pipeline. Procura APENAS na Temp."""
@@ -403,7 +403,7 @@ class MangaApp(ctk.CTk):
         if target:
             self.load_studio_from_pipeline(str(folder_path), str(target), is_editor_mode=True)
         else:
-            self.log(f"⚠️ Nenhum texto OCR encontrado na Temp para esta pasta. Extraia o texto primeiro.")
+            self.log(f" Nenhum texto OCR encontrado na Temp para esta pasta. Extraia o texto primeiro.")
             self.tabview.set("Processamento")
             self.entry_path.delete(0, "end")
             self.entry_path.insert(0, str(folder_path))
@@ -415,7 +415,7 @@ class MangaApp(ctk.CTk):
         if target:
             self.load_studio_from_pipeline(str(folder_path), str(target), is_editor_mode=False)
         else:
-            self.log(f"⚠️ Nenhum texto traduzido encontrado na Temp. Processe a tradução primeiro.")
+            self.log(f" Nenhum texto traduzido encontrado na Temp. Processe a tradução primeiro.")
             self.tabview.set("Processamento")
             self.entry_path.delete(0, "end")
             self.entry_path.insert(0, str(folder_path))
@@ -466,7 +466,7 @@ class MangaApp(ctk.CTk):
         self.cb_ocr.pack(anchor="w", padx=20, pady=5)
         
         self.var_pause_ocr = ctk.BooleanVar(value=False)
-        self.cb_pause_ocr = ctk.CTkCheckBox(self.frame_opts, text="↳ Pausar após OCR (Ir para Editor Visual)", variable=self.var_pause_ocr)
+        self.cb_pause_ocr = ctk.CTkCheckBox(self.frame_opts, text=" Pausar após OCR (Ir para Editor Visual)", variable=self.var_pause_ocr)
         self.cb_pause_ocr.pack(anchor="w", padx=45, pady=0)
 
         self.var_correct = ctk.BooleanVar(value=True)
@@ -478,11 +478,11 @@ class MangaApp(ctk.CTk):
         self.cb_translate.pack(anchor="w", padx=20, pady=5)
 
         self.var_bilingual = ctk.BooleanVar(value=False)
-        self.cb_bilingual = ctk.CTkCheckBox(self.frame_opts, text="↳ Exportar Formato Bilíngue [EN/PTBR]", variable=self.var_bilingual)
+        self.cb_bilingual = ctk.CTkCheckBox(self.frame_opts, text=" Exportar Formato Bilíngue [EN/PTBR]", variable=self.var_bilingual)
         self.cb_bilingual.pack(anchor="w", padx=45, pady=0)
         
         self.var_pause_translate = ctk.BooleanVar(value=False)
-        self.cb_pause_translate = ctk.CTkCheckBox(self.frame_opts, text="↳ Pausar após Tradução (Ir para Estúdio)", variable=self.var_pause_translate)
+        self.cb_pause_translate = ctk.CTkCheckBox(self.frame_opts, text=" Pausar após Tradução (Ir para Estúdio)", variable=self.var_pause_translate)
         self.cb_pause_translate.pack(anchor="w", padx=45, pady=5)
         
         # (Seletor de modelo movido para a aba de Módulos)
@@ -522,23 +522,23 @@ class MangaApp(ctk.CTk):
         self.frame_discreet_status = ctk.CTkFrame(self.scroll_process, fg_color="transparent")
         self.frame_discreet_status.pack(fill="x", padx=10, pady=(0, 5))
         
-        self.lbl_process_status_cuda = ctk.CTkLabel(self.frame_discreet_status, text="GPU: ⏳ Verificando...", font=ctk.CTkFont(size=11), text_color="#aaa")
+        self.lbl_process_status_cuda = ctk.CTkLabel(self.frame_discreet_status, text="GPU:  Verificando...", font=ctk.CTkFont(size=11), text_color="#aaa")
         self.lbl_process_status_cuda.pack(side="left", padx=10)
         
-        self.lbl_process_status_rag = ctk.CTkLabel(self.frame_discreet_status, text="RAG: ⏳ Verificando...", font=ctk.CTkFont(size=11), text_color="#aaa")
+        self.lbl_process_status_rag = ctk.CTkLabel(self.frame_discreet_status, text="RAG:  Verificando...", font=ctk.CTkFont(size=11), text_color="#aaa")
         self.lbl_process_status_rag.pack(side="left", padx=10)
 
         # Botões Iniciar/Cancelar
         self.frame_buttons = ctk.CTkFrame(self.scroll_process, fg_color="transparent")
         self.frame_buttons.pack(fill="x", padx=10, pady=(10, 5))
 
-        self.btn_run = ctk.CTkButton(self.frame_buttons, text="▶ INICIAR PROCESSAMENTO", height=45, font=ctk.CTkFont(size=15, weight="bold"), command=self.start_processing)
+        self.btn_run = ctk.CTkButton(self.frame_buttons, text=" INICIAR PROCESSAMENTO", height=45, font=ctk.CTkFont(size=15, weight="bold"), command=self.start_processing)
         self.btn_run.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
-        self.btn_cancel = ctk.CTkButton(self.frame_buttons, text="⏹ CANCELAR", height=45, width=130, font=ctk.CTkFont(size=15, weight="bold"), fg_color="#c0392b", hover_color="#e74c3c", command=self.cancel_processing, state="disabled")
+        self.btn_cancel = ctk.CTkButton(self.frame_buttons, text=" CANCELAR", height=45, width=130, font=ctk.CTkFont(size=15, weight="bold"), fg_color="#c0392b", hover_color="#e74c3c", command=self.cancel_processing, state="disabled")
         self.btn_cancel.pack(side="right")
 
-        self.btn_reset_process = ctk.CTkButton(self.frame_buttons, text="🗑 Limpar", height=45, width=100, fg_color="#555", hover_color="#777", command=self.reset_processing_tab)
+        self.btn_reset_process = ctk.CTkButton(self.frame_buttons, text=" Limpar", height=45, width=100, fg_color="#555", hover_color="#777", command=self.reset_processing_tab)
         self.btn_reset_process.pack(side="right", padx=(0, 10))
 
         # Progresso
@@ -553,7 +553,7 @@ class MangaApp(ctk.CTk):
         self.progress_bar.set(0)
 
         # Console (Log)
-        self.textbox_log = ctk.CTkTextbox(self.scroll_process, height=120, state="disabled", font=ctk.CTkFont(family="Consolas", size=12))
+        self.textbox_log = ctk.CTkTextbox(self.scroll_process, height=320, state="disabled", font=ctk.CTkFont(family="Consolas", size=12))
         self.textbox_log.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
 
@@ -567,17 +567,17 @@ class MangaApp(ctk.CTk):
         self.frame_studio_toolbar = ctk.CTkFrame(self.frame_studio_main, fg_color="#183A28", corner_radius=8)
         self.frame_studio_toolbar.pack(fill="x", pady=(0, 10), padx=5)
 
-        self.lbl_studio_title = ctk.CTkLabel(self.frame_studio_toolbar, text="🎙️ ESTÚDIO DE TRADUÇÃO", font=ctk.CTkFont(size=15, weight="bold"), text_color="#77CC99", width=250, anchor="w")
+        self.lbl_studio_title = ctk.CTkLabel(self.frame_studio_toolbar, text=" ESTÚDIO DE TRADUÇÃO", font=ctk.CTkFont(size=15, weight="bold"), text_color="#77CC99", width=250, anchor="w")
         self.lbl_studio_title.pack(side="left", padx=15, pady=10)
 
-        self.btn_clear_studio = ctk.CTkButton(self.frame_studio_toolbar, text="🗑 Limpar Estúdio", fg_color="#2A503C", hover_color="#1E3E2D", command=self.reset_studio_tab)
+        self.btn_clear_studio = ctk.CTkButton(self.frame_studio_toolbar, text=" Limpar Estúdio", fg_color="#2A503C", hover_color="#1E3E2D", command=self.reset_studio_tab)
         self.btn_clear_studio.pack(side="left", padx=(10, 0), pady=10)
 
-        self.btn_save_continue = ctk.CTkButton(self.frame_studio_toolbar, text="🚀 Salvar e Continuar Processamento", fg_color="#d35400", hover_color="#a84300", command=self.save_and_continue)
+        self.btn_save_continue = ctk.CTkButton(self.frame_studio_toolbar, text=" Salvar e Continuar Processamento", fg_color="#d35400", hover_color="#a84300", command=self.save_and_continue)
         self.btn_save_continue.pack(side="right", padx=(10, 10), pady=10)
         self.btn_save_continue.pack_forget() # Hidden by default
         
-        self.btn_save_studio = ctk.CTkButton(self.frame_studio_toolbar, text="💾 Salvar Tradução", fg_color="#27ae60", hover_color="#2ecc71", command=self.save_studio_text)
+        self.btn_save_studio = ctk.CTkButton(self.frame_studio_toolbar, text=" Salvar Tradução", fg_color="#27ae60", hover_color="#2ecc71", command=self.save_studio_text)
         self.btn_save_studio.pack(side="right", padx=(10, 10), pady=10)
 
         # Divisão em três áreas
@@ -946,7 +946,7 @@ class MangaApp(ctk.CTk):
                 txt_path = str(translated_path)
                 
         if not txt_path or not os.path.exists(txt_path):
-            self.log("⚠️ Nenhum arquivo de texto encontrado para o Estúdio.")
+            self.log(" Nenhum arquivo de texto encontrado para o Estúdio.")
             return
         
         self.studio_translated_txt_path = txt_path
@@ -954,9 +954,9 @@ class MangaApp(ctk.CTk):
         # Ocultar/Mostrar componentes de acordo com o modo
         if getattr(self, 'studio_is_editor_mode', False):
             self.frame_studio_toolbar.configure(fg_color="#1B263B")
-            self.lbl_studio_title.configure(text="✏️ EDITOR OCR", text_color="#88AADD")
+            self.lbl_studio_title.configure(text=" EDITOR OCR", text_color="#88AADD")
             self.btn_save_continue.pack(side="right", padx=(10, 10), pady=10)
-            self.btn_save_studio.configure(text="💾 Apenas Salvar")
+            self.btn_save_studio.configure(text=" Apenas Salvar")
             
             self.label_studio_original.configure(text="Referência (Desativado no OCR):")
             self.textbox_studio_original.configure(state="normal")
@@ -971,9 +971,9 @@ class MangaApp(ctk.CTk):
             self.textbox_studio_dict.insert("end", self.entry_dict_local.get("0.0", "end-1c"))
         else:
             self.frame_studio_toolbar.configure(fg_color="#183A28")
-            self.lbl_studio_title.configure(text="🎙️ ESTÚDIO DE TRADUÇÃO", text_color="#77CC99")
+            self.lbl_studio_title.configure(text=" ESTÚDIO DE TRADUÇÃO", text_color="#77CC99")
             self.btn_save_continue.pack_forget()
-            self.btn_save_studio.configure(text="💾 Salvar Tradução")
+            self.btn_save_studio.configure(text=" Salvar Tradução")
             
             self.label_studio_original.configure(text="Texto Original do Bloco Selecionado:")
             self.textbox_studio_original.configure(state="normal")
@@ -1077,7 +1077,7 @@ class MangaApp(ctk.CTk):
         nome_final = dialog.get_input()
         
         if not nome_final:
-            self.log("⚠️ Exportação cancelada.")
+            self.log(" Exportação cancelada.")
             return
             
         nome_final = nome_final.strip()
@@ -1111,7 +1111,7 @@ class MangaApp(ctk.CTk):
                 new_lines.append("")  # separador
             self.studio_pages_translated[self.studio_current_page] = "\n".join(new_lines).split("\n")
             
-        # Grava no arquivo final — para páginas não visitadas, reconstroe o formato bilíngue
+        # Grava no arquivo final  para páginas não visitadas, reconstroe o formato bilíngue
         lines = []
         for page, trans_texts in self.studio_pages_translated.items():
             lines.append("=" * 50)
@@ -1155,7 +1155,7 @@ class MangaApp(ctk.CTk):
         with open(caminho_1, "w", encoding="utf-8-sig") as f:
             f.write(content)
             
-        msg = f"✅ Tradução finalizada!\nSalvo na Biblioteca: {caminho_1}"
+        msg = f" Tradução finalizada!\nSalvo na Biblioteca: {caminho_1}"
             
         # Caminho 2: Pasta original das imagens ou Saída
         if hasattr(self, 'studio_images_paths') and self.studio_images_paths:
@@ -1171,7 +1171,7 @@ class MangaApp(ctk.CTk):
                 shutil.copy2(caminho_1, caminho_2)
                 msg += f"\nExportado para o Scanlator em: {caminho_2}"
             except Exception as e:
-                msg += f"\n⚠️ Falha ao salvar cópia no Scanlator: {e}"
+                msg += f"\n Falha ao salvar cópia no Scanlator: {e}"
                 
         self.log(msg)
         
@@ -1185,9 +1185,9 @@ class MangaApp(ctk.CTk):
             
             workspace = Path(os.environ["USERPROFILE"]) / "Documents" / "Manga AI Studio"
             success, rag_msg = rag_memory.sync_memory_from_txts(workspace, [Path(caminho_1)])
-            self.log(f"🧠 {rag_msg}")
+            self.log(f" {rag_msg}")
         except Exception as e:
-            self.log(f"⚠️ Erro ao atualizar Memória RAG: {e}")
+            self.log(f" Erro ao atualizar Memória RAG: {e}")
             
         # Atualiza a view do Leitor
         self.reader_refresh_list()
@@ -1419,7 +1419,7 @@ class MangaApp(ctk.CTk):
 
     def cancel_processing(self):
         if hasattr(self, 'current_process') and self.current_process is not None:
-            self.log("\n⚠️ CANCELAMENTO SOLICITADO. Abortando processo atual...")
+            self.log("\n CANCELAMENTO SOLICITADO. Abortando processo atual...")
             self.btn_cancel.configure(state="disabled", text="Abortando...")
             self.current_process.terminate()
             
@@ -1452,8 +1452,8 @@ class MangaApp(ctk.CTk):
         self.progress_bar.set(0)
         self.lbl_current_step.configure(text="")
         # Reseta botões
-        self.btn_run.configure(state="normal", text="▶ INICIAR PROCESSAMENTO")
-        self.btn_cancel.configure(state="disabled", text="⏹ CANCELAR")
+        self.btn_run.configure(state="normal", text=" INICIAR PROCESSAMENTO")
+        self.btn_cancel.configure(state="disabled", text=" CANCELAR")
         # Limpa dicionário temporário
         self.entry_dict_local.delete("0.0", "end")
         # Reseta checkboxes para padrão
@@ -1492,7 +1492,7 @@ class MangaApp(ctk.CTk):
     def start_processing(self):
         path = self.entry_path.get()
         if not path or not os.path.exists(path):
-            self.log("❌ ERRO: Caminho inválido ou não selecionado.")
+            self.log(" ERRO: Caminho inválido ou não selecionado.")
             return
 
 
@@ -1502,13 +1502,13 @@ class MangaApp(ctk.CTk):
         
         # Validação Modular
         if run_ocr and not self.check_module_ocr():
-            self.log("⚠️ ATENÇÃO: O Motor OCR não está instalado.")
+            self.log(" ATENÇÃO: O Motor OCR não está instalado.")
             self.log("Vá até a aba 'Central de Módulos' e instale-o antes de usar a Etapa 1.")
             self.tabview.set("Central de Módulos")
             return
             
         if (run_correct or run_translate) and not self.check_module_translation():
-            self.log("⚠️ ATENÇÃO: O Motor de Tradução (IA) não está instalado.")
+            self.log(" ATENÇÃO: O Motor de Tradução (IA) não está instalado.")
             self.log("Vá até a aba 'Central de Módulos' e instale-o antes de usar as Etapas 2 e 3.")
             self.tabview.set("Central de Módulos")
             return
@@ -1523,11 +1523,11 @@ class MangaApp(ctk.CTk):
         out_path = self.entry_output.get().strip()
 
         if not (run_ocr or run_correct or run_translate):
-            self.log("⚠️ Selecione pelo menos uma etapa de processamento nas caixas de seleção.")
+            self.log(" Selecione pelo menos uma etapa de processamento nas caixas de seleção.")
             return
 
-        self.btn_run.configure(state="disabled", text="⏳ PROCESSANDO (Aguarde)...")
-        self.btn_cancel.configure(state="normal", text="⏹ CANCELAR")
+        self.btn_run.configure(state="disabled", text=" PROCESSANDO (Aguarde)...")
+        self.btn_cancel.configure(state="normal", text=" CANCELAR")
         self.progress_bar.set(0)
         self.textbox_log.configure(state="normal")
         self.textbox_log.delete("0.0", "end")
@@ -1564,7 +1564,7 @@ class MangaApp(ctk.CTk):
                 f.write(dict_local)
 
             self.log("==================================================")
-            self.log(f"🚀 INICIANDO PIPELINE: {os.path.basename(input_path)}")
+            self.log(f" INICIANDO PIPELINE: {os.path.basename(input_path)}")
             self.log("==================================================")
             
             p_input = Path(input_path)
@@ -1588,7 +1588,7 @@ class MangaApp(ctk.CTk):
                 self.log("\n>>> ETAPA 1: EXTRAÇÃO DE TEXTO BRUTO (GPU)")
                 p = Path(input_path)
                 if p.suffix.lower() == ".txt":
-                    self.log("⚠️ Você selecionou um arquivo .txt mas deixou o Extrator de Imagem marcado.")
+                    self.log(" Você selecionou um arquivo .txt mas deixou o Extrator de Imagem marcado.")
                     self.log("Pulando a Etapa 1 e usando o arquivo .txt fornecido...")
                 else:
                     expected_txt_path = Path(dir_ocr) / f"{base_name}_raw.txt"
@@ -1600,7 +1600,7 @@ class MangaApp(ctk.CTk):
                         if target_txt:
                             expected_txt_path = target_txt
                             cmd = [python_exe_ocr, "manga_ocr.py", input_path, "--output", str(target_txt), "--append"]
-                            self.log(f"🔗 Auto-Mesclagem ativada! Anexando página avulsa ao arquivo da Temp: {target_txt.name}")
+                            self.log(f" Auto-Mesclagem ativada! Anexando página avulsa ao arquivo da Temp: {target_txt.name}")
                     
                     self.progress_bar.set(0)
                     if hasattr(self, 'var_use_gpu') and self.var_use_gpu.get():
@@ -1608,18 +1608,18 @@ class MangaApp(ctk.CTk):
                     
                     code = self.run_subprocess(cmd)
                     if code != 0:
-                        self.log("❌ Falha ou Cancelamento na etapa de OCR. Abortando.")
+                        self.log(" Falha ou Cancelamento na etapa de OCR. Abortando.")
                         return
                     current_target = str(expected_txt_path)
                     self._update_pipeline_status(input_path, raw=current_target)
                     
                     if pause_ocr:
-                        self.log("\n⚠️ PAUSA MANUAL ATIVADA. Alternando para o Editor Visual...")
+                        self.log("\n PAUSA MANUAL ATIVADA. Alternando para o Editor Visual...")
                         self.after(300, lambda fp=input_path, tp=current_target: self.load_editor_from_pipeline(fp, tp))
-                        self.log("✅ Revise o texto no Editor Visual e adicione termos ao Dicionário Temporário.")
-                        self.log("✅ Quando terminar, volte aqui, desmarque a Etapa 1, marque as Etapas 2 e 3 e clique em Iniciar.")
-                        self.btn_run.configure(state="normal", text="▶ CONTINUAR PROCESSAMENTO")
-                        self.btn_cancel.configure(state="disabled", text="⏹ CANCELAR")
+                        self.log(" Revise o texto no Editor Visual e adicione termos ao Dicionário Temporário.")
+                        self.log(" Quando terminar, volte aqui, desmarque a Etapa 1, marque as Etapas 2 e 3 e clique em Iniciar.")
+                        self.btn_run.configure(state="normal", text=" CONTINUAR PROCESSAMENTO")
+                        self.btn_cancel.configure(state="disabled", text=" CANCELAR")
                         self.progress_bar.set(0)
                         return
 
@@ -1627,14 +1627,14 @@ class MangaApp(ctk.CTk):
                 self.after(0, lambda: self.lbl_current_step.configure(text="[Etapa 2/3] Corrigindo Textos (IA)..."))
                 self.log(f"\n>>> ETAPA 2: POLIMENTO DE INGLÊS 99.9% (IA {model_corr})")
                 if not current_target.endswith(".txt"):
-                    self.log("❌ O arquivo base para a Correção precisa ser um .txt.")
+                    self.log(" O arquivo base para a Correção precisa ser um .txt.")
                     return
                 
                 cmd = [python_exe_ui, "ocr_corrector.py", current_target, "--dict-global", str(GLOBAL_DICT_PATH), "--dict-local", str(LOCAL_DICT_PATH), "--output", dir_corr, "--model", model_corr]
                 self.progress_bar.set(0)
                 code = self.run_subprocess(cmd)
                 if code != 0:
-                        self.log("❌ Falha ou Cancelamento na etapa de Correção. Abortando.")
+                        self.log(" Falha ou Cancelamento na etapa de Correção. Abortando.")
                         return
                 
                 # Atualiza target pro tradutor
@@ -1646,7 +1646,7 @@ class MangaApp(ctk.CTk):
                 self.after(0, lambda: self.lbl_current_step.configure(text="[Etapa 3/3] Traduzindo PT-BR (IA)..."))
                 self.log(f"\n>>> ETAPA 3: TRADUÇÃO PT-BR (IA {model_trans})")
                 if not current_target.endswith(".txt"):
-                    self.log("❌ O arquivo base para Tradução precisa ser um .txt.")
+                    self.log(" O arquivo base para Tradução precisa ser um .txt.")
                     return
                 
                 cmd = [python_exe_ui, "manga_translator.py", current_target, "--dict-global", str(GLOBAL_DICT_PATH), "--dict-local", str(LOCAL_DICT_PATH), "--output", dir_trans, "--model", model_trans]
@@ -1660,7 +1660,7 @@ class MangaApp(ctk.CTk):
                 self.progress_bar.set(0)
                 code = self.run_subprocess(cmd)
                 if code != 0:
-                    self.log("❌ Falha ou Cancelamento na etapa de Tradução. Abortando.")
+                    self.log(" Falha ou Cancelamento na etapa de Tradução. Abortando.")
                     return
                 
                 # O nome do arquivo de saida é derivado do stem do arquivo de entrada do tradutor
@@ -1671,11 +1671,11 @@ class MangaApp(ctk.CTk):
                 
                 pause_translate = self.var_pause_translate.get()
                 if pause_translate:
-                    self.log("\n⚠️ PAUSA MANUAL ATIVADA. Alternando para o Estúdio de Tradução...")
+                    self.log("\n PAUSA MANUAL ATIVADA. Alternando para o Estúdio de Tradução...")
                     self.after(300, lambda fp=input_path, tp=current_target: self.load_studio_from_pipeline(fp, tp))
-                    self.log("✅ Revise o texto no Estúdio de Tradução.")
-                    self.btn_run.configure(state="normal", text="▶ INICIAR PROCESSAMENTO")
-                    self.btn_cancel.configure(state="disabled", text="⏹ CANCELAR")
+                    self.log(" Revise o texto no Estúdio de Tradução.")
+                    self.btn_run.configure(state="normal", text=" INICIAR PROCESSAMENTO")
+                    self.btn_cancel.configure(state="disabled", text=" CANCELAR")
                     self.progress_bar.set(0)
                     return
 
@@ -1698,11 +1698,11 @@ class MangaApp(ctk.CTk):
             avg_time_balloon = total_seconds / total_balloons if total_balloons > 0 else 0
             
             self.log("\n==================================================")
-            self.log("📊 RELATÓRIO DE PROCESSAMENTO")
-            self.log(f"📄 Páginas Processadas: {total_pages}")
-            self.log(f"💬 Falas/Balões Extraídos: {total_balloons}")
-            self.log(f"⏱️ Tempo Total: {total_seconds:.1f} segundos")
-            self.log(f"⚡ Média: {avg_time_page:.1f} seg / pág | {avg_time_balloon:.1f} seg / balão")
+            self.log(" RELATÓRIO DE PROCESSAMENTO")
+            self.log(f" Páginas Processadas: {total_pages}")
+            self.log(f" Falas/Balões Extraídos: {total_balloons}")
+            self.log(f" Tempo Total: {total_seconds:.1f} segundos")
+            self.log(f" Média: {avg_time_page:.1f} seg / pág | {avg_time_balloon:.1f} seg / balão")
             self.log("==================================================")
             # --- END SUMMARY STATS ---
 
@@ -1733,16 +1733,16 @@ class MangaApp(ctk.CTk):
                 
                 dest_biblioteca = biblioteca_dir / nome_final
                 shutil.copy2(current_target, dest_biblioteca)
-                self.log(f"\n🔄 Auto-atualização! Biblioteca Central atualizada: {dest_biblioteca}")
+                self.log(f"\n Auto-atualização! Biblioteca Central atualizada: {dest_biblioteca}")
                 
                 scanlator_dir = out_path if out_path else (str(p_input.parent) if p_input.is_file() else str(p_input))
                 dest_scanlator = Path(scanlator_dir) / nome_final
                 shutil.copy2(current_target, dest_scanlator)
-                self.log(f"🔄 Pasta do Scanlator atualizada: {dest_scanlator}")
-                self.log(f"\n✨ PROCESSO CONCLUÍDO! Arquivo '{nome_final}' atualizado automaticamente em todos os destinos! ✨")
+                self.log(f" Pasta do Scanlator atualizada: {dest_scanlator}")
+                self.log(f"\n PROCESSO CONCLUÍDO! Arquivo '{nome_final}' atualizado automaticamente em todos os destinos! ")
             else:
                 # Primeira vez: pede o nome e salva no status.json
-                self.log("\n✨ PROCESSO CONCLUÍDO! AGUARDANDO NOME FINAL... ✨")
+                self.log("\n PROCESSO CONCLUÍDO! AGUARDANDO NOME FINAL... ")
                 
                 def ask_final_name():
                     dialog = ctk.CTkInputDialog(text="Processo 100% concluído!\nDigite o nome final do capítulo para salvar e exportar (sem .txt):", title="Finalizar Exportação")
@@ -1756,24 +1756,24 @@ class MangaApp(ctk.CTk):
                         # Salva na biblioteca raiz
                         dest_biblioteca = biblioteca_dir / nome_final
                         shutil.copy2(current_target, dest_biblioteca)
-                        self.log(f"\n✅ Salvo na Biblioteca: {dest_biblioteca}")
+                        self.log(f"\n Salvo na Biblioteca: {dest_biblioteca}")
                         
                         # Salva na pasta do scanlator
                         scanlator_dir = out_path if out_path else (str(p_input.parent) if p_input.is_file() else str(p_input))
                         dest_scanlator = Path(scanlator_dir) / nome_final
                         shutil.copy2(current_target, dest_scanlator)
-                        self.log(f"✅ Exportado para o Scanlator: {dest_scanlator}")
+                        self.log(f" Exportado para o Scanlator: {dest_scanlator}")
                         
                         # Salva o nome no status.json para auto-atualização futura
                         self._update_pipeline_status(input_path, nome_final=nome_final)
-                        self.log(f"💾 Nome '{nome_final}' memorizado. Processamentos futuros desta pasta atualizarão automaticamente!")
+                        self.log(f" Nome '{nome_final}' memorizado. Processamentos futuros desta pasta atualizarão automaticamente!")
                     else:
-                        self.log("\n⚠️ Exportação cancelada. O arquivo ficou apenas na pasta Temp da Biblioteca.")
+                        self.log("\n Exportação cancelada. O arquivo ficou apenas na pasta Temp da Biblioteca.")
 
                 self.after(100, ask_final_name)
 
         except Exception as e:
-            self.log(f"\n❌ ERRO INESPERADO: {e}")
+            self.log(f"\n ERRO INESPERADO: {e}")
         finally:
             end_time = time.time()
             elapsed_time = end_time - start_time
@@ -1801,15 +1801,15 @@ class MangaApp(ctk.CTk):
                 pass
                 
             self.log("\n==================================================")
-            self.log(f"⏱️ TEMPO TOTAL DA PIPELINE: {elapsed_time:.1f} segundos")
+            self.log(f" TEMPO TOTAL DA PIPELINE: {elapsed_time:.1f} segundos")
             if balloon_count > 0:
-                self.log(f"📊 {balloon_count} blocos de texto/balões em {page_count} páginas processadas.")
-                self.log(f"⚡ Média: {elapsed_time/balloon_count:.1f} seg/balão | {elapsed_time/max(1, page_count):.1f} seg/página")
+                self.log(f" {balloon_count} blocos de texto/balões em {page_count} páginas processadas.")
+                self.log(f" Média: {elapsed_time/balloon_count:.1f} seg/balão | {elapsed_time/max(1, page_count):.1f} seg/página")
             self.log("==================================================\n")
 
             self.after(0, lambda: self.lbl_current_step.configure(text=""))
-            self.btn_run.configure(state="normal", text="▶ INICIAR PROCESSAMENTO")
-            self.btn_cancel.configure(state="disabled", text="⏹ CANCELAR")
+            self.btn_run.configure(state="normal", text=" INICIAR PROCESSAMENTO")
+            self.btn_cancel.configure(state="disabled", text=" CANCELAR")
             self.progress_bar.set(0)
 
 
@@ -1860,7 +1860,18 @@ class MangaApp(ctk.CTk):
 
     
     def check_module_rag(self):
-        return self._pkg_exists_anywhere("chromadb", "sentence_transformers")
+        try:
+            if getattr(sys, 'frozen', False):
+                install_dir = Path(sys.executable).parent
+            else:
+                install_dir = Path(__file__).parent
+            site_packages = install_dir / "venv_ui" / "Lib" / "site-packages"
+            if not site_packages.exists(): return False
+            if not (site_packages / "chromadb").exists(): return False
+            if not (site_packages / "sentence_transformers").exists(): return False
+            return True
+        except:
+            return False
 
     def install_rag(self):
         self.btn_install_rag.configure(state="disabled", text="Instalando...")
@@ -1875,16 +1886,21 @@ class MangaApp(ctk.CTk):
             import venv
             import os
             
-            self._ui_log(self.log_rag, "▶ Baixando e instalando ChromaDB e SentenceTransformers (pode demorar)...")
+            self._ui_log(self.log_rag, " Baixando e instalando ChromaDB e SentenceTransformers (pode demorar)...")
             
             if getattr(sys, 'frozen', False):
                 install_dir = Path(sys.executable).parent
             else:
                 install_dir = Path(__file__).parent
                 
+            if getattr(sys, 'frozen', False):
+                python_exe = "python"
+            else:
+                python_exe = sys.executable
+                
             venv_path = install_dir / "venv_ui"
             if not venv_path.exists():
-                venv.EnvBuilder(with_pip=True).create(venv_path)
+                subprocess.run([python_exe, "-m", "venv", str(venv_path)], capture_output=True, creationflags=0x08000000, startupinfo=startupinfo)
                 
             pip_exe = str(venv_path / "Scripts" / "pip.exe")
             
@@ -1897,16 +1913,26 @@ class MangaApp(ctk.CTk):
             env.pop("PYTHONHOME", None)
             
             proc = subprocess.Popen([pip_exe, "install", "chromadb", "sentence-transformers", "rapidfuzz"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", creationflags=0x08000000, startupinfo=startupinfo, env=env)
+            
+            has_downloaded = False
+            has_installed = False
             for line in proc.stdout:
-                if line.strip():
-                    self._ui_log(self.log_rag, line.strip())
-                    self.after(0, lambda: self._bump_progress(self.pb_rag))
+                if not line.strip(): continue
+                l = line.lower()
+                if ("download" in l or "fetching" in l) and not has_downloaded:
+                    self._ui_log(self.log_rag, " [Etapa 2/3]  Baixando pacotes (isso pode demorar)...")
+                    has_downloaded = True
+                elif ("installing collected" in l or "running setup" in l) and not has_installed:
+                    self._ui_log(self.log_rag, " [Etapa 3/3]  Instalando e configurando arquivos no sistema...")
+                    has_installed = True
+                    
+                self.after(0, lambda: self._bump_progress(self.pb_rag))
             proc.wait()
             
             if proc.returncode == 0:
-                self._ui_log(self.log_rag, "✅ Motor RAG instalado com sucesso!")
+                self._ui_log(self.log_rag, " Motor RAG instalado com sucesso!")
             else:
-                self._ui_log(self.log_rag, "❌ Falha ao instalar dependências.")
+                self._ui_log(self.log_rag, " Falha ao instalar dependências.")
             
             self.after(500, self.refresh_module_status)
 
@@ -1919,23 +1945,13 @@ class MangaApp(ctk.CTk):
                 install_dir = Path(sys.executable).parent
             else:
                 install_dir = Path(__file__).parent
-            venv_ocr_python = install_dir / "venv_ocr" / "Scripts" / "python.exe"
-            if not venv_ocr_python.exists(): 
-                return False
-            import os
-            import subprocess
-            env = os.environ.copy()
-            env.pop("PYTHONPATH", None)
-            env.pop("PYTHONHOME", None)
-            creationflags = 0x08000000 if sys.platform == "win32" else 0
-            res = subprocess.run([str(venv_ocr_python), "-c", "import transformers; print(transformers.__version__)"], capture_output=True, text=True, creationflags=creationflags, env=env)
-            if res.returncode == 0:
-                ver = res.stdout.strip()
-                if ver != "4.38.2":
-                    return False
+            site_packages = install_dir / "venv_ocr" / "Lib" / "site-packages"
+            if not site_packages.exists(): return False
+            if not (site_packages / "transformers").exists(): return False
+            if not (site_packages / "einops").exists(): return False
+            return True
         except:
-            pass
-        return self._pkg_exists_anywhere("transformers", "einops")
+            return False
 
     def check_module_translation(self):
         import shutil
@@ -2079,9 +2095,9 @@ class MangaApp(ctk.CTk):
 
         threading.Thread(target=worker, daemon=True).start()
 
-    # ═══════════════════════════════════════════════════════════════════════════
+    # 
     #  ABA LEITOR (BLOCO DE NOTAS)
-    # ═══════════════════════════════════════════════════════════════════════════
+    # 
 
     def setup_reader_tab(self):
         self.tab_reader.columnconfigure(1, weight=1)
@@ -2095,7 +2111,7 @@ class MangaApp(ctk.CTk):
         lbl_sidebar = ctk.CTkLabel(self.frame_reader_sidebar, text="Sua Biblioteca", font=ctk.CTkFont(weight="bold", size=16))
         lbl_sidebar.pack(pady=10)
         
-        btn_refresh = ctk.CTkButton(self.frame_reader_sidebar, text="🔄 Atualizar Lista", command=self.reader_refresh_list)
+        btn_refresh = ctk.CTkButton(self.frame_reader_sidebar, text=" Atualizar Lista", command=self.reader_refresh_list)
         btn_refresh.pack(padx=10, pady=(0, 10))
         
         self.reader_list_frame = ctk.CTkScrollableFrame(self.frame_reader_sidebar)
@@ -2114,7 +2130,7 @@ class MangaApp(ctk.CTk):
         self.lbl_reader_file = ctk.CTkLabel(top_bar, text="Nenhum arquivo selecionado", text_color="#888", font=ctk.CTkFont(weight="bold"))
         self.lbl_reader_file.pack(side="left", padx=5, pady=5)
         
-        self.btn_reader_save = ctk.CTkButton(top_bar, text="💾 Salvar Alterações", fg_color="#27ae60", hover_color="#2ecc71", command=self.reader_save_file, width=150, state="disabled")
+        self.btn_reader_save = ctk.CTkButton(top_bar, text=" Salvar Alterações", fg_color="#27ae60", hover_color="#2ecc71", command=self.reader_save_file, width=150, state="disabled")
         self.btn_reader_save.pack(side="right", padx=5, pady=5)
         
         self.reader_edit_var = ctk.BooleanVar(value=False)
@@ -2154,7 +2170,7 @@ class MangaApp(ctk.CTk):
         txt_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
         
         for fpath in txt_files:
-            btn = ctk.CTkButton(self.reader_list_frame, text="📖 " + fpath.name, anchor="w", fg_color="transparent", hover_color="#444", text_color="#ddd", command=lambda p=fpath: self.reader_load_from_sidebar(p))
+            btn = ctk.CTkButton(self.reader_list_frame, text=" " + fpath.name, anchor="w", fg_color="transparent", hover_color="#444", text_color="#ddd", command=lambda p=fpath: self.reader_load_from_sidebar(p))
             btn.pack(fill="x", pady=2)
 
     def reader_load_from_sidebar(self, file_path):
@@ -2248,7 +2264,7 @@ class MangaApp(ctk.CTk):
             
             # Pequeno feedback visual no botão
             old_text = self.btn_reader_save.cget("text")
-            self.btn_reader_save.configure(text="✅ Salvo!")
+            self.btn_reader_save.configure(text=" Salvo!")
             self.after(2000, lambda: self.btn_reader_save.configure(text=old_text))
         except Exception as e:
             self.log(f"Erro ao salvar arquivo no Leitor: {e}")
@@ -2293,10 +2309,10 @@ class MangaApp(ctk.CTk):
                 mb.showerror("Erro", f"Falha ao apagar cache: {e}")
         self.refresh_module_status()
 
-    def delete_ollama_model(self):
+    def delete_ollama_model(self, model):
         import subprocess
         import tkinter.messagebox as mb
-        model = self.combo_model_corr.get()
+        if not model: return
         if not mb.askyesno("Confirmar Exclusão", f"Tem certeza que deseja apagar o modelo '{model}' do Ollama?"): return
         try:
             subprocess.run(["ollama", "rm", model], creationflags=subprocess.CREATE_NO_WINDOW)
@@ -2305,10 +2321,11 @@ class MangaApp(ctk.CTk):
             mb.showerror("Erro", f"Falha ao apagar modelo: {e}")
         self.refresh_module_status()
 
-    def pull_ollama_model(self):
-        model = self.combo_model_corr.get()
+    def pull_ollama_model(self, model):
         if not model: return
-        self.btn_pull_ollama.configure(state="disabled", text="Puxando...")
+        # Disable all pull buttons while pulling
+        if hasattr(self, 'btn_pull_corr'): self.btn_pull_corr.configure(state="disabled", text="Puxando...")
+        if hasattr(self, 'btn_pull_trans'): self.btn_pull_trans.configure(state="disabled", text="Puxando...")
         self.log_trans.pack(fill="x", padx=15, pady=(0, 15))
         self.log_trans.configure(state="normal")
         self.log_trans.delete("0.0", "end")
@@ -2322,10 +2339,14 @@ class MangaApp(ctk.CTk):
                 startupinfo_pull.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 proc = subprocess.Popen(["ollama", "pull", model], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", creationflags=0x08000000, startupinfo=startupinfo_pull)
                 
+                has_downloaded = False
                 for line in proc.stdout:
                     if not line.strip(): continue
-                    # Atualiza log
-                    self._ui_log(self.log_trans, line.strip())
+                    l = line.lower()
+                    
+                    if ("pulling" in l or "downloading" in l) and not has_downloaded:
+                        self._ui_log(self.log_trans, " [Etapa 1/2]  Baixando modelo (isso pode demorar)...")
+                        has_downloaded = True
                     
                     # Tenta capturar %
                     m = re.search(r'(\d+)%', line)
@@ -2333,15 +2354,17 @@ class MangaApp(ctk.CTk):
                         pct = int(m.group(1)) / 100.0
                         self.after(0, lambda v=pct: self.pb_trans.set(v))
                     else:
+                        if "verifying" in l or "success" in l:
+                            self._ui_log(self.log_trans, " [Etapa 2/2]  Verificando integridade e salvando...")
                         self.after(0, lambda: self._bump_progress(self.pb_trans))
                 
                 proc.wait()
                 if proc.returncode == 0:
-                    self._ui_log(self.log_trans, f"✅ Modelo {model} baixado com sucesso!")
+                    self._ui_log(self.log_trans, f" Modelo {model} baixado com sucesso!")
                 else:
-                    self._ui_log(self.log_trans, f"❌ Erro ao puxar o modelo {model}.")
+                    self._ui_log(self.log_trans, f" Erro ao puxar o modelo {model}.")
             except Exception as e:
-                self._ui_log(self.log_trans, f"❌ Exceção: {e}")
+                self._ui_log(self.log_trans, f" Exceção: {e}")
             finally:
                 self.after(0, self.refresh_module_status)
 
@@ -2398,20 +2421,34 @@ class MangaApp(ctk.CTk):
         self.frame_modules.pack(fill="both", expand=True, padx=20, pady=20)
 
 
-        ctk.CTkLabel(self.frame_modules, text="Gerenciador de Módulos (IA)", font=ctk.CTkFont(size=20, weight="bold")).pack(anchor="w", pady=(0, 20))
+        header_frame = ctk.CTkFrame(self.frame_modules, fg_color="transparent")
+        header_frame.pack(fill="x", pady=(0, 20))
         
-        self.btn_update_app = ctk.CTkButton(self.frame_modules, text="🔄 Verificar Atualizações", fg_color="#3498db", hover_color="#2980b9", command=self.check_for_updates)
-        self.btn_update_app.place(relx=0.98, rely=0.0, anchor="ne")
+        ctk.CTkLabel(header_frame, text="Gerenciador de Módulos (IA)", font=ctk.CTkFont(size=20, weight="bold")).pack(side="left")
+        
+        self.btn_update_app = ctk.CTkButton(header_frame, text=" Verificar Atualizações", fg_color="#3498db", hover_color="#2980b9", width=160, command=self.check_for_updates)
+        self.btn_update_app.pack(side="right", padx=(5, 0))
+
+        self.btn_info_modules = ctk.CTkButton(header_frame, text=" Guia", fg_color="#2980b9", hover_color="#1f618d", width=100, command=self.open_modules_guide)
+        self.btn_info_modules.pack(side="right", padx=(5, 5))
+
+        self.btn_verify_all = ctk.CTkButton(header_frame, text=" Verificar Módulos", fg_color="#3498db", hover_color="#2980b9", width=150, command=self.refresh_module_status)
+        self.btn_verify_all.pack(side="right", padx=(0, 5))
 
         # Lê a versão atual para exibir
         current_version_str = "v1.0.0"
         try:
             import sys, os, json
-            base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+            if getattr(sys, 'frozen', False):
+                base_path = os.path.dirname(sys.executable)
+            else:
+                base_path = os.path.dirname(os.path.abspath(__file__))
             version_path = os.path.join(base_path, 'version.json')
             with open(version_path, "r", encoding="utf-8") as f:
                 ver_data = json.load(f)
-                current_version_str = f"v{ver_data.get('version', '1.0.0')}"
+                current_version_str = ver_data.get('version', 'v1.0.0')
+                if not current_version_str.startswith('v'):
+                    current_version_str = f"v{current_version_str}"
         except Exception:
             pass
 
@@ -2426,10 +2463,10 @@ class MangaApp(ctk.CTk):
         self.card_storage = ctk.CTkFrame(self.frame_modules, fg_color="#34495e", corner_radius=10)
         self.card_storage.pack(fill="x", pady=(0, 10), padx=10)
         
-        self.lbl_storage = ctk.CTkLabel(self.card_storage, text="💾 Armazenamento Ocupado pelos Modelos de IA: Calculando...", font=ctk.CTkFont(size=14, weight="bold"))
+        self.lbl_storage = ctk.CTkLabel(self.card_storage, text=" Armazenamento Ocupado pelos Modelos de IA: Calculando...", font=ctk.CTkFont(size=14, weight="bold"))
         self.lbl_storage.pack(side="left", padx=15, pady=15)
         
-        self.btn_clear_hf = ctk.CTkButton(self.card_storage, text="🗑️ Apagar Modelos OCR/RAG (Cache)", fg_color="#c0392b", hover_color="#e74c3c", width=220, command=self.clear_hf_cache)
+        self.btn_clear_hf = ctk.CTkButton(self.card_storage, text=" Apagar Modelos OCR/RAG (Cache)", fg_color="#c0392b", hover_color="#e74c3c", width=220, command=self.clear_hf_cache)
         self.btn_clear_hf.pack(side="right", padx=(5, 15), pady=15)
 
 
@@ -2437,7 +2474,7 @@ class MangaApp(ctk.CTk):
         self.card_ocr = ctk.CTkFrame(self.frame_modules, fg_color="#1a1a2e", corner_radius=10)
         self.card_ocr.pack(fill="x", pady=10, padx=10)
         
-        ctk.CTkLabel(self.card_ocr, text="📚 Motor de Extração de Texto (OCR Base)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
+        ctk.CTkLabel(self.card_ocr, text=" Motor de Extração de Texto (OCR Base)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
         ctk.CTkLabel(self.card_ocr, text="Necessário para a Etapa 1. Florence-2-Large (GPU/CPU). Tamanho: ~2.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
         
         self.lbl_status_ocr = ctk.CTkLabel(self.card_ocr, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
@@ -2446,13 +2483,10 @@ class MangaApp(ctk.CTk):
         self.pb_ocr.pack(side="left", padx=10, pady=15)
         self.pb_ocr.set(0)
         
-        self.btn_verify_ocr = ctk.CTkButton(self.card_ocr, text="🔄 Verificar", fg_color="#444", hover_color="#555", width=100, command=self.refresh_module_status)
-        self.btn_verify_ocr.pack(side="right", padx=(5, 15), pady=15)
-        
         self.btn_install_ocr = ctk.CTkButton(self.card_ocr, text="Baixar e Instalar", fg_color="#e94560", hover_color="#c0392b", command=self.install_ocr)
         self.btn_install_ocr.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_uninstall_ocr = ctk.CTkButton(self.card_ocr, text="🗑️ Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("ocr"))
+        self.btn_uninstall_ocr = ctk.CTkButton(self.card_ocr, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("ocr"))
         self.btn_uninstall_ocr.pack(side="right", padx=(15, 5), pady=15)
         
         self.log_ocr = ctk.CTkTextbox(self.card_ocr, height=100, state="disabled", fg_color="#000")
@@ -2461,7 +2495,7 @@ class MangaApp(ctk.CTk):
         self.card_cuda = ctk.CTkFrame(self.frame_modules, fg_color="#2c3e50", corner_radius=10)
         self.card_cuda.pack(fill="x", pady=(0, 10), padx=10)
 
-        ctk.CTkLabel(self.card_cuda, text="⚡ Aceleração NVIDIA (CUDA)", font=ctk.CTkFont(size=16, weight="bold"), text_color="#2ecc71").pack(anchor="w", padx=15, pady=(15, 5))
+        ctk.CTkLabel(self.card_cuda, text=" Aceleração NVIDIA (CUDA)", font=ctk.CTkFont(size=16, weight="bold"), text_color="#2ecc71").pack(anchor="w", padx=15, pady=(15, 5))
         ctk.CTkLabel(self.card_cuda, text="Exclusivo para placas NVIDIA. Acelera drasticamente a extração OCR. Tamanho: ~2.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
 
         self.lbl_status_cuda = ctk.CTkLabel(self.card_cuda, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
@@ -2474,13 +2508,13 @@ class MangaApp(ctk.CTk):
         self.switch_gpu = ctk.CTkSwitch(self.card_cuda, text="Forçar Uso da GPU no OCR", variable=self.var_use_gpu, font=ctk.CTkFont(weight="bold"), fg_color="#444", progress_color="#2ecc71")
         self.switch_gpu.pack(side="left", padx=15, pady=15)
 
-        self.btn_test_gpu = ctk.CTkButton(self.card_cuda, text="⚡ Testar Placa de Vídeo", fg_color="#8e44ad", hover_color="#9b59b6", width=160, command=self.verify_cuda_support)
+        self.btn_test_gpu = ctk.CTkButton(self.card_cuda, text=" Testar Placa de Vídeo", fg_color="#8e44ad", hover_color="#9b59b6", width=160, command=self.verify_cuda_support)
         self.btn_test_gpu.pack(side="right", padx=(5, 15), pady=15)
         
         self.btn_install_cuda = ctk.CTkButton(self.card_cuda, text="Baixar Suporte CUDA", fg_color="#2ecc71", hover_color="#27ae60", text_color="black", command=self.install_cuda_support)
         self.btn_install_cuda.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_uninstall_cuda = ctk.CTkButton(self.card_cuda, text="🗑️ Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("cuda"))
+        self.btn_uninstall_cuda = ctk.CTkButton(self.card_cuda, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("cuda"))
         self.btn_uninstall_cuda.pack(side="right", padx=(15, 5), pady=15)
 
         self.log_cuda = ctk.CTkTextbox(self.card_cuda, height=80, state="disabled", fg_color="#000")
@@ -2489,7 +2523,7 @@ class MangaApp(ctk.CTk):
         self.card_trans = ctk.CTkFrame(self.frame_modules, fg_color="#16213e", corner_radius=10)
         self.card_trans.pack(fill="x", pady=10, padx=10)
         
-        ctk.CTkLabel(self.card_trans, text="🌍 Motor de Tradução e Polimento (IA)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
+        ctk.CTkLabel(self.card_trans, text=" Motor de Tradução e Polimento (IA)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
         ctk.CTkLabel(self.card_trans, text="Necessário para Etapas 2 e 3 (Ollama Local). Tamanho: Variável", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
         
         # Model Selection for IA
@@ -2531,6 +2565,11 @@ class MangaApp(ctk.CTk):
         else:
             self.combo_model_corr.set(available_models[0])
         self.combo_model_corr.pack(side="left")
+        
+        self.btn_pull_corr = ctk.CTkButton(frame_model_select_corr, text=" Puxar", width=60, fg_color="#3498db", hover_color="#2980b9", command=lambda: self.pull_ollama_model(self.combo_model_corr.get()))
+        self.btn_pull_corr.pack(side="left", padx=(10, 5))
+        self.btn_del_corr = ctk.CTkButton(frame_model_select_corr, text=" Apagar", fg_color="#c0392b", hover_color="#e74c3c", width=60, command=lambda: self.delete_ollama_model(self.combo_model_corr.get()))
+        self.btn_del_corr.pack(side="left")
 
         frame_model_select_trans = ctk.CTkFrame(self.card_trans, fg_color="transparent")
         frame_model_select_trans.pack(fill="x", padx=15, pady=(0, 10))
@@ -2550,6 +2589,12 @@ class MangaApp(ctk.CTk):
         else:
             self.combo_model_trans.set(available_models[0])
         self.combo_model_trans.pack(side="left")
+        
+        self.btn_pull_trans = ctk.CTkButton(frame_model_select_trans, text=" Puxar", width=60, fg_color="#3498db", hover_color="#2980b9", command=lambda: self.pull_ollama_model(self.combo_model_trans.get()))
+        self.btn_pull_trans.pack(side="left", padx=(10, 5))
+        self.btn_del_trans = ctk.CTkButton(frame_model_select_trans, text=" Apagar", fg_color="#c0392b", hover_color="#e74c3c", width=60, command=lambda: self.delete_ollama_model(self.combo_model_trans.get()))
+        self.btn_del_trans.pack(side="left")
+        
         frame_trans_status = ctk.CTkFrame(self.card_trans, fg_color="transparent")
         frame_trans_status.pack(fill="x")
         self.lbl_status_trans = ctk.CTkLabel(frame_trans_status, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
@@ -2558,9 +2603,6 @@ class MangaApp(ctk.CTk):
         self.pb_trans.pack(side="left", padx=10, pady=15)
         self.pb_trans.set(0)
         
-        self.btn_verify_trans = ctk.CTkButton(frame_trans_status, text="🔄 Verificar", fg_color="#444", hover_color="#555", width=100, command=self.refresh_module_status)
-        self.btn_verify_trans.pack(side="right", padx=(5, 15), pady=15)
-        
         def open_ollama_site():
             import webbrowser
             webbrowser.open("https://ollama.com/download/windows")
@@ -2568,20 +2610,14 @@ class MangaApp(ctk.CTk):
         self.btn_install_trans = ctk.CTkButton(frame_trans_status, text="Baixar Ollama", fg_color="#e94560", hover_color="#c0392b", command=open_ollama_site)
         self.btn_install_trans.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_pull_ollama = ctk.CTkButton(frame_trans_status, text="⬇ Puxar", fg_color="#3498db", hover_color="#2980b9", width=80, command=self.pull_ollama_model)
-        self.btn_pull_ollama.pack(side="right", padx=(5, 5), pady=15)
-        
-        self.btn_delete_ollama = ctk.CTkButton(frame_trans_status, text="🗑️ Apagar", fg_color="#c0392b", hover_color="#e74c3c", width=80, command=self.delete_ollama_model)
-        self.btn_delete_ollama.pack(side="right", padx=(15, 5), pady=15)
-        
         self.log_trans = ctk.CTkTextbox(self.card_trans, height=100, state="disabled", fg_color="#000")
 
         # Card RAG Memory
         self.card_rag = ctk.CTkFrame(self.frame_modules, fg_color="#1a1a2e", corner_radius=10)
         self.card_rag.pack(fill="x", pady=10, padx=10)
         
-        ctk.CTkLabel(self.card_rag, text="🧠 Motor de Memória (RAG Vector DB)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
-        ctk.CTkLabel(self.card_rag, text="Necessário para a V2. Busca semântica no histórico de traduções usando ChromaDB. Tamanho: ~1.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
+        ctk.CTkLabel(self.card_rag, text=" Motor de Memória (RAG Vector DB)", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
+        ctk.CTkLabel(self.card_rag, text="Busca semântica no histórico de traduções usando ChromaDB. Tamanho: ~1.5 GB", font=ctk.CTkFont(size=12), text_color="#aaa").pack(anchor="w", padx=15, pady=(0, 10))
         
         self.lbl_status_rag = ctk.CTkLabel(self.card_rag, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
         self.lbl_status_rag.pack(side="left", padx=15, pady=15)
@@ -2592,13 +2628,10 @@ class MangaApp(ctk.CTk):
         self.sw_rag = ctk.CTkSwitch(self.card_rag, text="Ativar Memória de Contexto", variable=self.var_use_rag, font=ctk.CTkFont(weight="bold"), fg_color="#444", progress_color="#e94560")
         self.sw_rag.pack(side="left", padx=15, pady=15)
         
-        self.btn_verify_rag = ctk.CTkButton(self.card_rag, text="🔄 Verificar", fg_color="#444", hover_color="#555", width=100, command=self.refresh_module_status)
-        self.btn_verify_rag.pack(side="right", padx=(5, 15), pady=15)
-        
         self.btn_install_rag = ctk.CTkButton(self.card_rag, text="Baixar e Instalar", fg_color="#e94560", hover_color="#c0392b", command=self.install_rag)
         self.btn_install_rag.pack(side="right", padx=(5, 5), pady=15)
         
-        self.btn_uninstall_rag = ctk.CTkButton(self.card_rag, text="🗑️ Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("rag"))
+        self.btn_uninstall_rag = ctk.CTkButton(self.card_rag, text=" Desinstalar", fg_color="#c0392b", hover_color="#e74c3c", width=100, command=lambda: self.uninstall_module("rag"))
         self.btn_uninstall_rag.pack(side="right", padx=(15, 5), pady=15)
         
         self.log_rag = ctk.CTkTextbox(self.card_rag, height=100, state="disabled", fg_color="#000")
@@ -2606,29 +2639,70 @@ class MangaApp(ctk.CTk):
 
         self.refresh_module_status()
 
+    def open_modules_guide(self):
+        guide = ctk.CTkToplevel(self)
+        guide.title(" Guia da Central de Módulos")
+        guide.geometry("600x500")
+        guide.attributes("-topmost", True)
+        
+        tabview = ctk.CTkTabview(guide)
+        tabview.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        tab_cuda = tabview.add(" Motor OCR & CUDA")
+        tab_ollama = tabview.add(" Modelos Ollama")
+
+        # Aba 1: CUDA e OCR
+        ctk.CTkLabel(tab_cuda, text="Instalação e Aceleração GPU", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=10)
+        t_cuda = ctk.CTkTextbox(tab_cuda, wrap="word", font=ctk.CTkFont(size=14))
+        t_cuda.pack(fill="both", expand=True, padx=10, pady=10)
+        t_cuda.insert("0.0", "Recomendações de Instalação:\n\n"
+                             " É recomendado que o Motor OCR seja instalado antes do Suporte CUDA. O módulo CUDA atualiza o ambiente do OCR "
+                             "para otimização em placas de vídeo. A inversão dessa ordem pode resultar em incompatibilidades.\n\n"
+                             "Requisitos para Suporte CUDA:\n\n"
+                             " A aceleração via hardware é compatível exclusivamente com placas de vídeo NVIDIA.\n"
+                             " Hardware AMD (Radeon) ou Intel deve utilizar a versão CPU (configuração padrão do módulo OCR).\n"
+                             " Nota: Modelos recentes, como as placas da linha RTX Série 5000, podem apresentar limitação de suporte "
+                             "com a versão atual do framework.")
+        t_cuda.configure(state="disabled")
+
+        # Aba 2: Ollama
+        ctk.CTkLabel(tab_ollama, text="Guia de Modelos (Tradução Local)", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=10)
+        t_ollama = ctk.CTkTextbox(tab_ollama, wrap="word", font=ctk.CTkFont(size=14))
+        t_ollama.pack(fill="both", expand=True, padx=10, pady=10)
+        t_ollama.insert("0.0", "Modelos Recomendados e Requisitos de Hardware:\n\n"
+                               " llama3.1:8b -> Excelente desempenho para traduções robustas. (~8GB VRAM)\n\n"
+                               " gemma2:9b -> Alta precisão de raciocínio e correção RAG. (~8 a 10GB VRAM)\n\n"
+                               " qwen2.5:14b -> Qualidade superior e alto nível de contexto. (~12 a 16GB VRAM)\n\n"
+                               " mistral-nemo:12b -> Versatilidade com grande janela de contexto. (~12GB VRAM)\n\n"
+                               " aya:8b -> Especializado em suporte a múltiplos idiomas. (~8GB VRAM)\n\n"
+                               "Nota Técnica: O processamento local sem uma GPU dedicada com VRAM suficiente será direcionado "
+                               "para a CPU, resultando em tempos de resposta significativamente maiores. Nessas circunstâncias, "
+                               "sugere-se o uso de tradução em nuvem na aba Tradutor.")
+        t_ollama.configure(state="disabled")
+
     def refresh_module_status(self):
         # Update Storage size
         size_str = self.calculate_models_size()
-        self.lbl_storage.configure(text=f"💾 Armazenamento Ocupado pelos Modelos de IA: {size_str}")
-        self.btn_pull_ollama.configure(state="normal", text="⬇ Puxar")
+        self.lbl_storage.configure(text=f" Armazenamento Ocupado pelos Modelos de IA: {size_str}")
+        if hasattr(self, 'btn_pull_corr'): self.btn_pull_corr.configure(state="normal", text=" Puxar")
+        if hasattr(self, 'btn_pull_trans'): self.btn_pull_trans.configure(state="normal", text=" Puxar")
+        
+        self.btn_verify_all.configure(state="disabled", text=" Verificando...", text_color_disabled="#ffffff")
 
         # UI updates: reset all progress bars to 0 and set verifying labels
-        self.lbl_status_ocr.configure(text="Status: ⏳ Verificando dependências...", text_color="#f1c40f")
+        self.lbl_status_ocr.configure(text="Status: [...] Verificando dependências...", text_color="#f1c40f")
         self.btn_install_ocr.configure(state="disabled")
-        self.btn_verify_ocr.configure(state="disabled")
         self.pb_ocr.set(0.0)
         
-        self.lbl_status_trans.configure(text="Status: ⏳ Verificando motores...", text_color="#f1c40f")
+        self.lbl_status_trans.configure(text="Status: [...] Verificando motores...", text_color="#f1c40f")
         self.btn_install_trans.configure(state="disabled")
-        self.btn_verify_trans.configure(state="disabled")
         self.pb_trans.set(0.0)
         
-        self.lbl_status_cuda.configure(text="Status: ⏳ Verificando hardware...", text_color="#f1c40f")
+        self.lbl_status_cuda.configure(text="Status: [...] Verificando hardware...", text_color="#f1c40f")
         self.pb_cuda.set(0.0)
 
-        self.lbl_status_rag.configure(text="Status: ⏳ Verificando memória RAG...", text_color="#f1c40f")
+        self.lbl_status_rag.configure(text="Status: [...] Verificando memória RAG...", text_color="#f1c40f")
         self.btn_install_rag.configure(state="disabled")
-        self.btn_verify_rag.configure(state="disabled")
         self.pb_rag.set(0.0)
 
         def worker():
@@ -2662,17 +2736,15 @@ class MangaApp(ctk.CTk):
                         install_dir = Path(sys.executable).parent
                     else:
                         install_dir = Path(__file__).parent
-                    venv_ocr_python = install_dir / "venv_ocr" / "Scripts" / "python.exe"
                     
-                    creationflags = 0x08000000 if sys.platform == "win32" else 0
-                    cmd = [str(venv_ocr_python), "-c", "import torch; print('CUDA_OK') if torch.cuda.is_available() else print('CUDA_FAIL')"]
-                    import os
-                    env = os.environ.copy()
-                    env.pop("PYTHONPATH", None)
-                    env.pop("PYTHONHOME", None)
+                    torch_version_file = install_dir / "venv_ocr" / "Lib" / "site-packages" / "torch" / "version.py"
                     update_pb(self.pb_cuda, 0.6)
-                    result = subprocess.run(cmd, capture_output=True, text=True, creationflags=creationflags, env=env)
-                    has_cuda = "CUDA_OK" in result.stdout
+                    
+                    if torch_version_file.exists():
+                        with open(torch_version_file, "r", encoding="utf-8") as f:
+                            has_cuda = "+cu" in f.read()
+                    else:
+                        has_cuda = False
                 except:
                     pass
             else:
@@ -2685,33 +2757,29 @@ class MangaApp(ctk.CTk):
             def update_ui():
                 self.pb_ocr.set(1.0)
                 if has_ocr:
-                    self.lbl_status_ocr.configure(text="Status: ✅ Instalado", text_color="#2ecc71")
+                    self.lbl_status_ocr.configure(text="Status: [ ON ] Instalado", text_color="#2ecc71")
                     self.btn_install_ocr.configure(state="disabled", fg_color="#444", text="Já Instalado")
-                    self.btn_verify_ocr.configure(state="normal")
                     self.btn_uninstall_ocr.configure(state="normal")
                     self.pb_ocr.configure(progress_color="#2ecc71")
                 else:
-                    self.lbl_status_ocr.configure(text="Status: ❌ Não Instalado", text_color="#e74c3c")
+                    self.lbl_status_ocr.configure(text="Status: [ OFF ] Não Instalado", text_color="#e74c3c")
                     self.btn_install_ocr.configure(state="normal", fg_color="#e94560", text="Baixar e Instalar")
-                    self.btn_verify_ocr.configure(state="normal")
                     self.btn_uninstall_ocr.configure(state="disabled")
                     self.pb_ocr.set(0)
 
                 self.pb_trans.set(1.0)
                 if has_trans:
-                    self.lbl_status_trans.configure(text="Status: ✅ Instalado", text_color="#2ecc71")
+                    self.lbl_status_trans.configure(text="Status: [ ON ] Instalado", text_color="#2ecc71")
                     self.btn_install_trans.configure(state="disabled", fg_color="#444", text="Já Instalado")
-                    self.btn_verify_trans.configure(state="normal")
                     self.pb_trans.configure(progress_color="#2ecc71")
                 else:
-                    self.lbl_status_trans.configure(text="Status: ❌ Não Instalado", text_color="#e74c3c")
+                    self.lbl_status_trans.configure(text="Status: [ OFF ] Não Instalado", text_color="#e74c3c")
                     self.btn_install_trans.configure(state="normal", fg_color="#e94560", text="Baixar Ollama")
-                    self.btn_verify_trans.configure(state="normal")
                     self.pb_trans.set(0)
                     
                 self.pb_cuda.set(1.0)
                 if has_cuda:
-                    self.lbl_status_cuda.configure(text="Status: ✅ Aceleração Ativa", text_color="#2ecc71")
+                    self.lbl_status_cuda.configure(text="Status: [ ON ] Aceleração Ativa", text_color="#2ecc71")
                     self.pb_cuda.configure(progress_color="#2ecc71")
                     
                     self.switch_gpu.configure(state="normal", text="Forçar Uso da GPU no OCR (Habilitado)")
@@ -2719,9 +2787,9 @@ class MangaApp(ctk.CTk):
                     self.btn_install_cuda.configure(state="disabled", text="Instalado")
                     self.btn_uninstall_cuda.configure(state="normal")
                     if hasattr(self, 'lbl_process_status_cuda'):
-                        self.lbl_process_status_cuda.configure(text="GPU: ✅ Ativo", text_color="#2ecc71")
+                        self.lbl_process_status_cuda.configure(text="GPU: [ ON ]", text_color="#2ecc71")
                 else:
-                    self.lbl_status_cuda.configure(text="Status: ❌ Aceleração Ausente", text_color="#e74c3c")
+                    self.lbl_status_cuda.configure(text="Status: [ OFF ] Aceleração Ausente", text_color="#e74c3c")
                     self.pb_cuda.set(0)
                     
                     self.switch_gpu.configure(state="disabled", text="Forçar Uso da GPU no OCR (Incompatível/Não Instalado)")
@@ -2729,28 +2797,28 @@ class MangaApp(ctk.CTk):
                     self.btn_install_cuda.configure(state="normal", text="Baixar Suporte CUDA")
                     self.btn_uninstall_cuda.configure(state="disabled")
                     if hasattr(self, 'lbl_process_status_cuda'):
-                        self.lbl_process_status_cuda.configure(text="GPU: ❌ Ausente", text_color="#e74c3c")
+                        self.lbl_process_status_cuda.configure(text="GPU: [ OFF ]", text_color="#e74c3c")
                     
                 self.pb_rag.set(1.0)
                 if has_rag:
-                    self.lbl_status_rag.configure(text="Status: ✅ Instalado", text_color="#2ecc71")
+                    self.lbl_status_rag.configure(text="Status: [ ON ] Instalado", text_color="#2ecc71")
                     self.btn_install_rag.configure(state="disabled", fg_color="#444", text="Já Instalado")
-                    self.btn_verify_rag.configure(state="normal")
                     self.btn_uninstall_rag.configure(state="normal")
                     self.pb_rag.configure(progress_color="#2ecc71")
                     self.sw_rag.configure(state="normal")
                     if hasattr(self, 'lbl_process_status_rag'):
-                        self.lbl_process_status_rag.configure(text="RAG: ✅ Ativo", text_color="#2ecc71")
+                        self.lbl_process_status_rag.configure(text="RAG: [ ON ]", text_color="#2ecc71")
                 else:
-                    self.lbl_status_rag.configure(text="Status: ❌ Não Instalado", text_color="#e74c3c")
+                    self.lbl_status_rag.configure(text="Status: [ OFF ] Não Instalado", text_color="#e74c3c")
                     self.btn_install_rag.configure(state="normal", fg_color="#e94560", text="Baixar e Instalar")
-                    self.btn_verify_rag.configure(state="normal")
                     self.btn_uninstall_rag.configure(state="disabled")
                     self.pb_rag.set(0)
                     self.sw_rag.configure(state="disabled")
                     self.var_use_rag.set(False)
                     if hasattr(self, 'lbl_process_status_rag'):
-                        self.lbl_process_status_rag.configure(text="RAG: ❌ Ausente", text_color="#e74c3c")
+                        self.lbl_process_status_rag.configure(text="RAG: [ OFF ]", text_color="#e74c3c")
+                
+                self.btn_verify_all.configure(state="normal", text=" Verificar Módulos")
                     
             self.after(0, update_ui)
             
@@ -2772,7 +2840,7 @@ class MangaApp(ctk.CTk):
 
     def verify_cuda_support(self):
         """Testa se a GPU NVIDIA está disponível para o PyTorch."""
-        self.btn_test_gpu.configure(state="disabled", text="⏳ Testando...")
+        self.btn_test_gpu.configure(state="disabled", text=" Testando...")
         self.log_cuda.pack(fill="x", padx=15, pady=(0, 15))
         self.log_cuda.configure(state="normal")
         self.log_cuda.delete("1.0", "end")
@@ -2788,8 +2856,8 @@ class MangaApp(ctk.CTk):
             venv_ocr_python = install_dir / "venv_ocr" / "Scripts" / "python.exe"
             
             if not venv_ocr_python.exists():
-                self._ui_log(self.log_cuda, "❌ Módulo OCR Base não instalado. Baixe-o primeiro no cartão acima.")
-                self.after(0, lambda: self.btn_test_gpu.configure(state="normal", text="⚡ Testar Placa de Vídeo"))
+                self._ui_log(self.log_cuda, " Módulo OCR Base não instalado. Baixe-o primeiro no cartão acima.")
+                self.after(0, lambda: self.btn_test_gpu.configure(state="normal", text=" Testar Placa de Vídeo"))
                 return
 
             try:
@@ -2802,11 +2870,11 @@ class MangaApp(ctk.CTk):
                 result = subprocess.run(cmd, capture_output=True, text=True, creationflags=creationflags, env=env)
                 
                 if "CUDA_OK" in result.stdout:
-                    self._ui_log(self.log_cuda, "✅ SUCESSO: GPU NVIDIA detectada e pronta para o OCR!")
+                    self._ui_log(self.log_cuda, " SUCESSO: GPU NVIDIA detectada e pronta para o OCR!")
                     self._ui_log(self.log_cuda, "O EasyOCR rodará com aceleração total de hardware.")
                     self.after(0, self.refresh_module_status)
                 else:
-                    self._ui_log(self.log_cuda, "⚠️ AVISO: GPU NVIDIA (CUDA) não foi detectada pelo PyTorch.")
+                    self._ui_log(self.log_cuda, " AVISO: GPU NVIDIA (CUDA) não foi detectada pelo PyTorch.")
                     self._ui_log(self.log_cuda, "O OCR rodará em MODO LENTO (usando apenas a CPU).")
                     self._ui_log(self.log_cuda, "\nPara resolver (Apenas para placas NVIDIA):")
                     self._ui_log(self.log_cuda, "1. Clique em 'Baixar Suporte CUDA' nesta seção.")
@@ -2814,10 +2882,10 @@ class MangaApp(ctk.CTk):
                     self._ui_log(self.log_cuda, "Nota: Placas AMD ou Intel não suportam CUDA. O modo CPU é o ideal.")
                     
             except Exception as e:
-                self._ui_log(self.log_cuda, f"❌ Erro ao testar CUDA: {e}")
+                self._ui_log(self.log_cuda, f" Erro ao testar CUDA: {e}")
                 
             finally:
-                self.after(0, lambda: self.btn_test_gpu.configure(state="normal", text="⚡ Testar Placa de Vídeo"))
+                self.after(0, lambda: self.btn_test_gpu.configure(state="normal", text=" Testar Placa de Vídeo"))
 
         threading.Thread(target=_run_test, daemon=True).start()
 
@@ -2826,7 +2894,7 @@ class MangaApp(ctk.CTk):
         self.log_cuda.pack(fill="x", padx=15, pady=(0, 15))
         self.log_cuda.configure(state="normal")
         self.log_cuda.delete("1.0", "end")
-        self.log_cuda.insert("end", "Iniciando download da Aceleração CUDA (~2.5GB). Pode demorar...\n")
+        self.log_cuda.insert("end", " [Etapa 1/3]  Preparando instalação da Aceleração CUDA...\n")
         self.log_cuda.configure(state="disabled")
 
         def _run_install():
@@ -2838,14 +2906,17 @@ class MangaApp(ctk.CTk):
             venv_ocr_python = install_dir / "venv_ocr" / "Scripts" / "python.exe"
             
             if not venv_ocr_python.exists():
-                self._ui_log(self.log_cuda, "❌ Instale o Módulo OCR Base (acima) primeiro!")
+                self._ui_log(self.log_cuda, " Instale o Módulo OCR Base (acima) primeiro!")
                 self.after(0, lambda: self.btn_install_cuda.configure(state="normal", text="Baixar Suporte CUDA"))
                 return
                 
             try:
+                has_downloaded = False
+                has_installed = False
+                
                 cmd = [
                     str(venv_ocr_python), "-m", "pip", "install", 
-                    "torch", "torchvision", "--pre", "--index-url", "https://download.pytorch.org/whl/nightly/cu126",
+                    "torch", "torchvision", "--index-url", "https://download.pytorch.org/whl/cu124",
                     "--default-timeout=1000", "--force-reinstall", "--no-deps"
                 ]
                 startupinfo = subprocess.STARTUPINFO()
@@ -2859,20 +2930,30 @@ class MangaApp(ctk.CTk):
                     startupinfo=startupinfo
                 )
                 
+                full_log = []
                 for line in proc.stdout:
-                    if line.strip():
-                        self._ui_log(self.log_cuda, line.strip())
-                        self.after(0, lambda: self._bump_progress(self.pb_cuda))
+                    if not line.strip(): continue
+                    l = line.lower()
+                    full_log.append(line.strip())
+                    if ("download" in l or "fetching" in l) and not has_downloaded:
+                        self._ui_log(self.log_cuda, " [Etapa 2/3] Baixando pacotes da NVIDIA (~2.5GB, isso pode demorar)...")
+                        has_downloaded = True
+                    elif ("installing collected" in l or "running setup" in l) and not has_installed:
+                        self._ui_log(self.log_cuda, " [Etapa 3/3] Instalando e configurando os núcleos de processamento...")
+                        has_installed = True
+                        
+                    self.after(0, lambda: self._bump_progress(self.pb_cuda))
                 proc.wait()
                 
                 if proc.returncode == 0:
-                    self._ui_log(self.log_cuda, "\n✅ Aceleração CUDA instalada com sucesso!")
+                    self._ui_log(self.log_cuda, "\n[OK] Aceleração CUDA instalada com sucesso!")
                     self.after(0, self.refresh_module_status)
                 else:
-                    self._ui_log(self.log_cuda, "\n❌ Ocorreu um erro durante a instalação.")
-                    
+                    self._ui_log(self.log_cuda, "\n[ERRO] Ocorreu um erro durante a instalação. Detalhes do erro:")
+                    for err_line in full_log[-10:]:
+                        self._ui_log(self.log_cuda, f"   {err_line[:120]}")
             except Exception as e:
-                self._ui_log(self.log_cuda, f"\n❌ Falha grave: {e}")
+                self._ui_log(self.log_cuda, f"\n Falha grave: {e}")
             finally:
                 self.after(0, lambda: self.btn_install_cuda.configure(state="normal", text="Baixar Suporte CUDA"))
 
@@ -2893,7 +2974,7 @@ class MangaApp(ctk.CTk):
                 from pathlib import Path
                 
                 CREATE_NO_WINDOW = 0x08000000
-                self._ui_log(self.log_ocr, "▶ Preparando ambiente isolado de OCR...")
+                self._ui_log(self.log_ocr, " [Etapa 1/4]  Preparando ambiente isolado de OCR...")
                 
                 if getattr(sys, 'frozen', False):
                     install_dir = Path(sys.executable).parent
@@ -2910,8 +2991,13 @@ class MangaApp(ctk.CTk):
                 self._ui_log(self.log_ocr, "  Criando venv_ocr...")
                 startupinfo_venv = subprocess.STARTUPINFO()
                 startupinfo_venv.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                if getattr(sys, 'frozen', False):
+                    python_exe = "python"
+                else:
+                    python_exe = sys.executable
+
                 subprocess.run(
-                    [sys.executable, "-m", "venv", str(venv_ocr_dir)],
+                    [python_exe, "-m", "venv", str(venv_ocr_dir)],
                     capture_output=True,
                     creationflags=CREATE_NO_WINDOW,
                     startupinfo=startupinfo_venv
@@ -2919,15 +3005,15 @@ class MangaApp(ctk.CTk):
                 
                 venv_ocr_python = venv_ocr_dir / "Scripts" / "python.exe"
                 if not venv_ocr_python.exists():
-                    self._ui_log(self.log_ocr, "❌ Falha ao criar ambiente virtual isolado!")
+                    self._ui_log(self.log_ocr, " Falha ao criar ambiente virtual isolado!")
                     return
                 
                 req = install_dir / "requirements-ocr.txt"
                 if not req.exists():
-                    self._ui_log(self.log_ocr, "❌ Arquivo requirements-ocr.txt não encontrado!")
+                    self._ui_log(self.log_ocr, " Arquivo requirements-ocr.txt não encontrado!")
                     return
 
-                self._ui_log(self.log_ocr, "▶ Baixando e instalando o Motor de IA (Tempo Estimado: 1 a 3 minutos)...")
+                self._ui_log(self.log_ocr, " [Etapa 2/4]  Preparando download do Motor de IA...")
                 
                 # Usa venv_ocr_python, remove quiet para mostrar logs
                 cmd = [
@@ -2950,20 +3036,28 @@ class MangaApp(ctk.CTk):
                     startupinfo=startupinfo,
                     env=env
                 )
+                has_downloaded = False
+                has_installed = False
                 for line in proc.stdout:
-                    stripped = line.strip()
-                    if stripped:
-                        self._ui_log(self.log_ocr, stripped[:120])
-                        self.after(0, lambda: self._bump_progress(self.pb_ocr))
+                    if not line.strip(): continue
+                    l = line.lower()
+                    if ("download" in l or "fetching" in l) and not has_downloaded:
+                        self._ui_log(self.log_ocr, " [Etapa 3/4]  Baixando pacotes (isso pode demorar)...")
+                        has_downloaded = True
+                    elif ("installing collected" in l or "running setup" in l) and not has_installed:
+                        self._ui_log(self.log_ocr, " [Etapa 4/4]  Instalando e configurando arquivos no disco...")
+                        has_installed = True
+                        
+                    self.after(0, lambda: self._bump_progress(self.pb_ocr))
                 proc.wait()
 
                 if proc.returncode == 0:
-                    self._ui_log(self.log_ocr, "✅ Instalação concluída com sucesso!")
+                    self._ui_log(self.log_ocr, " Instalação concluída com sucesso!")
                 else:
-                    self._ui_log(self.log_ocr, f"❌ Erro na instalação. O download pode ter falhado.")
+                    self._ui_log(self.log_ocr, f" Erro na instalação. O download pode ter falhado.")
                     self._ui_log(self.log_ocr, "Clique em 'Baixar e Instalar' novamente para tentar continuar.")
             except Exception as e:
-                self._ui_log(self.log_ocr, f"❌ Exceção: {e}")
+                self._ui_log(self.log_ocr, f" Exceção: {e}")
             finally:
                 self.after(0, self.refresh_module_status)
 
@@ -2980,7 +3074,7 @@ class MangaApp(ctk.CTk):
             with open(MODEL_PREFS_PATH, "w", encoding="utf-8") as f:
                 json.dump(prefs, f)
         except Exception as e:
-            self.log(f"⚠️ Erro ao salvar preferências de modelo: {e}")
+            self.log(f" Erro ao salvar preferências de modelo: {e}")
 
 if __name__ == "__main__":
     app = MangaApp()

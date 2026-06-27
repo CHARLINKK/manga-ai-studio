@@ -1,6 +1,6 @@
 {
-    "version": "v1.3.11",
-    "release_date": "2026-06-26",
-    "changelog": "Adicionado Auto-Updater silencioso, melhorias de OCR, interface refinada na aba de módulos e limpeza automática de cache.",
-    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.3.11/Manga_AI_Studio_v1.3.11.zip"
+    "version": "v1.3.12",
+    "release_date": "2026-06-27",
+    "changelog": "Adicionado suporte estável ao CUDA 12.4 para acelerar OCR (Sem erro Win206), corrigido bugs visuais no semáforo (Explorador e Aba Módulos) para suportar múltiplas resoluções, silenciados logs inúteis do Hugging Face, corrigido bug de tamanho do console de processamento.",
+    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.3.12/Manga_AI_Studio_v1.3.12.zip"
 }
