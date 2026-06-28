@@ -37,3 +37,13 @@ temp/
 
 # Agent configs
 .agents/
+
+# Arquivos Temporarios e Backups
+*.bak
+colors.txt
+test_*.py
+fix_*.py
+inject_*.py
+apply_mockup.py
+sweep.py
+revert_setup.py

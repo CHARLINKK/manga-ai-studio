@@ -106,6 +106,8 @@ def ask_string(title, prompt, parent=None):
     dialog.title(title)
     center_window(dialog, 450, 220, parent)
     dialog.attributes("-topmost", True)
+    if parent:
+        dialog.transient(parent)
     dialog.grab_set()
     dialog.resizable(False, False)
     
@@ -960,9 +962,9 @@ class MangaApp(ctk.CTk):
         self.cb_bilingual = ctk.CTkCheckBox(self.frame_opts, text=" Exportar Formato Bilíngue [EN/PTBR]", variable=self.var_bilingual)
         self.cb_bilingual.pack(anchor="w", padx=45, pady=0)
         
-        self.var_pause_translate = ctk.BooleanVar(value=False)
-        self.cb_pause_translate = ctk.CTkCheckBox(self.frame_opts, text=" Pausar após Tradução (Ir para Estúdio)", variable=self.var_pause_translate)
-        self.cb_pause_translate.pack(anchor="w", padx=45, pady=5)
+        self.var_open_studio_after = ctk.BooleanVar(value=True)
+        self.cb_open_studio_after = ctk.CTkCheckBox(self.frame_opts, text=" Abrir Estúdio de Tradução após finalizar", variable=self.var_open_studio_after)
+        self.cb_open_studio_after.pack(anchor="w", padx=45, pady=5)
         
         # (Seletor de modelo movido para a aba de Módulos)
 
@@ -1077,8 +1079,14 @@ class MangaApp(ctk.CTk):
         self.frame_studio_img = ctk.CTkFrame(self.frame_studio_split)
         self.frame_studio_img.pack(side="left", fill="both", expand=True, padx=(0, 5))
         
-        self.lbl_studio_page_info = ctk.CTkLabel(self.frame_studio_img, text="", font=ctk.CTkFont(size=12, slant="italic"), text_color="gray")
-        self.lbl_studio_page_info.pack(side="top", pady=(5, 0))
+        self.frame_studio_img_top = ctk.CTkFrame(self.frame_studio_img, fg_color="transparent")
+        self.frame_studio_img_top.pack(side="top", fill="x", pady=(5, 0), padx=5)
+        
+        self.lbl_studio_page_info = ctk.CTkLabel(self.frame_studio_img_top, text="", font=ctk.CTkFont(size=12, slant="italic"), text_color="gray")
+        self.lbl_studio_page_info.pack(side="left", expand=True)
+        
+        self.btn_studio_reset_zoom = ctk.CTkButton(self.frame_studio_img_top, text="🔍 Resetar Zoom", width=100, fg_color="#3498db", hover_color="#2980b9", command=self.reset_studio_zoom)
+        self.btn_studio_reset_zoom.pack_forget()
         
         self.canvas_studio_img = tk.Canvas(self.frame_studio_img, bg="#2b2b2b", highlightthickness=0)
         self.canvas_studio_img = tk.Canvas(self.frame_studio_img, bg="#e0e0e0" if self.app_settings.get("theme", "Dark") == "Light" else "#1f1f1f", highlightthickness=0)
@@ -1119,8 +1127,20 @@ class MangaApp(ctk.CTk):
         self.label_studio_translated = ctk.CTkLabel(self.frame_studio_txt, text="Tradução:", font=ctk.CTkFont(weight="bold"))
         self.label_studio_translated.pack(anchor="w", padx=5, pady=(0, 0))
         
-        self.frame_studio_blocks = ctk.CTkScrollableFrame(self.frame_studio_txt)
-        self.frame_studio_blocks.pack(fill="both", expand=True, padx=5, pady=5)
+        # Novo Container Pai que vai segurar os ScrollableFrames de cada página individualmente
+        self.container_studio_blocks = ctk.CTkFrame(self.frame_studio_txt, fg_color="transparent")
+        self.container_studio_blocks.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # Variáveis de Estado para Arquitetura de Camadas + Lazy Loading
+        self.studio_page_frames = {}   # {page_name: CTkScrollableFrame}
+        self.studio_page_blocks = {}   # {page_name: [DraggableBlock, ...]}
+        self.studio_page_zooms = {}    # {page_name: float}
+        self.studio_page_pil_images = {} # {page_name: PIL Image}
+        self._prefetch_queue = []
+        self._prefetch_job = None
+
+        # Para retrocompatibilidade (vai apontar para o frame atual)
+        self.frame_studio_blocks = None
         self.studio_blocks = []
         
         self.btn_studio_add_block = ctk.CTkButton(self.frame_studio_txt, text="+ Adicionar Bloco de Texto", fg_color="#2E7D32", hover_color="#1B5E20", command=lambda: self._create_studio_block(""))
@@ -1171,6 +1191,19 @@ class MangaApp(ctk.CTk):
         self.bind("<Control-s>", on_ctrl_s)
         self.bind("<Right>", on_right)
         self.bind("<Left>", on_left)
+    def reset_studio_zoom(self):
+        if self.studio_current_page:
+            self.studio_page_zooms[self.studio_current_page] = 1.0
+            self.studio_zoom_level = 1.0
+            self.update_studio_image()
+
+    def update_studio_zoom_button(self):
+        if hasattr(self, 'btn_studio_reset_zoom'):
+            if abs(self.studio_zoom_level - 1.0) > 0.05:
+                self.btn_studio_reset_zoom.pack(side="right")
+            else:
+                self.btn_studio_reset_zoom.pack_forget()
+
     def on_studio_mouse_wheel(self, event):
         if not self.studio_original_pil_image:
             return
@@ -1178,6 +1211,11 @@ class MangaApp(ctk.CTk):
             self.studio_zoom_level += 0.1
         else:
             self.studio_zoom_level = max(0.1, self.studio_zoom_level - 0.1)
+            
+        # Salva o zoom específico para esta página
+        if self.studio_current_page:
+            self.studio_page_zooms[self.studio_current_page] = self.studio_zoom_level
+            
         self.update_studio_image()
 
     def on_studio_drag_start(self, event):
@@ -1256,11 +1294,17 @@ class MangaApp(ctk.CTk):
             self.studio_img_id = self.canvas_studio_img.create_image(self.studio_img_x, self.studio_img_y, image=new_tk_image, anchor="center")
             
         self.studio_current_tk_image = new_tk_image
+        self.update_studio_zoom_button()
 
-    def _create_studio_block(self, text, original_text=""):
-        block = DraggableBlock(self.frame_studio_blocks, text, self, original_text=original_text)
+    def _create_studio_block(self, text, original_text="", parent_frame=None, target_list=None):
+        if parent_frame is None:
+            parent_frame = self.frame_studio_blocks
+        if target_list is None:
+            target_list = self.studio_blocks
+            
+        block = DraggableBlock(parent_frame, text, self, original_text=original_text)
         block.pack(fill="x", pady=2)
-        self.studio_blocks.append(block)
+        target_list.append(block)
         
         def on_focus():
             if getattr(self, 'studio_is_editor_mode', False):
@@ -1274,6 +1318,18 @@ class MangaApp(ctk.CTk):
             self.textbox_studio_original.configure(state="disabled")
             
         block.set_on_focus(on_focus)
+        
+        # Bind scroll diretamente aqui em vez de iterar no final
+        def _on_mousewheel(event, pf=parent_frame):
+            pf._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)) * 20, "units")
+        
+        def bind_scroll(w, func):
+            w.bind("<MouseWheel>", func, add="+")
+            for c in w.winfo_children():
+                bind_scroll(c, func)
+                
+        bind_scroll(block, _on_mousewheel)
+        
         return block
 
     def delete_studio_block(self, block):
@@ -1401,9 +1457,16 @@ class MangaApp(ctk.CTk):
             p = p.parent
             
         folder_path = str(p)
+        
+        # Evita recarregamento redundante se já estiver exatamente na mesma tela/modo
+        if getattr(self, 'studio_current_folder', None) == folder_path and \
+           getattr(self, 'studio_translated_txt_path', None) == txt_path and \
+           getattr(self, 'studio_is_editor_mode', None) == is_editor_mode and \
+           self.current_tab == "Estúdio de Tradução":
+            self.set_tab("Estúdio de Tradução")
+            return
+            
         self.set_tab("Estúdio de Tradução")
-        self.update()
-        self.update_idletasks()
         
         self.studio_is_editor_mode = is_editor_mode
         self._load_studio_data(folder_path, txt_path)
@@ -1450,23 +1513,59 @@ class MangaApp(ctk.CTk):
     def _load_studio_data(self, folder_path, txt_path=None):
         if not txt_path:
             # Fallback (caso carregado via botão "Abrir Pasta" no Estúdio)
-            folder = Path(folder_path)
-            txts = list(folder.rglob("*.txt"))
-            translated_path = next((f for f in txts if "_traduzido" in f.name or "_translated" in f.name), None)
-            corrected_path = next((f for f in txts if "_corrigido" in f.name or "_corrected" in f.name), None)
-            raw_path = next((f for f in txts if "_raw" in f.name), None)
+            # 1. Primeiro verifica o status.json da Temp — fonte de verdade do pipeline
+            try:
+                import json
+                temp_dir = Path(os.environ["USERPROFILE"]) / "Documents" / "Manga AI Studio" / "Biblioteca" / "Temp"
+                status_path = temp_dir / "status.json"
+                if status_path.exists():
+                    with open(status_path, "r", encoding="utf-8") as f:
+                        status = json.load(f)
+                    folder_key = Path(folder_path).name
+                    if folder_key in status:
+                        entry = status[folder_key]
+                        # Prioridade: traduzido > corrigido > raw
+                        for key in ("traduzido", "corrigido", "raw"):
+                            candidate = entry.get(key)
+                            if candidate and os.path.exists(candidate):
+                                txt_path = candidate
+                                break
+            except Exception:
+                pass
             
-            if not translated_path:
-                translated_path = corrected_path or raw_path
+            # 2. Se não achou no status.json, procura na Temp pelo nome da pasta
+            if not txt_path:
+                try:
+                    temp_dir = Path(os.environ["USERPROFILE"]) / "Documents" / "Manga AI Studio" / "Biblioteca" / "Temp"
+                    folder_key = Path(folder_path).name
+                    for suffix in ("_traduzido.txt", "_corrigido.txt", "_raw.txt"):
+                        candidate = temp_dir / f"{folder_key}{suffix}"
+                        if candidate.exists():
+                            txt_path = str(candidate)
+                            break
+                except Exception:
+                    pass
             
-            if translated_path:
-                txt_path = str(translated_path)
+            # 3. Último recurso: procura na pasta de imagens (comportamento antigo)
+            if not txt_path:
+                folder = Path(folder_path)
+                txts = list(folder.rglob("*.txt"))
+                translated_path = next((f for f in txts if "_traduzido" in f.name or "_translated" in f.name), None)
+                corrected_path = next((f for f in txts if "_corrigido" in f.name or "_corrected" in f.name), None)
+                raw_path = next((f for f in txts if "_raw" in f.name), None)
+                
+                best = translated_path or corrected_path or raw_path
+                if best:
+                    txt_path = str(best)
                 
         if not txt_path or not os.path.exists(txt_path):
             self.log(" Nenhum arquivo de texto encontrado para o Estúdio.")
             return
         
         self.studio_translated_txt_path = txt_path
+        
+        is_same_folder = getattr(self, 'studio_current_folder', None) == folder_path
+        self.studio_current_folder = folder_path
         
         # Ocultar/Mostrar componentes de acordo com o modo
         if getattr(self, 'studio_is_editor_mode', False):
@@ -1510,38 +1609,176 @@ class MangaApp(ctk.CTk):
         _, self.studio_pages_translated = self._parse_studio_txt(txt_path)
         
         # 3. Find images
-        self.studio_images_paths = {}
-        if os.path.isdir(folder_path):
-            supported_formats = {'.png', '.jpg', '.jpeg', '.webp'}
-            import re
-            def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
-                return [int(text) if text.isdigit() else text.lower() for text in _nsre.split(s)]
+        if not is_same_folder:
+            self.studio_images_paths = {}
+            if os.path.isdir(folder_path):
+                supported_formats = {'.png', '.jpg', '.jpeg', '.webp'}
+                import re
+                def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+                    return [int(text) if text.isdigit() else text.lower() for text in _nsre.split(s)]
+                    
+                images = [f for f in os.listdir(folder_path) if os.path.splitext(f)[1].lower() in supported_formats]
+                images = sorted(images, key=natural_sort_key)
+                for img in images:
+                    self.studio_images_paths[img] = os.path.join(folder_path, img)
                 
-            images = [f for f in os.listdir(folder_path) if os.path.splitext(f)[1].lower() in supported_formats]
-            images = sorted(images, key=natural_sort_key)
-            for img in images:
-                self.studio_images_paths[img] = os.path.join(folder_path, img)
-                
-        # 4. Populate sidebar
-        for widget in self.frame_studio_pages.winfo_children():
-            widget.destroy()
+        # 4. Limpa estado anterior e popula sidebar
+        if not is_same_folder:
+            self.studio_page_frames.clear()
+            self.studio_page_blocks.clear()
+            self.studio_page_zooms.clear()
+            self.studio_page_pil_images.clear()
+            self.studio_blocks = []
+            self.studio_current_page = None
             
-        for img_name in self.studio_images_paths.keys():
+            # Destrói o container inteiro e recria para evitar travamento
+            if hasattr(self, 'container_studio_blocks') and self.container_studio_blocks.winfo_exists():
+                self.container_studio_blocks.destroy()
+                
+            self.container_studio_blocks = ctk.CTkFrame(self.frame_studio_txt, fg_color="transparent")
+            self.container_studio_blocks.pack(fill="both", expand=True, padx=5, pady=5, before=self.btn_studio_add_block)
+
+        # Recria os botões da sidebar de páginas apenas se for uma nova pasta
+        if not hasattr(self, 'studio_page_buttons') or not is_same_folder:
+            for widget in self.frame_studio_pages.winfo_children():
+                widget.destroy()
+            
+            self.studio_page_buttons = {}
+            theme_fg = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
+            theme_hover = ctk.ThemeManager.theme["CTkButton"]["hover_color"]
+            
+            for img_name in self.studio_images_paths.keys():
+                btn = ctk.CTkButton(self.frame_studio_pages, command=lambda n=img_name: self._nav_debounce(n))
+                btn.pack(fill="x", pady=2)
+                btn._default_fg_color = theme_fg
+                btn._default_hover_color = theme_hover
+                self.studio_page_buttons[img_name] = btn
+
+        # Atualiza textos e cores dos botões instantaneamente
+        _NO_TEXT_MARKERS = {"[nenhum texto detectado nesta página]", "[nenhum texto detectado nesta pagina]"}
+        for img_name, btn in getattr(self, 'studio_page_buttons', {}).items():
             has_text = False
             if img_name in self.studio_pages_translated:
-                if any(t.strip() for t in self.studio_pages_translated[img_name]):
+                # Ignora placeholders de "sem texto" — só conta como verde se tiver falas reais
+                real_lines = [
+                    t.strip() for t in self.studio_pages_translated[img_name]
+                    if t.strip() and t.strip().lower() not in _NO_TEXT_MARKERS
+                ]
+                if real_lines:
                     has_text = True
                     
             if has_text:
-                btn = ctk.CTkButton(self.frame_studio_pages, text=f"\u2705 {img_name}", fg_color="#27ae60", hover_color="#2ecc71", command=lambda n=img_name: self.select_studio_page(n))
+                btn.configure(text=f"\u2705 {img_name}", fg_color="#27ae60", hover_color="#2ecc71")
             else:
-                btn = ctk.CTkButton(self.frame_studio_pages, text=img_name, command=lambda n=img_name: self.select_studio_page(n))
-            btn.pack(fill="x", pady=2)
-            
-        # Select first page
+                btn.configure(text=img_name, fg_color=btn._default_fg_color, hover_color=btn._default_hover_color)
+
+
+        # Triggers prefetch queue ou atualiza blocos instantaneamente
         if self.studio_images_paths:
-            first = list(self.studio_images_paths.keys())[0]
-            self.after(150, lambda: self.select_studio_page(first))
+            import itertools
+            def split_by_empty_lines(lines):
+                return ["\n".join(group) for k, group in itertools.groupby(lines, key=bool) if k]
+                
+            self._prefetch_queue = list(self.studio_images_paths.keys())
+            
+            # Se for a mesma pasta (troca Editor <-> Studio), tenta atualizar blocos existentes
+            if is_same_folder:
+                for page_name in list(self.studio_page_frames.keys()):
+                    t_blocks = split_by_empty_lines(self.studio_pages_translated.get(page_name, []))
+                    o_blocks = split_by_empty_lines(self.studio_pages_original.get(page_name, []))
+                    blocks = self.studio_page_blocks.get(page_name, [])
+                    
+                    if len(blocks) != len(t_blocks):
+                        # O número de blocos mudou (ex: usou Adicionar Bloco). Destrói para recriar.
+                        self.studio_page_frames[page_name].destroy()
+                        del self.studio_page_frames[page_name]
+                        del self.studio_page_blocks[page_name]
+                        continue
+                        
+                    # Se for igual, atualiza o texto instantaneamente sem recriar widgets CustomTkinter
+                    for i, block in enumerate(blocks):
+                        orig_text = o_blocks[i] if i < len(o_blocks) else ""
+                        block.original_text = orig_text
+                        block.textbox.delete("0.0", "end")
+                        block.textbox.insert("0.0", t_blocks[i])
+                        
+                # Sincroniza ponteiro da página atual
+                if getattr(self, 'studio_current_page', None) in self.studio_page_blocks:
+                    self.studio_blocks = self.studio_page_blocks[self.studio_current_page]
+                    
+                # Remove da fila de carregamento as páginas que já foram atualizadas
+                self._prefetch_queue = [p for p in self._prefetch_queue if p not in self.studio_page_frames]
+                
+            if self._prefetch_job:
+                self.after_cancel(self._prefetch_job)
+                
+            # Inicia prefetch silencioso em background APENAS para páginas faltantes
+            if self._prefetch_queue:
+                self._prefetch_job = self.after(100, self._process_prefetch_queue)
+            
+            # Mantém a página atual se for a mesma pasta, senão vai pra primeira
+            all_pages = list(self.studio_images_paths.keys())
+            target_page = getattr(self, 'studio_current_page', None)
+            if not is_same_folder or target_page not in self.studio_images_paths:
+                # Pega a primeira página que existe na lista de imagens (nunca da fila, que pode estar vazia)
+                target_page = all_pages[0] if all_pages else None
+                
+            if target_page:
+                if is_same_folder:
+                    self._skip_next_flush = True
+                self.after(50, lambda: self.select_studio_page(target_page))
+
+    def _refresh_sidebar_buttons(self):
+        """Atualiza as cores/textos dos botões da sidebar para refletir o estado atual."""
+        _NO_TEXT_MARKERS = {"[nenhum texto detectado nesta página]", "[nenhum texto detectado nesta pagina]"}
+        for img_name, btn in getattr(self, 'studio_page_buttons', {}).items():
+            has_text = False
+            if img_name in self.studio_pages_translated:
+                real_lines = [
+                    t.strip() for t in self.studio_pages_translated[img_name]
+                    if t.strip() and t.strip().lower() not in _NO_TEXT_MARKERS
+                ]
+                if real_lines:
+                    has_text = True
+            
+            is_active = (img_name == getattr(self, 'studio_current_page', None))
+            if has_text:
+                btn.configure(text=f"\u2705 {img_name}", fg_color="#27ae60", hover_color="#2ecc71",
+                              border_width=2 if is_active else 0, border_color="#3498db")
+            else:
+                btn.configure(text=img_name, fg_color=btn._default_fg_color, hover_color=btn._default_hover_color,
+                              border_width=2 if is_active else 0, border_color="#3498db")
+
+    def _nav_debounce(self, page_name):
+        """Sistema de lock+fila: se já está trocando de página, guarda o pedido e executa depois."""
+        if getattr(self, '_nav_busy', False):
+            # Está ocupado: atualiza o pedido pendente (só o último importa)
+            self._nav_pending = page_name
+            return
+        # Pequeno delay para absorver cliques duplos acidentais
+        if hasattr(self, '_nav_job') and self._nav_job:
+            self.after_cancel(self._nav_job)
+        self._nav_job = self.after(50, lambda: self.select_studio_page(page_name))
+
+    def _flush_current_page(self):
+        """Salva na memória os blocos da página atual antes de trocar de página."""
+        if getattr(self, '_skip_next_flush', False):
+            self._skip_next_flush = False
+            return
+            
+        if not self.studio_current_page:
+            return
+        
+        # Proteção extra: se a página foi destruída, ignora o flush para não causar crash
+        if getattr(self, 'studio_page_frames', None) and self.studio_current_page not in self.studio_page_frames:
+            return
+            
+        new_lines = []
+        for block in self.studio_blocks:
+            traducao = block.textbox.get("0.0", "end-1c").strip()
+            new_lines.append(traducao)
+            new_lines.append("")  # separador
+        self.studio_pages_translated[self.studio_current_page] = "\n".join(new_lines).split("\n")
 
     def navigate_studio_page(self, direction):
         if not self.studio_images_paths: return
@@ -1550,55 +1787,140 @@ class MangaApp(ctk.CTk):
             idx = keys.index(self.studio_current_page)
             new_idx = idx + direction
             if 0 <= new_idx < len(keys):
-                self.select_studio_page(keys[new_idx])
+                # Debounce: cancela navegação pendente para evitar crash ao trocar rapidamente
+                self._nav_debounce(keys[new_idx])
 
-    def select_studio_page(self, page_name):
-        self.studio_current_page = page_name
-        self.lbl_studio_page_info.configure(text=f"Página Aberta: {page_name}")
+    def _bind_scroll_to_blocks_frame(self, widget):
+        """Propaga o scroll do mouse de qualquer widget filho para o CTkScrollableFrame de blocos."""
+        def _on_mousewheel(event):
+            self.frame_studio_blocks._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)) * 20, "units")
+        widget.bind("<MouseWheel>", _on_mousewheel, add="+")
+        for child in widget.winfo_children():
+            self._bind_scroll_to_blocks_frame(child)
+
+    def _process_prefetch_queue(self):
+        """Constrói as páginas da fila em background de forma iterativa e suave."""
+        if not self._prefetch_queue:
+            return
+            
+        page_name = self._prefetch_queue.pop(0)
         
-        for block in self.studio_blocks:
-            block.destroy()
-        self.studio_blocks = []
+        # Constrói apenas se ainda não foi construída (ex: se o usuário clicou nela rápido)
+        if page_name not in self.studio_page_frames:
+            self._build_studio_page(page_name)
+            
+        # Continua a fila com um micro delay para não travar a UI (30ms)
+        self._prefetch_job = self.after(30, self._process_prefetch_queue)
+
+    def _build_studio_page(self, page_name):
+        """Função pesada que constrói os widgets e carrega a imagem de UMA página."""
+        # 1. Cria a camada (frame scrollable) escondida
+        frame = ctk.CTkScrollableFrame(self.container_studio_blocks)
+        self.studio_page_frames[page_name] = frame
+        self.studio_page_blocks[page_name] = []
         
-        # Load blocks for translated
+        # 2. Constrói os blocos de texto
         translated_lines = self.studio_pages_translated.get(page_name, [])
         original_lines = self.studio_pages_original.get(page_name, [])
         
-        # Cria um bloco para cada separação de linha vazia
         import itertools
         def split_by_empty_lines(lines):
             return ["\n".join(group) for k, group in itertools.groupby(lines, key=bool) if k]
             
-        t_blocks = split_by_empty_lines(translated_lines)
-        o_blocks = split_by_empty_lines(original_lines)
+        _NO_TEXT_MARKERS = {"[nenhum texto detectado nesta página]", "[nenhum texto detectado nesta pagina]"}
+        t_blocks = [b for b in split_by_empty_lines(translated_lines) if b.strip().lower() not in _NO_TEXT_MARKERS]
+        o_blocks = [b for b in split_by_empty_lines(original_lines) if b.strip().lower() not in _NO_TEXT_MARKERS]
         
         for i, text in enumerate(t_blocks):
             orig_text = o_blocks[i] if i < len(o_blocks) else ""
-            self._create_studio_block(text, orig_text)
+            self._create_studio_block(text, orig_text, parent_frame=frame, target_list=self.studio_page_blocks[page_name])
             
-        # Load image
+        # 3. Carrega a imagem do disco
         img_path = self.studio_images_paths.get(page_name)
         if img_path and os.path.exists(img_path):
             try:
-                self.studio_original_pil_image = Image.open(img_path)
-                self.studio_zoom_level = 1.0
-                self.update_idletasks()
+                pil_img = Image.open(img_path)
+                self.studio_page_pil_images[page_name] = pil_img
+                # Inicializa zoom em 1.0 se não existir
+                if page_name not in self.studio_page_zooms:
+                    self.studio_page_zooms[page_name] = 1.0
+            except Exception as e:
+                print(f"Erro ao precarregar imagem {page_name}: {e}")
+
+    def select_studio_page(self, page_name):
+        self._nav_job = None
+        self._nav_busy = True
+        self._nav_pending = None
+
+        try:
+            self._flush_current_page()
+
+            # Esconde a página atual
+            if self.studio_current_page and self.studio_current_page in self.studio_page_frames:
+                self.studio_page_frames[self.studio_current_page].pack_forget()
+
+            self.studio_current_page = page_name
+            self.lbl_studio_page_info.configure(text=f"Página Aberta: {page_name}")
+            
+            # Atualiza destaque visual dos botões da sidebar
+            for btn_name, btn in getattr(self, 'studio_page_buttons', {}).items():
+                if btn_name == page_name:
+                    btn.configure(border_width=2, border_color="#3498db")
+                else:
+                    btn.configure(border_width=0)
+            
+            # Se a configuração de lembrar zoom estiver desligada, reseta o zoom da página
+            if not self.app_settings.get("studio_remember_zoom", False):
+                self.studio_page_zooms[page_name] = 1.0
+            elif page_name not in self.studio_page_zooms:
+                self.studio_page_zooms[page_name] = 1.0
+            
+            # Se a página ainda não foi pré-carregada no background, força a criação agora
+            if page_name not in self.studio_page_frames:
+                self._build_studio_page(page_name)
+                
+            # Mostra a nova página (instantâneo)
+            self.studio_page_frames[page_name].pack(fill="both", expand=True)
+            
+            # Atualiza ponteiros antigos para manter botões (como "+ Adicionar Bloco") funcionando
+            self.frame_studio_blocks = self.studio_page_frames[page_name]
+            self.studio_blocks = self.studio_page_blocks[page_name]
+            
+            # Restaura Imagem e Zoom específicos desta aba
+            self.studio_original_pil_image = self.studio_page_pil_images.get(page_name)
+            self.studio_zoom_level = self.studio_page_zooms.get(page_name, 1.0)
+            
+            if self.studio_original_pil_image:
+                self.update_idletasks() # Apenas uma vez para pegar tamanho do Canvas
                 self.studio_img_x = self.canvas_studio_img.winfo_width() / 2
                 self.studio_img_y = self.canvas_studio_img.winfo_height() / 2
                 self.update_studio_image()
-            except Exception as e:
-                print(f"Erro ao carregar imagem no estudio: {e}")
+            else:
+                self.canvas_studio_img.delete("all")
+                self.studio_img_id = None
+
+        finally:
+            self._nav_busy = False
+            # Atualiza semáforos da sidebar DEPOIS de liberar o lock de navegação
+            self.after(0, self._refresh_sidebar_buttons)
+            if self._nav_pending:
+                pending = self._nav_pending
+                self._nav_pending = None
+                self.after(30, lambda: self.select_studio_page(pending))
 
     def save_studio_text(self):
-        nome_final = ask_string("Finalizar Tradução", "Digite o nome final do arquivo para exportação (sem .txt):", self)
+        is_editor = getattr(self, 'studio_is_editor_mode', False)
         
-        if not nome_final:
-            self.log(" Exportação cancelada.")
-            return
+        if not is_editor:
+            nome_final = ask_string("Finalizar Tradução", "Digite o nome final do arquivo para exportação (sem .txt):", self)
             
-        nome_final = nome_final.strip()
-        if not nome_final.endswith(".txt"):
-            nome_final += ".txt"
+            if not nome_final:
+                self.log(" Exportação cancelada.")
+                return
+                
+            nome_final = nome_final.strip()
+            if not nome_final.endswith(".txt"):
+                nome_final += ".txt"
         
         # Detecta automaticamente se o arquivo carregado era bilíngue
         # (se qualquer página tem texto original diferente do traduzido)
@@ -1614,6 +1936,10 @@ class MangaApp(ctk.CTk):
         # O checkbox da UI também pode forçar bilíngue mesmo se o arquivo original não era
         bilingual_enabled = bilingual_detected or self.var_bilingual.get()
         
+        # O modo Editor NUNCA salva como bilíngue, ele apenas sobrescreve o raw puro
+        if is_editor:
+            bilingual_enabled = False
+        
         # Atualiza a memória com os blocos da página atual (editados pelo usuário)
         if self.studio_current_page:
             new_lines = []
@@ -1627,20 +1953,32 @@ class MangaApp(ctk.CTk):
                 new_lines.append("")  # separador
             self.studio_pages_translated[self.studio_current_page] = "\n".join(new_lines).split("\n")
             
-        # Grava no arquivo final  para páginas não visitadas, reconstroe o formato bilíngue
+        # Grava no arquivo final garantindo TODAS as imagens na ordem correta
+        import re
+        def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+            return [int(text) if text.isdigit() else text.lower() for text in _nsre.split(s)]
+            
+        all_pages = sorted(list(self.studio_images_paths.keys()), key=natural_sort_key)
+        
         lines = []
-        for page, trans_texts in self.studio_pages_translated.items():
+        for idx, page in enumerate(all_pages, 1):
             lines.append("=" * 50)
-            lines.append(f"PÁGINA 1: {page}")
+            lines.append(f"PÁGINA {idx}: {page}")
             lines.append("=" * 50)
             lines.append("")
+            
+            trans_texts = self.studio_pages_translated.get(page, [])
+            orig_texts = self.studio_pages_original.get(page, [])
+            
+            # Se a página não tem texto traduzido salvo, restaura o original para não perder dados!
+            if not trans_texts and orig_texts:
+                trans_texts = orig_texts.copy()
             
             # Verifica se os textos desta página já estão no formato bilíngue
             already_bilingual = any(t.startswith("[EN]:") or t.startswith("[BR]:") for t in trans_texts)
             
             if bilingual_enabled and not already_bilingual:
                 # Página não visitada: reconstroi combinando original + traduzido
-                orig_texts = self.studio_pages_original.get(page, [])
                 import itertools
                 def split_blocks(lst):
                     return ["\n".join(g) for k, g in itertools.groupby(lst, key=bool) if k]
@@ -1662,6 +2000,17 @@ class MangaApp(ctk.CTk):
             lines.append("")
             
         content = "\n".join(lines)
+        
+        if is_editor:
+            # No modo editor, salva silenciosamente o arquivo raw (Temp) para o pipeline continuar
+            if self.studio_translated_txt_path:
+                with open(self.studio_translated_txt_path, "w", encoding="utf-8-sig") as f:
+                    f.write(content)
+                self.log(f" Texto bruto salvo localmente: {os.path.basename(self.studio_translated_txt_path)}")
+            
+            # Limpa o status de dirty já que acabamos de salvar
+            self.studio_is_dirty = False
+            return
         
         # Caminho 1: Biblioteca Central
         biblioteca_dir = Path(os.environ["USERPROFILE"]) / "Documents" / "Manga AI Studio" / "Biblioteca"
@@ -1723,10 +2072,6 @@ class MangaApp(ctk.CTk):
 
     def save_and_continue(self):
         self.save_studio_text()
-        
-        if self.studio_translated_txt_path:
-            self.entry_path.delete(0, "end")
-            self.entry_path.insert(0, str(self.studio_translated_txt_path))
         
         self.set_tab("Processamento")
         self.var_ocr.set(False)
@@ -2005,6 +2350,10 @@ class MangaApp(ctk.CTk):
         self.studio_images_paths = {}
         self.studio_current_page = None
         self.studio_translated_txt_path = None
+        self.studio_current_folder = None
+        self.studio_page_buttons = {}
+        self.studio_page_frames.clear()
+        self.studio_page_blocks.clear()
 
     def start_processing(self):
         path = self.entry_path.get()
@@ -2142,13 +2491,17 @@ class MangaApp(ctk.CTk):
                     
                     if pause_ocr:
                         self.log("\n PAUSA MANUAL ATIVADA. Alternando para o Editor Visual...")
-                        self.after(300, lambda fp=input_path, tp=current_target: self.load_editor_from_pipeline(fp, tp))
+                        self.after(300, lambda fp=input_path, tp=current_target: self.load_studio_from_pipeline(fp, tp, is_editor_mode=True))
                         self.log(" Revise o texto no Editor Visual e adicione termos ao Dicionário Temporário.")
-                        self.log(" Quando terminar, volte aqui, desmarque a Etapa 1, marque as Etapas 2 e 3 e clique em Iniciar.")
-                        self.btn_run.configure(state="normal", text=" CONTINUAR PROCESSAMENTO")
                         self.btn_cancel.configure(state="disabled", text=" CANCELAR")
                         self.progress_bar.set(0)
                         return
+            else:
+                # Se pulamos o OCR mas o input original é uma pasta, nós assumimos que o arquivo _raw.txt já está na Temp
+                if not current_target.endswith(".txt"):
+                    expected_raw_path = Path(dir_ocr) / f"{base_name}_raw.txt"
+                    if expected_raw_path.exists():
+                        current_target = str(expected_raw_path)
 
             if run_correct:
                 if not is_ollama_awake():
@@ -2206,15 +2559,7 @@ class MangaApp(ctk.CTk):
                 current_target = str(Path(dir_trans) / f"{trans_input_stem}_traduzido.txt")
                 self._update_pipeline_status(input_path, traduzido=current_target)
                 
-                pause_translate = self.var_pause_translate.get()
-                if pause_translate:
-                    self.log("\n PAUSA MANUAL ATIVADA. Alternando para o Estúdio de Tradução...")
-                    self.after(300, lambda fp=input_path, tp=current_target: self.load_studio_from_pipeline(fp, tp))
-                    self.log(" Revise o texto no Estúdio de Tradução.")
-                    self.btn_run.configure(state="normal", text=" INICIAR PROCESSAMENTO")
-                    self.btn_cancel.configure(state="disabled", text=" CANCELAR")
-                    self.progress_bar.set(0)
-                    return
+                # A pausa foi removida daqui, agora o pipeline sempre vai até o fim.
 
             # --- START SUMMARY STATS ---
             end_time = time.time()
@@ -2313,6 +2658,11 @@ class MangaApp(ctk.CTk):
                         self.log(f" Nome '{nome_final}' memorizado. Processamentos futuros desta pasta atualizarão automaticamente!")
                     else:
                         self.log("\n Exportação cancelada. O arquivo ficou apenas na pasta Temp da Biblioteca.")
+                    
+                    if self.var_open_studio_after.get():
+                        self.log("\n Abrindo o Estúdio de Tradução...")
+                        folder_for_studio = str(Path(input_path).parent) if Path(input_path).is_file() else input_path
+                        self.after(500, lambda f=folder_for_studio: self.action_studio_workspace(f))
 
                 self.after(100, ask_final_name)
 
@@ -3343,8 +3693,33 @@ class MangaApp(ctk.CTk):
         opt_accent = ctk.CTkOptionMenu(row2, values=["blue", "green", "dark-blue"], variable=self.var_theme_accent, command=save_and_apply_settings)
         opt_accent.pack(side="right")
         
+        # Título Estúdio
+        header_studio = ctk.CTkFrame(scroll, fg_color=("#d9d9d9", "#1f1f1f"), corner_radius=10)
+        header_studio.pack(fill="x", padx=20, pady=(20, 10))
+        ctk.CTkLabel(header_studio, text="Preferências do Estúdio", font=ctk.CTkFont(size=20, weight="bold")).pack(pady=15)
+        
+        # Card Estúdio
+        card_studio = ctk.CTkFrame(scroll, fg_color=("#fcfcfc", "#2b2b2b"), border_width=1, border_color=("#cccccc", "#444"), corner_radius=10)
+        card_studio.pack(fill="x", padx=20, pady=10)
+        
+        row_zoom = ctk.CTkFrame(card_studio, fg_color="transparent")
+        row_zoom.pack(fill="x", padx=20, pady=15)
+        ctk.CTkLabel(row_zoom, text="Lembrar nível de zoom individual de cada página:", font=ctk.CTkFont(size=14, weight="bold")).pack(side="left")
+        
+        self.var_remember_zoom = ctk.BooleanVar(value=self.app_settings.get("studio_remember_zoom", False))
+        def toggle_zoom_setting():
+            self.app_settings["studio_remember_zoom"] = self.var_remember_zoom.get()
+            try:
+                import json
+                with open(self.settings_file, "w", encoding="utf-8") as f:
+                    json.dump(self.app_settings, f, indent=4)
+            except: pass
+            
+        opt_zoom = ctk.CTkSwitch(row_zoom, text="", variable=self.var_remember_zoom, command=toggle_zoom_setting)
+        opt_zoom.pack(side="right")
+        
         # Mensagem de rodapé
-        ctk.CTkLabel(scroll, text="As configurações visuais são salvas automaticamente no seu perfil.", font=ctk.CTkFont(size=12, slant="italic"), text_color=("#555", "#888")).pack(pady=20)
+        ctk.CTkLabel(scroll, text="As configurações visuais e preferências são salvas automaticamente no seu perfil.", font=ctk.CTkFont(size=12, slant="italic"), text_color=("#555", "#888")).pack(pady=20)
 
     def open_modules_guide(self):
         guide = ctk.CTkToplevel(self)

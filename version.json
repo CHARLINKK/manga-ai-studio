@@ -1,6 +1,6 @@
 {
-    "version": "v1.4.1",
-    "release_date": "2026-06-27",
-    "changelog": "Hotfix Crítico: Otimização de permissões anti-UAC no instalador para garantir a criação limpa dos ambientes isolados (RAG/OCR) em discos protegidos. Adição de flag de segurança contra instalação silenciosa global no PIP.",
-    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.4.1/Manga_AI_Studio_Setup_v1.4.1.zip"
+    "version": "v1.4.2",
+    "release_date": "2026-06-28",
+    "changelog": "Otimização Zero Lag no Estúdio, correções no sistema de Semáforo, aprimoramento da Auto-Mescla e correções no carregamento de arquivos .txt",
+    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.4.2/Manga_AI_Studio_Setup_v1.4.2.zip"
 }
