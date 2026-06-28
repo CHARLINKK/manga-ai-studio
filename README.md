@@ -17,24 +17,24 @@ The architecture is highly modular, ensuring that intensive AI models (such as L
 
 The processing pipeline is executed sequentially through the following modules:
 
-1. **OCR Engine (EasyOCR + Custom Algorithms):**
-   - Implements bounding box detection tailored for right-to-left reading formats.
-   - Applies geometric clustering to preserve the natural reading order of text bubbles in complex panel layouts.
+1. **OCR Engine (Manga OCR + Custom Algorithms):**
+   - Implements OCR using the state-of-the-art `Manga OCR` model (vision encoder-decoder architecture) tailored specifically for Japanese text.
+   - Applies custom bounding box clustering to ensure correct right-to-left reading order of text bubbles in complex panel layouts.
 2. **Text Polishing Engine (LLM):**
-   - Intercepts raw OCR output and utilizes an LLM (e.g., `Gemma3:4b` via Ollama) to correct hallucinated characters and syntax errors (often referred to as "Engrish").
+   - Intercepts raw OCR output and utilizes a localized LLM (e.g., `llama3.1:8b` via Ollama) to correct OCR hallucinations, spelling, and character errors.
 3. **Translation Engine & RAG Integration:**
-   - Processes the corrected text through localized LLMs for contextual translation.
-   - Connects to a `ChromaDB` vector database to retrieve historical translation entities (e.g., character names, specific jargon, location names) using `SentenceTransformers`, guaranteeing consistency across volumes.
+   - Processes the corrected text through local LLMs for context-aware translation.
+   - Connects to a `ChromaDB` vector database using `SentenceTransformers` to retrieve historical translation entities (e.g., character names, jargons, locations) to ensure terminological consistency across chapters.
 
 ---
 
 ## 🛠️ Technology Stack
 
 - **Application Interface:** Python (`CustomTkinter`)
-- **LLM Runtime:** Ollama API
-- **Computer Vision & OCR:** `OpenCV`, `PyTorch`, `EasyOCR`
+- **LLM Runtime:** Ollama API (supports models like `llama3.1:8b`, `gemma2:9b`, `qwen2.5:14b`, etc.)
+- **Computer Vision & OCR:** `OpenCV`, `PyTorch` (with optional CUDA support), `Manga OCR` (`transformers`, `timm`)
 - **Vector Database (RAG):** `ChromaDB`, `SentenceTransformers`
-- **Distribution:** `PyInstaller` (Standalone executable bundle)
+- **Distribution:** `PyInstaller` (Standalone UAC-elevated setup wizard package)
 
 ---
 
