@@ -38,8 +38,8 @@ def apply_sfx_filter(text: str, sfx_db: dict) -> str:
     return text
 
 def parse_txt(file_path: Path, sfx_db: dict) -> dict:
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        content = f.read().replace("\ufeff", "")
 
     pages = {}
     current_page = None
@@ -194,12 +194,31 @@ def main():
     print(f"   Encontrado: {len(pages)} página(s), {total_balloons} texto(s).")
     print(f"🔄 Aplicando correção IA em Lotes Globais (Modelo: {args.model})...")
     
+    # Cache de Auto-Mesclagem: se já existe um arquivo corrigido, não reprocessa páginas já corrigidas
+    existing_fixed_map = {}
+    if output_path.exists():
+        try:
+            ex_pages = parse_txt(output_path, None)
+            for ep_name, ep_texts in ex_pages.items():
+                if ep_texts and not (len(ep_texts) == 1 and "[Nenhum texto" in ep_texts[0]):
+                    existing_fixed_map[ep_name] = ep_texts
+            if existing_fixed_map:
+                print(f"⚡ {len(existing_fixed_map)} página(s) já corrigida(s) em cache no arquivo. Mantendo intactas sem reprocessar!")
+        except Exception:
+            pass
+    
     global_texts = []
     mapping = []
     skipped_pages = {}
     
     for page_name, texts in pages.items():
         if not texts:
+            continue
+            
+        # Se a página já existe no arquivo anterior, aproveita o cache sem gastar tempo/tokens!
+        if page_name in existing_fixed_map:
+            print(f"⏭️ [Página: {page_name}]: Já corrigida em cache! Mantendo intacta.")
+            skipped_pages[page_name] = existing_fixed_map[page_name]
             continue
             
         is_translated = any(t.startswith("[BR]:") or t.startswith("[EN]:") for t in texts)

@@ -336,6 +336,9 @@ class MangaApp(ctk.CTk):
             print("Drag and drop não carregado:", e)
             
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # Inicia a verificação dos módulos de IA em background logo na abertura
+        self.after(500, self.refresh_module_status)
 
     def on_closing(self):
         from tkinter import messagebox
@@ -1912,15 +1915,43 @@ class MangaApp(ctk.CTk):
         is_editor = getattr(self, 'studio_is_editor_mode', False)
         
         if not is_editor:
-            nome_final = ask_string("Finalizar Tradução", "Digite o nome final do arquivo para exportação (sem .txt):", self)
+            nome_final = None
             
+            # NOVO: Verifica no status.json da Auto Mescla se este capítulo já foi nomeado
+            if getattr(self, 'studio_current_folder', None):
+                try:
+                    import json
+                    temp_dir = Path(os.environ["USERPROFILE"]) / "Documents" / "Manga AI Studio" / "Biblioteca" / "Temp"
+                    status_path = temp_dir / "status.json"
+                    
+                    if status_path.exists():
+                        with open(status_path, "r", encoding="utf-8") as f:
+                            st = json.load(f)
+                            
+                        # Identifica a chave da pasta atual (tudo precisa estar alinhado aqui dentro)
+                        p_folder = Path(self.studio_current_folder)
+                        folder_key = p_folder.name if p_folder.is_dir() else p_folder.stem
+                        
+                        # Se já existir um nome final registrado, resgata ele silenciosamente
+                        if folder_key in st and "nome_final" in st[folder_key]:
+                            nome_final = st[folder_key]["nome_final"]
+                except Exception:
+                    pass
+
+            # Se não achou na memória (arquivo novo), aí sim pede na janela
             if not nome_final:
-                self.log(" Exportação cancelada.")
-                return
+                nome_final = ask_string("Finalizar Tradução", "Digite o nome final do arquivo para exportação (sem .txt):", self)
                 
+                # Este if fica DENTRO do de cima
+                if not nome_final:
+                    self.log(" Exportação cancelada.")
+                    return
+                    
             nome_final = nome_final.strip()
             if not nome_final.endswith(".txt"):
                 nome_final += ".txt"
+
+        # (Não apague o resto do seu código daqui para baixo, como a parte do bilingual_detected!)
         
         # Detecta automaticamente se o arquivo carregado era bilíngue
         # (se qualquer página tem texto original diferente do traduzido)
@@ -2404,11 +2435,14 @@ class MangaApp(ctk.CTk):
         tone = self.combo_tone.get()
         model_corr = self.combo_model_corr.get()
         model_trans = self.combo_model_trans.get()
+        model_vlm   = self.combo_model_vlm.get()  if hasattr(self, 'combo_model_vlm')  else ""
+        model_ctx   = self.combo_model_ctx.get()  if hasattr(self, 'combo_model_ctx')  else model_corr
+        use_vlm     = self.var_use_vlm_director.get() if hasattr(self, 'var_use_vlm_director') else False
         rag_workspace = str(self.workspace_dir) if getattr(self, "workspace_dir", None) and self.var_use_rag.get() else ""
 
-        threading.Thread(target=self.process_pipeline, args=(path, out_path, run_ocr, run_correct, run_translate, dict_global_content, dict_local_content, bilingual, pause_ocr, tone, rag_workspace, model_corr, model_trans), daemon=True).start()
+        threading.Thread(target=self.process_pipeline, args=(path, out_path, run_ocr, run_correct, run_translate, dict_global_content, dict_local_content, bilingual, pause_ocr, tone, rag_workspace, model_corr, model_trans, model_vlm, model_ctx, use_vlm), daemon=True).start()
 
-    def process_pipeline(self, input_path, out_path, run_ocr, run_correct, run_translate, dict_global, dict_local, bilingual, pause_ocr, tone, rag_workspace, model_corr="llama3.1:8b", model_trans="llama3.1:8b"):
+    def process_pipeline(self, input_path, out_path, run_ocr, run_correct, run_translate, dict_global, dict_local, bilingual, pause_ocr, tone, rag_workspace, model_corr="llama3.1:8b", model_trans="llama3.1:8b", model_vlm="qwen2.5vl:7b", model_ctx="", use_vlm=False):
         import time
         import urllib.request
         
@@ -2482,6 +2516,11 @@ class MangaApp(ctk.CTk):
                     if hasattr(self, 'var_use_gpu') and self.var_use_gpu.get():
                         cmd.append("--gpu")
                     
+                    # Diretor Visual: ativa se o switch estiver ligado e o modelo configurado
+                    if use_vlm and model_vlm and model_vlm not in ("Nenhum modelo local", ""):
+                        cmd.extend(["--vlm-director", "--vlm-model", model_vlm])
+                        self.log(f" Diretor Visual ativado: {model_vlm}")
+                    
                     code = self.run_subprocess(cmd)
                     if code != 0:
                         self.log(" Falha ou Cancelamento na etapa de OCR. Abortando.")
@@ -2533,6 +2572,17 @@ class MangaApp(ctk.CTk):
                     self.log(" Por favor, certifique-se de que o aplicativo Ollama está rodando no seu Windows (ícone da Lhama na bandeja do sistema).")
                     return
                     
+                # NOVO: ETAPA 2.5 - PAGE DIRECTOR
+                self.after(0, lambda: self.lbl_current_step.configure(text="[Etapa 2.5/3] Analisando Contexto (Diretor)..."))
+                ctx_model_used = model_ctx if model_ctx and model_ctx not in ("Nenhum modelo local", "") else model_corr
+                self.log(f"\n>>> ETAPA 2.5: PAGE DIRECTOR (IA {ctx_model_used})")
+                if current_target.endswith(".txt"):
+                    cmd_dir = [python_exe_ui, "page_director.py", current_target, "--model", ctx_model_used]
+                    self.progress_bar.set(0)
+                    code_dir = self.run_subprocess(cmd_dir)
+                    if code_dir != 0:
+                        self.log(" Aviso: Falha no Page Director. A tradução continuará sem as notas de contexto.")
+                
                 self.after(0, lambda: self.lbl_current_step.configure(text="[Etapa 3/3] Traduzindo PT-BR (IA)..."))
                 self.log(f"\n>>> ETAPA 3: TRADUÇÃO PT-BR (IA {model_trans})")
                 if not current_target.endswith(".txt"):
@@ -2631,12 +2681,24 @@ class MangaApp(ctk.CTk):
                 self.log("\n PROCESSO CONCLUÍDO! AGUARDANDO NOME FINAL... ")
                 
                 def ask_final_name():
+                    # --- SOLUÇÃO ELEGANTE: A Espera Educada ---
+                    # Se o programa estiver minimizado, ele não joga a tela na sua cara.
+                    # Ele agenda para tentar de novo daqui a 1 segundo e "pausa" a execução.
+                    if self.state() == "iconic":
+                        self.after(1000, ask_final_name)
+                        return
+                    # ------------------------------------------
+
+                    # Quando você finalmente maximizar a janela (state != "iconic"), 
+                    # o código passa direto pelo 'if' acima e mostra o pop-up naturalmente:
                     nome_final = ask_string(
                         "Finalizar Exportação",
                         "Processo 100% concluído!\nDigite o nome final do capítulo para salvar e exportar (sem .txt):",
                         parent=self
                     )
+                    
                     if nome_final:
+                        # ... (resto do seu código continua aqui)
                         nome_final = nome_final.strip()
                         if not nome_final.endswith(".txt"):
                             nome_final += ".txt"
@@ -2924,7 +2986,7 @@ class MangaApp(ctk.CTk):
             
         threading.Thread(target=ping_loop, daemon=True).start()
 
-    def open_recommended_models_window(self, refresh_only=False):
+    def open_recommended_models_window(self, refresh_only=False, target_module="trans"):
         import urllib.request
         import json
         import customtkinter as ctk
@@ -2947,6 +3009,8 @@ class MangaApp(ctk.CTk):
             for widget in self.recommended_top.winfo_children():
                 widget.destroy()
             top = self.recommended_top
+            if hasattr(top, '_target_module'):
+                target_module = top._target_module
         else:
             if hasattr(self, 'recommended_top') and self.recommended_top.winfo_exists():
                 self.recommended_top.focus()
@@ -2963,6 +3027,7 @@ class MangaApp(ctk.CTk):
             top.geometry(f"{width}x{height}+{x}+{y}")
             
             top.attributes("-topmost", True)
+            top._target_module = target_module
             self.recommended_top = top
             
         lbl = ctk.CTkLabel(top, text="Modelos Otimizados para Tradução", font=ctk.CTkFont(size=18, weight="bold"))
@@ -2981,7 +3046,65 @@ class MangaApp(ctk.CTk):
             def baixar(m=model, f=frame):
                 f.destroy() # Some visualmente de imediato
                 top.attributes("-topmost", False) # Permite ver o log
-                self.pull_ollama_model(m)
+                self.pull_ollama_model(m, target_module=target_module)
+                
+            btn = ctk.CTkButton(frame, text="⬇️ Baixar", width=80, command=baixar)
+            btn.pack(side="right", padx=15, pady=12)
+
+    def open_recommended_vlm_window(self, refresh_only=False):
+        import urllib.request
+        import json
+        import customtkinter as ctk
+        
+        # Obter modelos já instalados
+        installed_models = []
+        try:
+            req = urllib.request.Request("http://127.0.0.1:11434/api/tags")
+            with urllib.request.urlopen(req, timeout=1) as response:
+                data = json.loads(response.read().decode())
+                installed_models = [m.get("name", "") for m in data.get("models", []) if m.get("name")]
+        except Exception:
+            pass
+            
+        recommended = ["qwen2.5vl:7b", "llama3.2-vision:11b", "llava:13b"]
+        missing_models = [m for m in recommended if m not in installed_models]
+        
+        if refresh_only and hasattr(self, 'recommended_vlm_top') and self.recommended_vlm_top.winfo_exists():
+            for widget in self.recommended_vlm_top.winfo_children():
+                widget.destroy()
+            top = self.recommended_vlm_top
+        else:
+            if hasattr(self, 'recommended_vlm_top') and self.recommended_vlm_top.winfo_exists():
+                self.recommended_vlm_top.focus()
+                return
+            top = ctk.CTkToplevel(self)
+            top.title("Modelos VLM Recomendados")
+            
+            width = 450
+            height = 350
+            self.update_idletasks()
+            x = self.winfo_x() + (self.winfo_width() // 2) - (width // 2)
+            y = self.winfo_y() + (self.winfo_height() // 2) - (height // 2)
+            top.geometry(f"{width}x{height}+{x}+{y}")
+            top.attributes("-topmost", True)
+            self.recommended_vlm_top = top
+            
+        lbl = ctk.CTkLabel(top, text="Modelos de Visão Otimizados (VLM)", font=ctk.CTkFont(size=18, weight="bold"))
+        lbl.pack(pady=(20, 10))
+        
+        if not missing_models:
+            ctk.CTkLabel(top, text="Você já possui todos os modelos VLM recomendados!", text_color="#2ecc71", font=ctk.CTkFont(size=14)).pack(pady=20)
+            return
+            
+        for model in missing_models:
+            frame = ctk.CTkFrame(top, fg_color=("#ffffff", "#333"), corner_radius=8)
+            frame.pack(fill="x", padx=20, pady=5)
+            ctk.CTkLabel(frame, text=model, font=ctk.CTkFont(size=14, weight="bold")).pack(side="left", padx=15, pady=12)
+            
+            def baixar(m=model, f=frame):
+                f.destroy()
+                top.attributes("-topmost", False)
+                self.pull_ollama_model(m, target_module="vlm")
                 
             btn = ctk.CTkButton(frame, text="⬇️ Baixar", width=80, command=baixar)
             btn.pack(side="right", padx=15, pady=12)
@@ -3324,15 +3447,19 @@ class MangaApp(ctk.CTk):
             mb.showerror("Erro", f"Falha ao apagar modelo: {e}")
         self.refresh_module_status()
 
-    def pull_ollama_model(self, model):
+    def pull_ollama_model(self, model, target_module="trans"):
         if not model: return
+        
+        target_log = getattr(self, f"log_{target_module}", getattr(self, "log_trans"))
+        target_pb = getattr(self, f"pb_{target_module}", getattr(self, "pb_trans"))
+        
         # Disable all pull buttons while pulling
         if hasattr(self, 'btn_pull_corr'): self.btn_pull_corr.configure(state="disabled", text="Puxando...")
         if hasattr(self, 'btn_pull_trans'): self.btn_pull_trans.configure(state="disabled", text="Puxando...")
-        self.log_trans.pack(fill="x", padx=15, pady=(0, 15))
-        self.log_trans.configure(state="normal")
-        self.log_trans.delete("0.0", "end")
-        self.log_trans.configure(state="disabled")
+        target_log.pack(fill="x", padx=15, pady=(0, 15))
+        target_log.configure(state="normal")
+        target_log.delete("0.0", "end")
+        target_log.configure(state="disabled")
 
         def worker():
             import subprocess
@@ -3348,26 +3475,26 @@ class MangaApp(ctk.CTk):
                     l = line.lower()
                     
                     if ("pulling" in l or "downloading" in l) and not has_downloaded:
-                        self._ui_log(self.log_trans, " [Etapa 1/2]  Baixando modelo (isso pode demorar)...")
+                        self._ui_log(target_log, " [Etapa 1/2]  Baixando modelo (isso pode demorar)...")
                         has_downloaded = True
                     
                     # Tenta capturar %
                     m = re.search(r'(\d+)%', line)
                     if m:
                         pct = int(m.group(1)) / 100.0
-                        self.after(0, lambda v=pct: self.pb_trans.set(v))
+                        self.after(0, lambda v=pct: target_pb.set(v))
                     else:
                         if "verifying" in l or "success" in l:
-                            self._ui_log(self.log_trans, " [Etapa 2/2]  Verificando integridade e salvando...")
-                        self.after(0, lambda: self._bump_progress(self.pb_trans))
+                            self._ui_log(target_log, " [Etapa 2/2]  Verificando integridade e salvando...")
+                        self.after(0, lambda: self._bump_progress(target_pb))
                 
                 proc.wait()
                 if proc.returncode == 0:
-                    self._ui_log(self.log_trans, f" Modelo {model} baixado com sucesso!")
+                    self._ui_log(target_log, f" Modelo {model} baixado com sucesso!")
                 else:
-                    self._ui_log(self.log_trans, f" Erro ao puxar o modelo {model}.")
+                    self._ui_log(target_log, f" Erro ao puxar o modelo {model}.")
             except Exception as e:
-                self._ui_log(self.log_trans, f" Exceção: {e}")
+                self._ui_log(target_log, f" Exceção: {e}")
             finally:
                 self.after(0, self.refresh_module_status)
 
@@ -3422,7 +3549,16 @@ class MangaApp(ctk.CTk):
 
         self.frame_modules = ctk.CTkScrollableFrame(self.tab_modules, fg_color="transparent")
         self.frame_modules.pack(fill="both", expand=True, padx=20, pady=20)
-
+        
+        # Acelerar velocidade do scroll no Windows
+        original_mouse_wheel = self.frame_modules._mouse_wheel_all
+        def accelerated_mouse_wheel(event):
+            try:
+                event.delta = int(event.delta * 20) # 20x mais rápido
+            except Exception:
+                pass
+            original_mouse_wheel(event)
+        self.frame_modules._mouse_wheel_all = accelerated_mouse_wheel
 
         header_frame = ctk.CTkFrame(self.frame_modules, fg_color="transparent")
         header_frame.pack(fill="x", pady=(0, 20))
@@ -3556,6 +3692,8 @@ class MangaApp(ctk.CTk):
         # Load saved prefs
         saved_corr = None
         saved_trans = None
+        saved_vlm  = None
+        saved_ctx  = None
         if MODEL_PREFS_PATH.exists():
             try:
                 import json
@@ -3563,6 +3701,8 @@ class MangaApp(ctk.CTk):
                     prefs = json.load(f)
                     saved_corr = prefs.get("corr")
                     saved_trans = prefs.get("trans")
+                    saved_vlm  = prefs.get("vlm")
+                    saved_ctx  = prefs.get("ctx")
             except:
                 pass
 
@@ -3607,6 +3747,93 @@ class MangaApp(ctk.CTk):
         
         self.log_trans = ctk.CTkTextbox(self.card_trans, height=100, state="disabled", fg_color=("#ffffff", "#000"))
 
+        # ── Card Diretor Visual de Leitura (VLM) ────────────────────────────
+        self.card_vlm_director = ctk.CTkFrame(self.frame_modules, fg_color=("#fcfcfc", "#2b2b2b"), border_width=1, border_color=("#cccccc", "#444"), corner_radius=10)
+        self.card_vlm_director.pack(fill="x", pady=10, padx=10)
+
+        ctk.CTkLabel(self.card_vlm_director, text=" Diretor Visual de Leitura (VLM)", font=ctk.CTkFont(size=16, weight="bold"), text_color="#e67e22").pack(anchor="w", padx=15, pady=(15, 5))
+        ctk.CTkLabel(self.card_vlm_director, text="Realiza a correção da ordem de leitura geométrica e filtra efeitos sonoros através de análise visual computadorizada. Requer Ollama.", font=ctk.CTkFont(size=12), text_color=("#666", "#aaa")).pack(anchor="w", padx=15, pady=(0, 10))
+
+        frame_vlm_select = ctk.CTkFrame(self.card_vlm_director, fg_color="transparent")
+        frame_vlm_select.pack(fill="x", padx=15, pady=(0, 5))
+        ctk.CTkLabel(frame_vlm_select, text="Modelo VLM (Etapa 1.5):").pack(side="left", padx=(0, 10))
+
+        available_vlm_models = ["Nenhum modelo local"]
+        try:
+            import urllib.request, json as _json
+            req = urllib.request.Request("http://127.0.0.1:11434/api/tags")
+            with urllib.request.urlopen(req, timeout=1) as response:
+                _data = _json.loads(response.read().decode())
+                _fetched = [m.get("name", "") for m in _data.get("models", []) if m.get("name")]
+                if _fetched:
+                    available_vlm_models = _fetched
+        except Exception:
+            pass
+
+        self.combo_model_vlm = ctk.CTkComboBox(frame_vlm_select, values=available_vlm_models, width=220, command=self.save_model_prefs)
+        if saved_vlm and saved_vlm in available_vlm_models:
+            self.combo_model_vlm.set(saved_vlm)
+        else:
+            self.combo_model_vlm.set(available_vlm_models[0])
+        self.combo_model_vlm.pack(side="left")
+
+        self.btn_del_vlm = ctk.CTkButton(frame_vlm_select, text=" Apagar Local", fg_color="#c0392b", hover_color="#e74c3c", width=60, command=lambda: self.delete_ollama_model(self.combo_model_vlm.get()))
+        self.btn_del_vlm.pack(side="left", padx=(10, 5))
+
+        row_vlm_status = ctk.CTkFrame(self.card_vlm_director, fg_color="transparent")
+        row_vlm_status.pack(fill="x")
+        
+        self.lbl_status_vlm = ctk.CTkLabel(row_vlm_status, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
+        self.lbl_status_vlm.pack(side="left", padx=15, pady=15)
+        self.pb_vlm = ctk.CTkProgressBar(row_vlm_status, mode="determinate", width=150)
+        self.pb_vlm.pack(side="left", padx=10, pady=15)
+        self.pb_vlm.set(0)
+
+        self.var_use_vlm_director = ctk.BooleanVar(value=False)
+        self.sw_vlm_director = ctk.CTkSwitch(row_vlm_status, text="Ativar no Pipeline", variable=self.var_use_vlm_director, font=ctk.CTkFont(weight="bold"), fg_color=("#e0e0e0", "#444"), progress_color="#e67e22")
+        self.sw_vlm_director.pack(side="left", padx=(20, 5))
+
+        self.btn_explore_vlm = ctk.CTkButton(row_vlm_status, text="🔍 Recomendados VLM", fg_color="#8e44ad", hover_color="#9b59b6", command=self.open_recommended_vlm_window)
+        self.btn_explore_vlm.pack(side="right", padx=(5, 15), pady=15)
+
+        self.log_vlm = ctk.CTkTextbox(self.card_vlm_director, height=80, state="disabled", fg_color=("#ffffff", "#000"))
+
+        # ── Card Diretor de Contexto ─────────────────────────────────────────
+        self.card_ctx_director = ctk.CTkFrame(self.frame_modules, fg_color=("#fcfcfc", "#2b2b2b"), border_width=1, border_color=("#cccccc", "#444"), corner_radius=10)
+        self.card_ctx_director.pack(fill="x", pady=10, padx=10)
+
+        ctk.CTkLabel(self.card_ctx_director, text=" Diretor de Contexto (Page Director)", font=ctk.CTkFont(size=16, weight="bold"), text_color="#3498db").pack(anchor="w", padx=15, pady=(15, 5))
+        ctk.CTkLabel(self.card_ctx_director, text="Processa o capítulo de forma independente para construir orientações de semântica e contexto para o Motor de Tradução. Requer Ollama.", font=ctk.CTkFont(size=12), text_color=("#666", "#aaa")).pack(anchor="w", padx=15, pady=(0, 10))
+
+        frame_ctx_select = ctk.CTkFrame(self.card_ctx_director, fg_color="transparent")
+        frame_ctx_select.pack(fill="x", padx=15, pady=(0, 10))
+        ctk.CTkLabel(frame_ctx_select, text="Modelo p/ Contexto (Etapa 2.5):").pack(side="left", padx=(0, 10))
+
+        available_ctx_models = available_models  # mesma lista do Ollama
+        self.combo_model_ctx = ctk.CTkComboBox(frame_ctx_select, values=available_ctx_models, width=220, command=self.save_model_prefs)
+        if saved_ctx and saved_ctx in available_ctx_models:
+            self.combo_model_ctx.set(saved_ctx)
+        else:
+            self.combo_model_ctx.set(available_ctx_models[0])
+        self.combo_model_ctx.pack(side="left")
+
+        self.btn_del_ctx = ctk.CTkButton(frame_ctx_select, text=" Apagar Local", fg_color="#c0392b", hover_color="#e74c3c", width=60, command=lambda: self.delete_ollama_model(self.combo_model_ctx.get()))
+        self.btn_del_ctx.pack(side="left", padx=(10, 5))
+
+        row_ctx_status = ctk.CTkFrame(self.card_ctx_director, fg_color="transparent")
+        row_ctx_status.pack(fill="x")
+        
+        self.lbl_status_ctx = ctk.CTkLabel(row_ctx_status, text="Status: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
+        self.lbl_status_ctx.pack(side="left", padx=15, pady=15)
+        self.pb_ctx = ctk.CTkProgressBar(row_ctx_status, mode="determinate", width=150)
+        self.pb_ctx.pack(side="left", padx=10, pady=15)
+        self.pb_ctx.set(0)
+
+        self.btn_explore_ctx = ctk.CTkButton(row_ctx_status, text="🔍 Explorar Recomendados", fg_color="#8e44ad", hover_color="#9b59b6", command=lambda: self.open_recommended_models_window(target_module="ctx"))
+        self.btn_explore_ctx.pack(side="right", padx=(5, 15), pady=15)
+
+        self.log_ctx = ctk.CTkTextbox(self.card_ctx_director, height=80, state="disabled", fg_color=("#ffffff", "#000"))
+
         # Card RAG Memory
         self.card_rag = ctk.CTkFrame(self.frame_modules, fg_color=("#fcfcfc", "#2b2b2b"), border_width=1, border_color=("#cccccc", "#444"), corner_radius=10)
         self.card_rag.pack(fill="x", pady=10, padx=10)
@@ -3634,8 +3861,6 @@ class MangaApp(ctk.CTk):
         
         self.log_rag = ctk.CTkTextbox(self.card_rag, height=100, state="disabled", fg_color=("#ffffff", "#000"))
 
-
-        self.refresh_module_status()
 
     def setup_settings_tab(self):
         # Container principal
@@ -3724,7 +3949,7 @@ class MangaApp(ctk.CTk):
     def open_modules_guide(self):
         guide = ctk.CTkToplevel(self)
         guide.title(" Guia da Central de Módulos")
-        guide.geometry("600x500")
+        guide.geometry("750x650")
         guide.attributes("-topmost", True)
         
         tabview = ctk.CTkTabview(guide)
@@ -3748,15 +3973,22 @@ class MangaApp(ctk.CTk):
         t_cuda.configure(state="disabled")
 
         # Aba 2: Ollama
-        ctk.CTkLabel(tab_ollama, text="Guia de Modelos (Tradução Local)", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=10)
+        ctk.CTkLabel(tab_ollama, text="Guia de Modelos Ollama (Local)", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=10)
         t_ollama = ctk.CTkTextbox(tab_ollama, wrap="word", font=ctk.CTkFont(size=14))
         t_ollama.pack(fill="both", expand=True, padx=10, pady=10)
         t_ollama.insert("0.0", "Modelos Recomendados e Requisitos de Hardware:\n\n"
-                               " llama3.1:8b -> Excelente desempenho para traduções robustas. (~8GB VRAM)\n\n"
-                               " gemma2:9b -> Alta precisão de raciocínio e correção RAG. (~8 a 10GB VRAM)\n\n"
-                               " qwen2.5:14b -> Qualidade superior e alto nível de contexto. (~12 a 16GB VRAM)\n\n"
-                               " mistral-nemo:12b -> Versatilidade com grande janela de contexto. (~12GB VRAM)\n\n"
-                               " aya:8b -> Especializado em suporte a múltiplos idiomas. (~8GB VRAM)\n\n"
+                               "--- Motor de Tradução e Polimento ---\n"
+                               " llama3.1:8b -> Excelente desempenho para traduções robustas e coesas. Padrão ouro para 8GB. (~8GB VRAM)\n"
+                               " gemma2:9b -> Alta precisão de raciocínio. Excelente para o polimento e revisão da raw. (~8 a 10GB VRAM)\n"
+                               " mistral-nemo:12b -> Versatilidade com grande janela de contexto. (~12GB VRAM)\n"
+                               " qwen2.5:14b -> Qualidade superior e compreensão altíssima de nuances. (~12 a 16GB VRAM)\n\n"
+                               "--- Diretor de Contexto (Page Director) ---\n"
+                               " phi3:latest -> Rápido e focado em lógica, perfeito para analisar elementos isolados e gerar um feedback veloz. (~4 a 6GB VRAM)\n"
+                               " llama3.1:8b -> Opção robusta caso deseje manter total consistência com o motor de tradução. (~8GB VRAM)\n\n"
+                               "--- Diretor Visual de Leitura (VLM) ---\n"
+                               " qwen2.5vl:7b -> Melhor custo-benefício do mercado atual. Extremamente ágil para ler a geometria dos balões e filtrar onomatopeias. (~8GB VRAM)\n"
+                               " llama3.2-vision:11b -> Visão computacional de ponta, porém exige hardware mais robusto e é ligeiramente mais lento. (~10 a 12GB VRAM)\n"
+                               " llava:13b -> Modelo open-source clássico, bom para testes, mas inferior em velocidade aos mais modernos. (~12 a 14GB VRAM)\n\n"
                                "Nota Técnica: O processamento local sem uma GPU dedicada com VRAM suficiente será direcionado "
                                "para a CPU, resultando em tempos de resposta significativamente maiores. Nessas circunstâncias, "
                                "sugere-se o uso de tradução em nuvem na aba Tradutor.")
@@ -3777,8 +4009,12 @@ class MangaApp(ctk.CTk):
         self.pb_ocr.set(0.0)
         
         self.lbl_status_trans.configure(text="Status: [...] Verificando motores...", text_color="#f1c40f")
+        if hasattr(self, 'lbl_status_vlm'): self.lbl_status_vlm.configure(text="Status: [...] Verificando motores...", text_color="#f1c40f")
+        if hasattr(self, 'lbl_status_ctx'): self.lbl_status_ctx.configure(text="Status: [...] Verificando motores...", text_color="#f1c40f")
         self.btn_install_trans.configure(state="disabled")
         self.pb_trans.set(0.0)
+        if hasattr(self, 'pb_vlm'): self.pb_vlm.set(0.0)
+        if hasattr(self, 'pb_ctx'): self.pb_ctx.set(0.0)
         
         self.lbl_status_cuda.configure(text="Status: [...] Verificando hardware...", text_color="#f1c40f")
         self.pb_cuda.set(0.0)
@@ -3851,18 +4087,33 @@ class MangaApp(ctk.CTk):
                     self.pb_ocr.set(0)
 
                 self.pb_trans.set(1.0)
+                if hasattr(self, 'pb_vlm'): self.pb_vlm.set(1.0)
+                if hasattr(self, 'pb_ctx'): self.pb_ctx.set(1.0)
+
                 if has_trans == "INSTALLED_AND_RUNNING":
                     self.lbl_status_trans.configure(text="Status: [ ON ] Instalado e Rodando", text_color="#2ecc71")
+                    if hasattr(self, 'lbl_status_vlm'): self.lbl_status_vlm.configure(text="Status: [ ON ] Integrado ao Ollama", text_color="#2ecc71")
+                    if hasattr(self, 'lbl_status_ctx'): self.lbl_status_ctx.configure(text="Status: [ ON ] Integrado ao Ollama", text_color="#2ecc71")
                     self.btn_install_trans.configure(state="disabled", fg_color=("#e0e0e0", "#333"), text_color_disabled=("#555", "#999"), text="Já Instalado")
                     self.pb_trans.configure(progress_color="#2ecc71")
+                    if hasattr(self, 'pb_vlm'): self.pb_vlm.configure(progress_color="#2ecc71")
+                    if hasattr(self, 'pb_ctx'): self.pb_ctx.configure(progress_color="#2ecc71")
                 elif has_trans == "INSTALLED_BUT_CLOSED":
                     self.lbl_status_trans.configure(text="Status: [ ALERTA ] Ollama Fechado", text_color="#f39c12")
+                    if hasattr(self, 'lbl_status_vlm'): self.lbl_status_vlm.configure(text="Status: [ ALERTA ] Ollama Fechado", text_color="#f39c12")
+                    if hasattr(self, 'lbl_status_ctx'): self.lbl_status_ctx.configure(text="Status: [ ALERTA ] Ollama Fechado", text_color="#f39c12")
                     self.pb_trans.configure(progress_color="#f39c12")
+                    if hasattr(self, 'pb_vlm'): self.pb_vlm.configure(progress_color="#f39c12")
+                    if hasattr(self, 'pb_ctx'): self.pb_ctx.configure(progress_color="#f39c12")
                     self.btn_install_trans.configure(state="normal", fg_color="#e67e22", hover_color="#d35400", text=" Iniciar Ollama", command=self.start_ollama_server)
                 else: # NOT_INSTALLED
                     self.lbl_status_trans.configure(text="Status: [ OFF ] Não Instalado", text_color="#e74c3c")
+                    if hasattr(self, 'lbl_status_vlm'): self.lbl_status_vlm.configure(text="Status: [ OFF ] Dependência Ausente", text_color="#e74c3c")
+                    if hasattr(self, 'lbl_status_ctx'): self.lbl_status_ctx.configure(text="Status: [ OFF ] Dependência Ausente", text_color="#e74c3c")
                     self.btn_install_trans.configure(state="normal", fg_color="#e94560", hover_color="#c0392b", text="Baixar Ollama", command=self.open_ollama_site)
                     self.pb_trans.set(0)
+                    if hasattr(self, 'pb_vlm'): self.pb_vlm.set(0)
+                    if hasattr(self, 'pb_ctx'): self.pb_ctx.set(0)
                     
                 self.pb_cuda.set(1.0)
                 if has_cuda:
@@ -3897,13 +4148,23 @@ class MangaApp(ctk.CTk):
                             self.combo_model_trans.configure(values=fetched)
                             if self.combo_model_trans.get() not in fetched:
                                 self.combo_model_trans.set(fetched[0])
+                        if hasattr(self, 'combo_model_vlm'):
+                            self.combo_model_vlm.configure(values=fetched)
+                            if self.combo_model_vlm.get() not in fetched:
+                                self.combo_model_vlm.set(fetched[0])
+                        if hasattr(self, 'combo_model_ctx'):
+                            self.combo_model_ctx.configure(values=fetched)
+                            if self.combo_model_ctx.get() not in fetched:
+                                self.combo_model_ctx.set(fetched[0])
                                 
                         # Atualiza janela popup se ela estiver aberta
                         if hasattr(self, 'recommended_top') and self.recommended_top.winfo_exists():
-                            self.open_recommended_models_window(refresh_only=True)
+                            self.open_recommended_models_window(refresh_only=True, target_module=getattr(self.recommended_top, '_target_module', 'trans'))
                 except Exception:
                     if hasattr(self, 'combo_model_corr'): self.combo_model_corr.configure(values=["Nenhum modelo local"])
                     if hasattr(self, 'combo_model_trans'): self.combo_model_trans.configure(values=["Nenhum modelo local"])
+                    if hasattr(self, 'combo_model_vlm'): self.combo_model_vlm.configure(values=["Nenhum modelo local"])
+                    if hasattr(self, 'combo_model_ctx'): self.combo_model_ctx.configure(values=["Nenhum modelo local"])
                     
                     self.switch_gpu.configure(state="disabled", text="Forçar Uso da GPU no OCR (Incompatível/Não Instalado)")
                     self.var_use_gpu.set(False)
@@ -4180,8 +4441,10 @@ class MangaApp(ctk.CTk):
     def save_model_prefs(self, _=None):
         import json
         prefs = {
-            "corr": self.combo_model_corr.get(),
-            "trans": self.combo_model_trans.get()
+            "corr":  self.combo_model_corr.get(),
+            "trans": self.combo_model_trans.get(),
+            "vlm":   self.combo_model_vlm.get()  if hasattr(self, 'combo_model_vlm')  else "",
+            "ctx":   self.combo_model_ctx.get()  if hasattr(self, 'combo_model_ctx')  else "",
         }
         try:
             with open(MODEL_PREFS_PATH, "w", encoding="utf-8") as f:

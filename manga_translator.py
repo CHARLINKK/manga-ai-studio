@@ -256,7 +256,8 @@ def translate_texts(
     if cognates_section:
         context_section += cognates_section
         
-    page_context_section = ""
+    if page_context:
+        context_section += f"NOTA DO DIRETOR (Contexto Específico desta Página):\n{page_context}\n\n"
         
     if rag_workspace:
         try:
@@ -340,8 +341,8 @@ def parse_ocr_file(file_path: Path) -> list[dict]:
     Retorna lista de dicts:
     [{"header": "PÁGINA 1: 017.jpg", "texts": ["texto1", "texto2"]}, ...]
     """
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        content = f.read().replace("\ufeff", "")
 
     pages = []
     current_page = None
@@ -500,6 +501,20 @@ def main():
     # Determina saída
     output_path = determine_output_path(args.input, args.output)
 
+    # Cache inteligente de Auto-Mesclagem: se o arquivo traduzido já existe, carrega páginas já prontas
+    existing_translations_map = {}
+    if output_path.exists():
+        try:
+            ex_pages = parse_ocr_file(output_path)
+            for ep in ex_pages:
+                if ep.get("texts") and any(t.strip().upper().startswith("[BR]:") for t in ep["texts"]):
+                    existing_translations_map[ep["page_name"]] = ep["texts"]
+            if existing_translations_map:
+                print(f"⚡ {len(existing_translations_map)} página(s) já traduzida(s) encontradas em cache. Mantendo intactas sem reprocessar!")
+                print()
+        except Exception:
+            pass
+
     # Traduz
     print(f"🔄 Traduzindo com {args.model}...")
     if args.context:
@@ -529,6 +544,12 @@ def main():
             page["translations"] = page.get("texts", [])
             continue
             
+        # Se a página já existe traduzida no arquivo anterior, aproveita o cache!
+        if page["page_name"] in existing_translations_map:
+            print(f"⏭️ [Página {page_idx + 1}/{len(pages)}] {page['page_name']}: Já traduzida em cache! Mantendo intacta.")
+            page["translations"] = existing_translations_map[page["page_name"]]
+            continue
+
         # Ignora páginas que já foram traduzidas (contêm tag [BR]:)
         is_translated = any(t.strip().upper().startswith("[BR]:") for t in page["texts"])
         if is_translated:
