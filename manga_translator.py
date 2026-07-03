@@ -508,7 +508,7 @@ def main():
             ex_pages = parse_ocr_file(output_path)
             for ep in ex_pages:
                 if ep.get("texts") and any(t.strip().upper().startswith("[BR]:") for t in ep["texts"]):
-                    existing_translations_map[ep["page_name"]] = ep["texts"]
+                    existing_translations_map[ep.get("header")] = ep["texts"]
             if existing_translations_map:
                 print(f"⚡ {len(existing_translations_map)} página(s) já traduzida(s) encontradas em cache. Mantendo intactas sem reprocessar!")
                 print()
@@ -536,31 +536,33 @@ def main():
     start_time = time.time()
     balloon_count = 0
 
-    for page_idx, page in enumerate(pages):
+    import concurrent.futures
+
+    def process_page(args_tuple):
+        page_idx, page = args_tuple
         page["translations"] = []
         
         # Ignora páginas sem texto
         if not page.get("texts") or (len(page["texts"]) == 1 and "[Nenhum texto" in page["texts"][0]):
             page["translations"] = page.get("texts", [])
-            continue
+            return page_idx, page, 0
             
         # Se a página já existe traduzida no arquivo anterior, aproveita o cache!
-        if page["page_name"] in existing_translations_map:
-            print(f"⏭️ [Página {page_idx + 1}/{len(pages)}] {page['page_name']}: Já traduzida em cache! Mantendo intacta.")
-            page["translations"] = existing_translations_map[page["page_name"]]
-            continue
+        if page.get("header") in existing_translations_map:
+            print(f"⏭️ [Página {page_idx + 1}/{len(pages)}] {page.get('header')}: Já traduzida em cache! Mantendo intacta.")
+            page["translations"] = existing_translations_map[page["header"]]
+            return page_idx, page, 0
 
         # Ignora páginas que já foram traduzidas (contêm tag [BR]:)
         is_translated = any(t.strip().upper().startswith("[BR]:") for t in page["texts"])
         if is_translated:
             page["translations"] = page["texts"]
-            continue
+            return page_idx, page, 0
             
         page_texts = page["texts"]
         page_context = page.get("context", "")
         
-        print(f"    [Página {page_idx + 1}/{len(pages)}] Traduzindo {len(page_texts)} balõe(s)...", end="", flush=True)
-        t_start = time.time()
+        print(f"    [Página {page_idx + 1}/{len(pages)}] Traduzindo {len(page_texts)} balõe(s)...", end="\n", flush=True)
         
         translations = translate_texts(
             texts=page_texts,
@@ -580,18 +582,28 @@ def main():
         else:
             if translations:
                 preview = translations[-1][:60] + "..." if len(translations[-1]) > 60 else translations[-1]
-                print(f"      -> {preview}")
-        print()
-
+                print(f"    [Página {page_idx + 1}/{len(pages)}] -> {preview}")
+        
+        b_count = 0
         for text, translation in zip(page_texts, translations):
             if translation.strip().upper() == "[IGNORE]":
                 continue
                 
-            balloon_count += 1
+            b_count += 1
             if args.bilingual:
                 page["translations"].append(f"[EN]: {text}\n[BR]: {translation}")
             else:
                 page["translations"].append(translation)
+                
+        return page_idx, page, b_count
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        results = list(executor.map(process_page, enumerate(pages)))
+
+    # Ordenar os resultados caso executor retorne fora de ordem (map garante ordem, mas por garantia reatribuimos)
+    for page_idx, updated_page, b_count in results:
+        pages[page_idx] = updated_page
+        balloon_count += b_count
 
     elapsed = time.time() - start_time
 

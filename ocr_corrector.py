@@ -241,17 +241,24 @@ def main():
         print(f"  📦 Divididos em {len(chunks)} lote(s) global(is) de no máximo {BATCH_SIZE} balões cada.")
         print()
 
+        import concurrent.futures
+
         global_fixed = []
-        previous_context_str = ""
-        for chunk_idx, chunk in enumerate(chunks):
-            print(f"  [Lote {chunk_idx + 1}/{len(chunks)}] Corrigindo {len(chunk)} balõe(s)...")
-            fixed_texts = fix_ocr_with_ollama(chunk, args.model, dict_content, previous_context_str)
+        
+        def process_chunk(arg_tuple):
+            idx, chunk = arg_tuple
+            print(f"  [Lote {idx + 1}/{len(chunks)}] Disparando lote para correção simultânea...")
+            # Sem o last_3 sequencial exato, passamos vazio ou o anterior caso pré-computado (vazio por simplicidade paralela)
+            fixed_texts = fix_ocr_with_ollama(chunk, args.model, dict_content, "")
+            return fixed_texts
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            results = list(executor.map(process_chunk, enumerate(chunks)))
+
+        for idx, fixed_texts in enumerate(results):
             global_fixed.extend(fixed_texts)
-            
-            # Armazena os últimos 3 balões para contexto da próxima página/lote
-            last_3 = fixed_texts[-3:] if len(fixed_texts) >= 3 else fixed_texts
-            previous_context_str = "\n".join(last_3)
-            
+            chunk = chunks[idx]
+            print(f"  [Lote {idx + 1}/{len(chunks)}] --- Resultado ---")
             for original, fixed in zip(chunk, fixed_texts):
                 print(f"  [Original] -> {original}")
                 print(f"  [Corrigido]-> {fixed}\n")

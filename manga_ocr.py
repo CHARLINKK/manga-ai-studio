@@ -1086,6 +1086,7 @@ def apply_vlm_reading_director(
         vlm_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             vlm_model_id,
             torch_dtype=torch_dtype,
+            attn_implementation="sdpa",
             device_map=device,
         )
         vlm_processor = AutoProcessor.from_pretrained(vlm_model_id)
@@ -1297,7 +1298,12 @@ def main():
 
         model_id = "microsoft/Florence-2-large"
         processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch_dtype, trust_remote_code=True).to(device)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id, 
+            torch_dtype=torch_dtype, 
+            trust_remote_code=True,
+            device_map=device
+        )
     except Exception as e:
         print(f"❌ Erro ao inicializar Florence-2: {e}")
         if args.gpu:
