@@ -3,6 +3,7 @@
   "private": true,
   "version": "2.0.6",
   "type": "module",
+  "repository": "CHARLINKK/manga-ai-studio",
   "main": "main.cjs",
   "scripts": {
     "dev": "vite",
