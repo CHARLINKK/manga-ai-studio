@@ -1,6 +1,7 @@
 name: Build and Release
 
 on:
+  workflow_dispatch: # Permite rodar o botão manualmente no site!
   push:
     tags:
       - 'v*' # Aciona quando você criar uma tag que comece com 'v', como v2.0.0
