@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './Settings.css';
+import pkg from '../../package.json';
 
 const GUIDE_CONTENT = {
   ocr: {
@@ -13,9 +14,7 @@ const GUIDE_CONTENT = {
         heading: 'Requisitos para Suporte CUDA',
         body: `A aceleração via hardware é compatível exclusivamente com placas de vídeo NVIDIA.
 
-Hardware AMD (Radeon) ou Intel deve utilizar a versão CPU (configuração padrão do módulo OCR).
-
-Nota: Modelos recentes, como as placas da linha RTX Série 5000, podem apresentar limitação de suporte com a versão atual do framework.`
+Hardware AMD (Radeon) ou Intel deve utilizar a versão CPU (configuração padrão do módulo OCR).`
       }
     ]
   },
@@ -100,7 +99,11 @@ export default function Settings({ onBaseFolderChange }) {
   const [rememberZoom, setRememberZoom] = useState(false);
   const [baseFolder, setBaseFolder] = useState('');
   const [baseFolderInput, setBaseFolderInput] = useState('');
+  const [systemNotifications, setSystemNotifications] = useState(true);
+  const [autoUpdate, setAutoUpdate] = useState(true);
+  const [closeBehavior, setCloseBehavior] = useState('ask');
   const [showGuide, setShowGuide] = useState(false);
+  const [stats, setStats] = useState({ pagesProcessed: 0, timeSaved: 0 });
   
   const isInitialMount = useRef(true);
 
@@ -126,6 +129,15 @@ export default function Settings({ onBaseFolderChange }) {
         setRememberZoom(settings.rememberZoom || false);
         setBaseFolder(settings.baseFolder || '');
         setBaseFolderInput(settings.baseFolder || '');
+        setSystemNotifications(settings.systemNotifications !== false);
+        setAutoUpdate(settings.autoUpdate !== false);
+        setCloseBehavior(settings.closeBehavior || 'ask');
+        
+        // Carregar estatísticas
+        if (window.electronAPI.getStats) {
+          window.electronAPI.getStats().then(s => setStats(s || { pagesProcessed: 0, timeSaved: 0 }));
+        }
+
         // Marcamos que terminou de carregar o inicial
         setTimeout(() => { isInitialMount.current = false; }, 100);
       });
@@ -136,7 +148,7 @@ export default function Settings({ onBaseFolderChange }) {
   useEffect(() => {
     if (isInitialMount.current) return;
 
-    const newSettings = { theme, accent, rememberZoom, baseFolder };
+    const newSettings = { theme, accent, rememberZoom, baseFolder, systemNotifications, autoUpdate, closeBehavior };
     
     // Salvar no JSON
     if (window.electronAPI) {
@@ -194,7 +206,9 @@ export default function Settings({ onBaseFolderChange }) {
             <p>As preferências são salvas automaticamente no seu perfil.</p>
           </div>
           <div style={{display: 'flex', gap: '8px'}}>
-            <button className="btn-secondary">
+            <button className="btn-secondary" onClick={() => {
+              if (window.electronAPI) window.electronAPI.checkForUpdates();
+            }}>
               Verificar Atualizações
             </button>
             <button className="btn-secondary" onClick={() => setShowGuide(true)}>
@@ -202,6 +216,8 @@ export default function Settings({ onBaseFolderChange }) {
             </button>
           </div>
         </div>
+
+        {/* Gamificação section removed from here */}
 
         {/* Seção: Interface */}
         <div className="settings-section">
@@ -323,16 +339,95 @@ export default function Settings({ onBaseFolderChange }) {
           </div>
         </div>
 
+        {/* Seção: Comportamento do Aplicativo */}
+        <div className="settings-section">
+          <div className="section-label">
+            <span className="section-icon">⚙️</span>
+            <span>Comportamento do Aplicativo</span>
+          </div>
+
+          <div className="settings-card">
+            <div className="settings-row">
+              <div className="setting-info">
+                <strong>Notificações do Sistema</strong>
+                <span>Exibir alerta na área de trabalho quando processamentos forem concluídos.</span>
+              </div>
+              <label className="classic-checkbox">
+                <input
+                  type="checkbox"
+                  checked={systemNotifications}
+                  onChange={e => setSystemNotifications(e.target.checked)}
+                />
+                Ativar
+              </label>
+            </div>
+
+            <div className="settings-divider" />
+
+            <div className="settings-row">
+              <div className="setting-info">
+                <strong>Atualizações Automáticas</strong>
+                <span>Verificar e baixar novas atualizações silenciosamente ao iniciar.</span>
+              </div>
+              <label className="classic-checkbox">
+                <input
+                  type="checkbox"
+                  checked={autoUpdate}
+                  onChange={e => setAutoUpdate(e.target.checked)}
+                />
+                Ativar
+              </label>
+            </div>
+
+            <div className="settings-divider" />
+
+            <div className="settings-row">
+              <div className="setting-info">
+                <strong>Ao fechar a janela (X)</strong>
+                <span>Minimizar para a bandeja permite que a IA continue rodando em segundo plano.</span>
+              </div>
+              <select 
+                className="settings-select"
+                value={closeBehavior}
+                onChange={e => setCloseBehavior(e.target.value)}
+              >
+                <option value="ask">Sempre perguntar</option>
+                <option value="tray">Sempre minimizar para a bandeja</option>
+                <option value="quit">Sempre fechar completamente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Gamificação / Estatísticas */}
+        <div className="settings-section">
+          <div className="section-label" style={{ color: '#d97706' }}>
+            <span className="section-icon">🏆</span>
+            <span>Conquistas de Automação</span>
+          </div>
+          <div className="settings-card" style={{ display: 'flex', gap: '20px', padding: '20px', alignItems: 'center' }}>
+            <div style={{ flex: 1, borderRight: '1px solid var(--border-subtle)' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Páginas Processadas</div>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--text-main)', marginTop: '4px' }}>{stats.pagesProcessed}</div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Tempo Economizado (Aprox.)</div>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#34d399', marginTop: '4px' }}>
+                {stats.timeSaved >= 60 ? `${(stats.timeSaved / 60).toFixed(1)}h` : `${stats.timeSaved}m`}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Seção: Sobre */}
         <div className="settings-section">
           <div className="section-label">
             <span className="section-icon">ℹ️</span>
             <span>Sobre o Aplicativo</span>
           </div>
-
           <div className="settings-card about-card">
             <div className="about-info">
-              <h2>Manga AI Studio <span className="version-badge">v2.0.0</span></h2>
+              <h2>Manga AI Studio <span className="version-badge">v{pkg.version}</span></h2>
               <p className="about-stack">Arquitetura de Extração e Tradução Local</p>
               <p className="about-desc">
                 Pipeline de Inteligência Artificial para extração, polimento e tradução nativa de mangás.<br/>

@@ -35,7 +35,7 @@
 
 .path-row input {
   flex: 1;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
   padding: 6px 12px;
@@ -47,7 +47,7 @@
 .path-row input:focus {
   outline: none;
   border-color: var(--brand-blue);
-  background: rgba(0,0,0,0.3);
+  background: var(--bg-hover);
 }
 
 .btn-browse {
@@ -133,6 +133,54 @@ h4 {
   height: 1px;
   background: var(--border-subtle);
   margin: 6px 0;
+}
+
+/* Custom Checkbox */
+.custom-checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-main);
+  user-select: none;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.custom-checkbox.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tooltip nativo */
+.checkbox-label[data-tooltip] {
+  position: relative;
+}
+
+.checkbox-label[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0px);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-subtle);
+  z-index: 100;
+}
+
+.checkbox-label[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
 }
 
 /* Checkboxes */
@@ -231,7 +279,7 @@ h4 {
 
 .dict-textarea {
   flex: 1;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
   padding: 8px;
@@ -341,9 +389,9 @@ h4 {
   height: 280px;
   min-height: 80px;
   max-height: 700px;
-  background: #0d0e12;
+  background: var(--bg-dark);
   border: 1px solid var(--border-subtle);
-  color: #a3a3a3;
+  color: var(--text-main);
   padding: 8px 10px;
   border-radius: var(--radius);
   font-family: 'Consolas', monospace;

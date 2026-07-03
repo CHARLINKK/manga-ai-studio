@@ -4290,7 +4290,7 @@ class MangaApp(ctk.CTk):
                 
                 cmd = [
                     str(venv_ocr_python), "-m", "pip", "install", 
-                    "torch", "torchvision", "--index-url", "https://download.pytorch.org/whl/cu124",
+                    "torch==2.7.0", "torchvision", "--index-url", "https://download.pytorch.org/whl/cu128",
                     "--default-timeout=1000", "--force-reinstall", "--no-deps"
                 ]
                 startupinfo = subprocess.STARTUPINFO()

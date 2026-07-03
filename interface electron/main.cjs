@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -79,7 +79,10 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     if (!isDev) {
-      autoUpdater.checkForUpdatesAndNotify();
+      const settings = getSettingsSync();
+      if (settings.autoUpdate !== false) {
+        autoUpdater.checkForUpdatesAndNotify();
+      }
     }
   });
 
@@ -105,6 +108,10 @@ ipcMain.handle('install-update', () => {
   // Passamos (isSilent = true, isForceRunAfter = true) para que o Auto-Updater
   // não exiba o wizard clássico durante uma atualização em segundo plano.
   autoUpdater.quitAndInstall(true, true);
+});
+
+ipcMain.handle('check-for-updates', () => {
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
 // -- Funções de Backend (Interface) ------------------------------------------
@@ -161,10 +168,13 @@ const defaultSettings = {
   accent: 'Roxo (Padrão)',
   rememberZoom: false,
   baseFolder: '',
-  sidebarWidth: 260
+  sidebarWidth: 260,
+  systemNotifications: true,
+  autoUpdate: true,
+  closeBehavior: 'ask' // 'tray', 'quit', 'ask'
 };
 
-ipcMain.handle('get-settings', () => {
+function getSettingsSync() {
   try {
     if (fs.existsSync(settingsPath)) {
       const data = fs.readFileSync(settingsPath, 'utf-8');
@@ -174,6 +184,10 @@ ipcMain.handle('get-settings', () => {
     console.error('Erro ao ler settings:', error);
   }
   return defaultSettings;
+}
+
+ipcMain.handle('get-settings', () => {
+  return getSettingsSync();
 });
 
   ipcMain.handle('save-settings', (event, settings) => {
@@ -184,6 +198,19 @@ ipcMain.handle('get-settings', () => {
       console.error('Erro ao salvar settings:', error);
       return false;
     }
+  });
+
+  ipcMain.handle('get-stats', () => {
+    try {
+      const configDir = path.join(os.homedir(), 'AppData', 'Local', 'MangaAIStudio');
+      const statsPath = path.join(configDir, 'stats.json');
+      if (fs.existsSync(statsPath)) {
+        return JSON.parse(fs.readFileSync(statsPath, 'utf8'));
+      }
+    } catch (error) {
+      console.error('Erro ao ler stats:', error);
+    }
+    return { pagesProcessed: 0, timeSaved: 0 };
   });
 
   // -- Módulos -------------------------------------------------------------
@@ -379,6 +406,45 @@ ipcMain.handle('get-settings', () => {
     }
   });
 
+  ipcMain.handle('install-cuda', async (event) => {
+    const { spawn } = require('child_process');
+    const projectRoot = getProjectRoot();
+    
+    try {
+      const venvPath = path.join(projectRoot, 'venv_ocr');
+      const pipPath = path.join(venvPath, 'Scripts', 'pip.exe');
+      
+      const proc = spawn(pipPath, [
+        'install', 'torch==2.7.0', 'torchvision',
+        '--index-url', 'https://download.pytorch.org/whl/cu128',
+        '--force-reinstall', '--no-deps'
+      ], { cwd: projectRoot, windowsHide: true });
+      
+      const sendProgress = (data) => {
+        const str = data.toString('utf8');
+        const cleanText = str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '').trim().split('\n').pop();
+        if (cleanText) {
+          event.sender.send('venv-progress', { envName: 'ocr', progress: 50, text: cleanText.substring(0, 80) });
+        }
+      };
+
+      proc.stdout.on('data', sendProgress);
+      proc.stderr.on('data', sendProgress);
+
+      proc.on('close', (code) => {
+        if (code === 0) {
+          event.sender.send('venv-progress', { envName: 'ocr', progress: 100, text: 'Aceleração CUDA instalada com sucesso!' });
+        } else {
+          event.sender.send('venv-progress', { envName: 'ocr', progress: 100, text: 'Erro ao instalar CUDA. Verifique o console.' });
+        }
+      });
+      
+      return { success: true };
+    } catch(e) {
+      return { success: false, error: e.message };
+    }
+  });
+
   // Controles da Janela (Titlebar)
 ipcMain.on('window-minimize', () => {
   if (mainWindow) mainWindow.minimize();
@@ -395,7 +461,33 @@ ipcMain.on('window-maximize', () => {
 });
 
 ipcMain.on('window-close', () => {
-  if (mainWindow) mainWindow.close();
+  if (!mainWindow) return;
+  const settings = getSettingsSync();
+  const behavior = settings.closeBehavior || 'ask';
+
+  if (behavior === 'tray') {
+    mainWindow.hide();
+  } else if (behavior === 'quit') {
+    app.isQuiting = true;
+    app.quit();
+  } else {
+    const choice = dialog.showMessageBoxSync(mainWindow, {
+      type: 'question',
+      buttons: ['Minimizar para a Bandeja', 'Encerrar o Programa', 'Cancelar'],
+      defaultId: 0,
+      cancelId: 2,
+      title: 'Confirmação',
+      message: 'Você clicou em fechar. O que deseja fazer?',
+      detail: 'Minimizar mantém a IA processando tarefas em segundo plano.'
+    });
+
+    if (choice === 0) {
+      mainWindow.hide();
+    } else if (choice === 1) {
+      app.isQuiting = true;
+      app.quit();
+    }
+  }
 });
 
 ipcMain.handle('load-studio-data', async (event, folderPath, isEditorMode) => {
@@ -545,6 +637,8 @@ ipcMain.handle('list-images', (event, dirPath) => {
 });
 
 
+let tray = null;
+
 app.whenReady().then(() => {
   startPythonServer();
   
@@ -552,6 +646,23 @@ app.whenReady().then(() => {
   setTimeout(() => {
     createWindow();
   }, 1000);
+
+  try {
+    const iconPath = path.join(__dirname, 'public', 'icon.ico');
+    if (fs.existsSync(iconPath)) {
+      tray = new Tray(iconPath);
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Mostrar Manga AI Studio', click: () => { if (mainWindow) mainWindow.show(); } },
+        { label: 'Sair Completamente', click: () => { app.isQuiting = true; app.quit(); } }
+      ]);
+      tray.setToolTip('Manga AI Studio');
+      tray.setContextMenu(contextMenu);
+      
+      tray.on('click', () => {
+        if (mainWindow) mainWindow.show();
+      });
+    }
+  } catch(e) { console.error('Erro ao criar Tray:', e); }
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -1018,6 +1129,36 @@ ipcMain.handle('run-pipeline', async (event, config) => {
       console.error('Erro ao salvar status.json:', e);
     }
 
+    if (getSettingsSync().systemNotifications !== false) {
+      new Notification({
+        title: 'Manga AI Studio',
+        body: `Processamento finalizado para ${folderName}!`
+      }).show();
+    }
+
+    // Atualizar Estatísticas (Gamificação)
+    try {
+      const statsPath = path.join(configDir, 'stats.json');
+      let stats = { pagesProcessed: 0, timeSaved: 0 };
+      if (fs.existsSync(statsPath)) {
+        stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
+      }
+      
+      let pagesCount = 1;
+      if (fs.existsSync(inputPath) && fs.statSync(inputPath).isDirectory()) {
+        const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.bmp'];
+        pagesCount = fs.readdirSync(inputPath).filter(f => IMAGE_EXTS.includes(path.extname(f).toLowerCase())).length || 1;
+      }
+      
+      stats.pagesProcessed += pagesCount;
+      // Estima-se 15 minutos economizados por página (Limpeza OCR + Tradução + Typesetting base)
+      stats.timeSaved += (pagesCount * 15); 
+      
+      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf8');
+    } catch(e) {
+      console.error('Erro ao salvar stats.json:', e);
+    }
+
     return { 
       success: true, 
       finalTarget: currentTarget,
@@ -1029,10 +1170,12 @@ ipcMain.handle('run-pipeline', async (event, config) => {
 
   } catch (err) {
     sendLog(event, '\n[ERRO] ERRO: ' + err.message, null, true);
-    new Notification({
-      title: 'Erro no Processamento',
-      body: err.message
-    }).show();
+    if (getSettingsSync().systemNotifications !== false) {
+      new Notification({
+        title: 'Erro no Processamento',
+        body: err.message
+      }).show();
+    }
     return { success: false, error: err.message };
   }
 });

@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Settings
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+  getStats: () => ipcRenderer.invoke('get-stats'),
   
   // Auto-Updater
   onUpdaterStatus: (callback) => {
@@ -17,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('updater-status', handler);
   },
   installUpdate: () => ipcRenderer.invoke('install-update'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   
   // ── Módulos ───────────────────────────────────────
   checkModulesStatus: () => ipcRenderer.invoke('check-modules-status'),
@@ -31,6 +33,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   startOllamaServer: () => ipcRenderer.invoke('start-ollama-server'),
   deleteOllamaModel: (modelName) => ipcRenderer.invoke('delete-ollama-model', modelName),
   repairPythonVenv: (envName) => ipcRenderer.invoke('repair-python-venv', envName),
+  installCuda: () => ipcRenderer.invoke('install-cuda'),
   onVenvProgress: (callback) => {
     const handler = (event, data) => callback(data);
     ipcRenderer.on('venv-progress', handler);

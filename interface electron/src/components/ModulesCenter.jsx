@@ -233,7 +233,15 @@ export default function ModulesCenter() {
             {downloading['ocr'] ? (
               <span style={{color: '#94a3b8', fontSize: '14px', fontFamily: 'monospace'}}>{downloading['ocr'].text}</span>
             ) : (
-              <button className="btn-secondary" onClick={() => repairVenv('ocr')}>Reparar VENV</button>
+              <>
+                <button className="btn-secondary" onClick={() => repairVenv('ocr')}>Reparar VENV</button>
+                <button className="btn-secondary" style={{borderColor: '#10b981', color: '#10b981'}} onClick={() => {
+                  setDownloading(prev => ({ ...prev, ocr: { progress: 0, text: 'Instalando CUDA...' } }));
+                  if (window.electronAPI && window.electronAPI.installCuda) {
+                    window.electronAPI.installCuda();
+                  }
+                }}>Instalar/Atualizar CUDA</button>
+              </>
             )}
           </div>
         </div>

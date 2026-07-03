@@ -19,6 +19,7 @@ function App() {
   const [expandedFolder, setExpandedFolder] = useState(null); // pasta expandida no acordeão
   const [isLoading, setIsLoading] = useState(false);
   const [explorerError, setExplorerError] = useState('');
+  const [isTheaterMode, setIsTheaterMode] = useState(false);
 
   // ── Auto-Updater ─────────────────────────────────────────────────────────
   const [updateStatus, setUpdateStatus] = useState(null); // 'available', 'progress', 'downloaded', 'error'
@@ -34,6 +35,47 @@ function App() {
       });
       return cleanup;
     }
+  }, []);
+
+  // ── Global Pipeline Progress ─────────────────────────────────────────────
+  const [globalProgress, setGlobalProgress] = useState(0);
+  const [isGlobalRunning, setIsGlobalRunning] = useState(false);
+
+  useEffect(() => {
+    if (!window.electronAPI) return;
+    const cleanupLog = window.electronAPI.onPipelineLog((data) => {
+      if (data.progress !== null) {
+        setGlobalProgress(data.progress);
+        setIsGlobalRunning(true);
+        if (data.progress >= 100) {
+          setTimeout(() => setIsGlobalRunning(false), 2000);
+        }
+      }
+    });
+    return () => cleanupLog();
+  }, []);
+
+  // ── Global Model Download Progress ─────────────────────────────────────────
+  const [downloadingModels, setDownloadingModels] = useState({});
+
+  useEffect(() => {
+    if (!window.electronAPI || !window.electronAPI.onOllamaProgress) return;
+    const cleanupOllama = window.electronAPI.onOllamaProgress((data) => {
+      setDownloadingModels(prev => ({
+        ...prev,
+        [data.model]: { progress: data.progress, text: data.text }
+      }));
+      if (data.progress >= 100) {
+        setTimeout(() => {
+          setDownloadingModels(prev => {
+            const nd = {...prev};
+            delete nd[data.model];
+            return nd;
+          });
+        }, 2000);
+      }
+    });
+    return () => cleanupOllama();
   }, []);
 
   // ── Resize do Sidebar ────────────────────────────────────────────────────
@@ -291,8 +333,9 @@ function App() {
 
       <div className="app-body">
         {/* ── Sidebar Explorador ── */}
-        <aside className="app-sidebar" style={{ width: sidebarWidth, minWidth: sidebarWidth, maxWidth: sidebarWidth }}>
-          <div className="sidebar-header">
+        {!isTheaterMode && (
+          <aside className="app-sidebar fade-in-tab" style={{ width: sidebarWidth, minWidth: sidebarWidth, maxWidth: sidebarWidth }}>
+            <div className="sidebar-header">
             <h3>EXPLORADOR</h3>
             <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
               <button 
@@ -512,17 +555,20 @@ function App() {
             )}
           </div>
         </aside>
+        )}
 
         {/* ── Alça de Resize ── */}
-        <div
-          className="sidebar-resize-handle"
-          onMouseDown={onResizeMouseDown}
-          title="Arraste para redimensionar o explorador"
-        />
+        {!isTheaterMode && (
+          <div
+            className="sidebar-resize-handle"
+            onMouseDown={onResizeMouseDown}
+            title="Arraste para redimensionar o explorador"
+          />
+        )}
 
         {/* ── Conteúdo Principal ── */}
         <main className="app-main">
-          <header className="app-header">
+          <header className="app-header" style={{ display: isTheaterMode ? 'none' : 'flex' }}>
             <nav className="top-tabs">
               <button 
                 className={`tab-btn ${activeTab === 'processamento' ? 'active' : ''}`}
@@ -558,24 +604,73 @@ function App() {
           </header>
 
           <section className={`tab-content ${activeTab === 'estudio' ? 'tab-content--fullscreen' : ''}`}>
-            <div style={{ display: activeTab === 'processamento' ? 'flex' : 'none', flexDirection: 'column', height: '100%', width: '100%' }}>
+            <div className="fade-in-tab" style={{ display: activeTab === 'processamento' ? 'flex' : 'none', flexDirection: 'column' }}>
               <Processing initialInputPath={selectedFolder?.path} />
             </div>
             {activeTab === 'biblioteca' && (
-              <Library />
+              <div className="fade-in-tab" style={{ display: 'flex', flexDirection: 'column' }}>
+                <Library />
+              </div>
             )}
             {activeTab === 'estudio' && (
-              <TranslationStudio
-                folderPath={selectedFolder?.path}
-                folderName={selectedFolder?.name}
-                isEditorMode={isEditorMode}
-                isPipelinePaused={isPipelinePaused}
-              />
+              <div className="fade-in-tab" style={{ display: 'flex', flexDirection: 'column' }}>
+                <TranslationStudio
+                  folderPath={selectedFolder?.path}
+                  folderName={selectedFolder?.name}
+                  isEditorMode={isEditorMode}
+                  isPipelinePaused={isPipelinePaused}
+                  isTheaterMode={isTheaterMode}
+                  onToggleTheaterMode={() => setIsTheaterMode(!isTheaterMode)}
+                />
+              </div>
             )}
-            <div style={{ display: activeTab === 'modulos' ? 'flex' : 'none', flexDirection: 'column', height: '100%', width: '100%' }}>
+            <div className="fade-in-tab" style={{ display: activeTab === 'modulos' ? 'flex' : 'none', flexDirection: 'column' }}>
               <ModulesCenter />
             </div>
-            {activeTab === 'configuracoes' && <Settings onBaseFolderChange={(p) => navigateTo(p)} />}
+            {activeTab === 'configuracoes' && (
+              <div className="fade-in-tab" style={{ display: 'flex', flexDirection: 'column' }}>
+                <Settings onBaseFolderChange={(p) => navigateTo(p)} />
+              </div>
+            )}
+            
+            {/* ── Mini-Player Global ── */}
+            {isGlobalRunning && activeTab !== 'processamento' && (
+              <div className="global-progress-mini fade-in-tab" style={{
+                position: 'absolute', bottom: '20px', right: '20px', width: '300px', 
+                background: 'var(--bg-panel)', border: '1px solid var(--border-subtle)', 
+                borderRadius: '8px', padding: '12px', boxShadow: 'var(--shadow-lg)', zIndex: 9999
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', fontWeight: 'bold' }}>
+                  <span style={{ color: 'var(--brand-blue)' }}>⚡ Processando...</span>
+                  <span>{Math.round(globalProgress)}%</span>
+                </div>
+                <div style={{ width: '100%', height: '6px', background: 'var(--bg-dark)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${globalProgress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
+                </div>
+              </div>
+            )}
+
+            {/* ── Banner de Download Global ── */}
+            {Object.entries(downloadingModels).length > 0 && activeTab !== 'modulos' && (
+              <div className="global-progress-mini fade-in-tab" style={{
+                position: 'absolute', top: '20px', right: '20px', width: '300px', 
+                background: 'var(--bg-panel)', border: '1px solid var(--border-subtle)', 
+                borderRadius: '8px', padding: '12px', boxShadow: 'var(--shadow-lg)', zIndex: 9999
+              }}>
+                {Object.entries(downloadingModels).map(([model, data]) => (
+                  <div key={model} style={{ marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px', fontWeight: 'bold' }}>
+                      <span style={{ color: 'var(--brand-blue)' }}>⬇ Baixando {model}</span>
+                      <span>{Math.round(data.progress)}%</span>
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>{data.text}</div>
+                    <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${data.progress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </main>
       </div>

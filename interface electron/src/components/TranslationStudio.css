@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: var(--bg-dark);
+  background: transparent;
 }
 
 /* ── Toolbar ──────────────────────────────────────────────────────────────── */
@@ -125,7 +125,7 @@
   padding: 16px;
   border-bottom: 1px solid var(--border-subtle);
   display: flex; flex-direction: column; gap: 6px;
-  background: rgba(0,0,0,0.1);
+  background: var(--bg-surface);
 }
 .editor-label {
   font-size: 11px; font-weight: 700; color: var(--text-muted);
@@ -133,7 +133,7 @@
 .reference-textarea {
   background: var(--bg-dark);
   border: 1px solid var(--border-subtle);
-  color: #9ca3af;
+  color: var(--text-muted);
   padding: 8px; border-radius: var(--radius);
   font-size: 13px; resize: none; font-family: 'Consolas', monospace;
   height: 60px;
@@ -168,7 +168,7 @@
 }
 
 .block-index {
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-hover);
   color: var(--text-muted);
   font-size: 10px; font-weight: 700;
   padding: 4px; border-radius: 4px;
@@ -216,10 +216,10 @@
   height: 100%; color: var(--text-muted); padding: 48px; text-align: center;
 }
 .studio-empty-icon { font-size: 48px; margin-bottom: 16px; }
-.zoom-hint { font-size: 11px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; color: #ccc; }
-.btn-icon { background: rgba(0,0,0,0.5); border: 1px solid #444; color: #fff; padding: 4px 10px; cursor: pointer; border-radius: 4px;}
-.btn-icon:hover { background: #444; }
-.zoom-pill { background: rgba(0,0,0,0.5); border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 12px; padding: 2px 8px; font-weight: 600; }
+.zoom-hint { font-size: 11px; background: var(--bg-surface); padding: 4px 8px; border-radius: 4px; color: var(--text-muted); }
+.btn-icon { background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-main); padding: 4px 10px; cursor: pointer; border-radius: 4px;}
+.btn-icon:hover { background: var(--bg-hover); }
+.zoom-pill { background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-main); border-radius: 4px; font-size: 12px; padding: 2px 8px; font-weight: 600; }
 
 .status-text.done    { color: var(--brand-green); }
 .status-text.editing { color: var(--brand-blue); }
@@ -239,7 +239,7 @@
 }
 
 .btn-icon:hover:not(:disabled) {
-  background: #3f3f3f;
+  background: var(--bg-hover);
 }
 
 .btn-icon:disabled {

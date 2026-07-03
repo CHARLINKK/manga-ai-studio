@@ -5,7 +5,7 @@ const ZOOM_MIN = 20;
 const ZOOM_MAX = 300;
 const ZOOM_STEP = 10;
 
-export default function TranslationStudio({ folderPath, folderName, isEditorMode, isPipelinePaused }) {
+export default function TranslationStudio({ folderPath, folderName, isEditorMode, isPipelinePaused, isTheaterMode, onToggleTheaterMode }) {
   const [pagesData, setPagesData] = useState({}); 
   const [imagesPaths, setImagesPaths] = useState({});
   const [pagesList, setPagesList] = useState([]);
@@ -267,11 +267,19 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
           <span className="folder-name" style={{ color: 'var(--text-muted)' }}>{folderName}</span>
         </div>
 
-        <div className="toolbar-right">
+        <div className="toolbar-right" style={{ display: 'flex', gap: '8px' }}>
+          <button
+            className="btn-save-studio"
+            style={{ backgroundColor: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
+            onClick={onToggleTheaterMode}
+            title="Alternar Modo Teatro (Tela Cheia)"
+          >
+            {isTheaterMode ? 'Sair do Modo Teatro' : 'Modo Teatro'}
+          </button>
           {isEditorMode && isPipelinePaused && (
             <button
               className="btn-save-studio"
-              style={{ backgroundColor: '#d97706', borderColor: '#b45309', marginRight: '8px', opacity: isResuming ? 0.7 : 1 }}
+              style={{ backgroundColor: '#d97706', borderColor: '#b45309', opacity: isResuming ? 0.7 : 1 }}
               onClick={handleSaveAndContinue}
               disabled={isResuming}
             >

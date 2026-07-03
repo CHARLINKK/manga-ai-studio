@@ -1,6 +1,6 @@
 {
-    "version": "v1.4.3",
-    "release_date": "2026-07-02",
-    "changelog": "Introduz Diretor Visual de Leitura (VLM) para correção geométrica, Page Director (Diretor de Contexto), Novo motor de extração XY-Cut com OpenCV e UX Aprimorada.",
-    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v1.4.3/Manga_AI_Studio_Setup_v1.4.3.zip"
+    "version": "v2.0.6",
+    "release_date": "2026-07-03",
+    "changelog": "Grande revisão de UX (Interface Electron com Light Mode 100% responsivo), Otimizações profundas de CSS, Suporte Nativo ao PyTorch 2.7.0 (compatibilidade com RTX Série 5000) e Gerenciamento Facilitado de CUDA na interface.",
+    "download_url": "https://github.com/CHARLINKK/manga-ai-studio/releases/download/v2.0.6/Manga_AI_Studio_Setup_v2.0.6.zip"
 }

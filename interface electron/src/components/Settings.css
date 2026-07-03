@@ -1,7 +1,7 @@
 .settings-container {
   height: 100%;
   overflow-y: auto;
-  background: var(--bg-dark);
+  background: transparent;
   padding: 32px 40px;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .btn-secondary {
-  background: rgba(255,255,255,0.03);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
   padding: 8px 16px;
@@ -48,7 +48,7 @@
 }
 
 .btn-secondary:hover {
-  background: rgba(255,255,255,0.06);
+  background: var(--bg-hover);
   border-color: var(--border-hover);
 }
 
@@ -147,6 +147,29 @@
   border-color: var(--brand-blue);
 }
 
+.settings-select {
+  width: 260px;
+  cursor: pointer;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--brand-blue);
+}
+
+.settings-select option {
+  background-color: var(--bg-panel);
+  color: var(--text-main);
+}
+
 .base-folder-input::placeholder {
   color: var(--text-muted);
   font-style: italic;
@@ -172,7 +195,7 @@
 /* Toggles / Buttons */
 .theme-toggle-group {
   display: flex;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
   overflow: hidden;
@@ -211,6 +234,7 @@
 }
 
 .swatch {
+  position: relative;
   width: 28px;
   height: 28px;
   border-radius: 50%;

@@ -1,12 +1,12 @@
 .library-container {
   display: flex;
   height: 100%;
-  background: var(--surface-1);
+  background: transparent;
 }
 
 .library-sidebar {
   width: 300px;
-  background: var(--surface-2);
+  background: var(--bg-panel);
   border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
@@ -52,11 +52,11 @@
 }
 
 .library-file-item:hover {
-  background: var(--surface-3);
+  background: var(--bg-hover);
 }
 
 .library-file-item.active {
-  background: var(--brand-blue-transparent);
+  background: rgba(59, 130, 246, 0.15);
   border-color: rgba(59, 130, 246, 0.3);
 }
 
@@ -95,7 +95,7 @@
 }
 
 .btn-refresh:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-hover);
   color: var(--text-main);
 }
 
@@ -124,7 +124,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--surface-1);
+  background: transparent;
 }
 
 .content-header {
@@ -147,10 +147,10 @@
 .library-textarea {
   flex: 1;
   width: 100%;
-  background: #0d0e12;
+  background: var(--bg-dark);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  color: #a3a3a3;
+  color: var(--text-main);
   padding: 16px;
   font-family: 'Consolas', monospace;
   font-size: 14px;

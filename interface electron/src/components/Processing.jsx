@@ -254,9 +254,9 @@ export default function Processing({ initialInputPath }) {
                   <input type="checkbox" checked={steps.pauseOcr} disabled={!steps.ocr} onChange={e => setSteps({...steps, pauseOcr: e.target.checked})} />
                   <span>Pausar após OCR (Ir para Editor OCR)</span>
                 </label>
-                <label className="checkbox-label" title="Utiliza modelo de visão para ordenar balões e filtrar onomatopeias">
+                <label className="checkbox-label" data-tooltip="Usa modelo de Visão para remover ruídos e ordenar a leitura corretamente.">
                   <input type="checkbox" checked={steps.vlmDirector} disabled={!steps.ocr} onChange={e => setSteps({...steps, vlmDirector: e.target.checked})} />
-                  <span>Ativar Diretor Visual (VLM Geométrico)</span>
+                  <span>Ativar Diretor Visual (VLM Geométrico) <span style={{ color: 'var(--brand-blue)', fontSize: '11px', verticalAlign: 'super' }}>[?]</span></span>
                 </label>
               </div>
             </div>
@@ -270,9 +270,9 @@ export default function Processing({ initialInputPath }) {
                 <span>2. Polir Texto Extraído (IA Local)</span>
               </label>
               <div className="step-options">
-                <label className="checkbox-label">
+                <label className="checkbox-label" data-tooltip="A IA lê todas as páginas primeiro para entender a história antes de traduzir.">
                   <input type="checkbox" checked={steps.pageDirector} onChange={e => setSteps({...steps, pageDirector: e.target.checked})} />
-                  <span>2.5. Analisar Contexto da Cena (Page Director)</span>
+                  <span>2.5. Analisar Contexto da Cena (Page Director) <span style={{ color: 'var(--brand-blue)', fontSize: '11px', verticalAlign: 'super' }}>[?]</span></span>
                 </label>
               </div>
             </div>
