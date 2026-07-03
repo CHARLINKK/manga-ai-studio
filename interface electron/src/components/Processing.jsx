@@ -192,6 +192,9 @@ export default function Processing({ initialInputPath }) {
     setProgress(0);
     setIsRunning(false);
     setConsoleText('');
+    if (window.electronAPI && window.electronAPI.cancelPipeline) {
+      window.electronAPI.cancelPipeline();
+    }
   }
 
   async function handleBrowseInput() {

@@ -184,7 +184,7 @@ export default function Settings({ onBaseFolderChange }) {
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
     }
-  }, [theme, accent, rememberZoom, baseFolder]);
+  }, [theme, accent, rememberZoom, baseFolder, systemNotifications, autoUpdate, closeBehavior]);
 
   const accentColors = [
     { id: 'purple', label: 'Roxo (Padrão)', color: '#6366f1' },
@@ -206,11 +206,6 @@ export default function Settings({ onBaseFolderChange }) {
             <p>As preferências são salvas automaticamente no seu perfil.</p>
           </div>
           <div style={{display: 'flex', gap: '8px'}}>
-            <button className="btn-secondary" onClick={() => {
-              if (window.electronAPI) window.electronAPI.checkForUpdates();
-            }}>
-              Verificar Atualizações
-            </button>
             <button className="btn-secondary" onClick={() => setShowGuide(true)}>
               Guia de Modelos
             </button>

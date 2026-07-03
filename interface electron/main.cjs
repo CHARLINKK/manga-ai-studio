@@ -192,7 +192,9 @@ ipcMain.handle('get-settings', () => {
 
   ipcMain.handle('save-settings', (event, settings) => {
     try {
-      fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+      const currentSettings = getSettingsSync();
+      const updatedSettings = { ...currentSettings, ...settings };
+      fs.writeFileSync(settingsPath, JSON.stringify(updatedSettings, null, 2));
       return true;
     } catch (error) {
       console.error('Erro ao salvar settings:', error);
@@ -313,17 +315,25 @@ ipcMain.handle('get-settings', () => {
       const ollama = spawn('ollama', ['pull', modelName]);
       
       let lastProgress = 0;
+      let buffer = '';
       const parseData = (data) => {
-        const str = data.toString('utf8');
-        const match = str.match(/(\d+)%/);
-        if (match) {
-          const prog = parseInt(match[1], 10);
-          if (prog !== lastProgress) {
-            lastProgress = prog;
-            const rawText = str.trim().split('\n').pop();
-            // Remover códigos de escape ANSI do console
-            const cleanText = rawText.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '');
-            event.sender.send('ollama-progress', { model: modelName, progress: prog, text: cleanText });
+        buffer += data.toString('utf8');
+        let lines = buffer.split(/[\r\n]+/);
+        buffer = lines.pop(); // keep incomplete part
+        for (const str of lines) {
+          const match = str.match(/(\d+)%/);
+          if (match) {
+            const prog = parseInt(match[1], 10);
+            if (prog !== lastProgress || prog === 100) {
+              lastProgress = prog;
+              const cleanText = str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '');
+              const statsMatch = cleanText.match(/(\d+(?:\.\d+)?\s*[KMG]B\s*\/\s*\d+(?:\.\d+)?\s*[KMG]B.*)/i);
+              let formattedText = cleanText.replace(/[▕▏█▒░━╸=|-]+/g, '').replace(/\s+/g, ' ').trim();
+              if (statsMatch) {
+                formattedText = 'Baixando... ' + prog + '% - ' + statsMatch[1];
+              }
+              event.sender.send('ollama-progress', { model: modelName, progress: prog, text: formattedText });
+            }
           }
         }
       };
@@ -381,11 +391,17 @@ ipcMain.handle('get-settings', () => {
       // Usar spawn em background enviando o output para o frontend
       const proc = spawn(pipPath, ['install', '-r', reqPath], { cwd: projectRoot, windowsHide: true });
       
+      let buffer = '';
       const sendProgress = (data) => {
-        const str = data.toString('utf8');
-        const cleanText = str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '').trim().split('\n').pop();
-        if (cleanText) {
-          event.sender.send('venv-progress', { envName: envName, progress: 50, text: cleanText.substring(0, 80) });
+        buffer += data.toString('utf8');
+        let lines = buffer.split(/[\r\n]+/);
+        buffer = lines.pop();
+        for (const str of lines) {
+          const cleanText = str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '').trim();
+          if (cleanText) {
+            let formattedText = cleanText.replace(/[▕▏█▒░━╸=|-]+/g, '').replace(/\s+/g, ' ').trim();
+            event.sender.send('venv-progress', { envName: envName, progress: 50, text: formattedText.substring(0, 80) });
+          }
         }
       };
 
@@ -415,16 +431,21 @@ ipcMain.handle('get-settings', () => {
       const pipPath = path.join(venvPath, 'Scripts', 'pip.exe');
       
       const proc = spawn(pipPath, [
-        'install', 'torch==2.7.0', 'torchvision',
-        '--index-url', 'https://download.pytorch.org/whl/cu128',
-        '--force-reinstall', '--no-deps'
+        'install', '--pre', 'torch', 'torchvision', '--upgrade',
+        '--index-url', 'https://download.pytorch.org/whl/nightly/cu128'
       ], { cwd: projectRoot, windowsHide: true });
       
+      let buffer = '';
       const sendProgress = (data) => {
-        const str = data.toString('utf8');
-        const cleanText = str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '').trim().split('\n').pop();
-        if (cleanText) {
-          event.sender.send('venv-progress', { envName: 'ocr', progress: 50, text: cleanText.substring(0, 80) });
+        buffer += data.toString('utf8');
+        let lines = buffer.split(/[\r\n]+/);
+        buffer = lines.pop();
+        for (const str of lines) {
+          const cleanText = str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '').trim();
+          if (cleanText) {
+            let formattedText = cleanText.replace(/[▕▏█▒░━╸=|-]+/g, '').replace(/\s+/g, ' ').trim();
+            event.sender.send('venv-progress', { envName: 'ocr', progress: 50, text: formattedText.substring(0, 80) });
+          }
         }
       };
 
@@ -693,14 +714,16 @@ const sendLog = (event, msg, progress = null, isError = false) => {
   event.sender.send('pipeline-log', { text: msg, progress, isError });
 };
 
-ipcMain.handle('cancel-pipeline', () => {
+ipcMain.handle('cancel-pipeline', (event) => {
   if (activePipelineProcess) {
     const { exec } = require('child_process');
     exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F');
     activePipelineProcess = null;
-    return true;
   }
-  return false;
+  if (event && event.sender) {
+    event.sender.send('pipeline-canceled');
+  }
+  return true;
 });
 
 ipcMain.handle('resume-pipeline', (event) => {

@@ -111,11 +111,28 @@ export default function Library() {
               <h3>{selectedFile.name}</h3>
             </div>
             <div className="content-body">
-              <textarea 
-                className="library-textarea" 
-                readOnly 
-                value={fileContent}
-              />
+              <div className="library-formatted-text">
+                {fileContent.split('\n').map((line, idx) => {
+                  if (line.startsWith('[EN]:')) {
+                    return (
+                      <div key={idx} className="library-line line-en">
+                        <span className="library-tag tag-en">[EN]:</span>{line.substring(5)}
+                      </div>
+                    );
+                  } else if (line.startsWith('[BR]:')) {
+                    return (
+                      <div key={idx} className="library-line line-br">
+                        <span className="library-tag tag-br">[BR]:</span>{line.substring(5)}
+                      </div>
+                    );
+                  } else if (line.startsWith('PÁGINA') || line.startsWith('PAGE')) {
+                    return <div key={idx} className="library-line line-page">{line}</div>;
+                  } else if (line.startsWith('---') || line.startsWith('===')) {
+                    return <div key={idx} className="library-line line-separator">{line}</div>;
+                  }
+                  return <div key={idx} className="library-line line-normal">{line || ' '}</div>;
+                })}
+              </div>
             </div>
           </>
         ) : (

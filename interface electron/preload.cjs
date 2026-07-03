@@ -66,6 +66,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('pipeline-finished', handler);
     return () => ipcRenderer.removeListener('pipeline-finished', handler);
   },
+  onPipelineCanceled: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('pipeline-canceled', handler);
+    return () => ipcRenderer.removeListener('pipeline-canceled', handler);
+  },
 
   // ── Estúdio ─────────────────────────────────────────────────────────────
   loadStudioData: (folderPath, isEditorMode) => ipcRenderer.invoke('load-studio-data', folderPath, isEditorMode),

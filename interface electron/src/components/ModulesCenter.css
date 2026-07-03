@@ -222,6 +222,11 @@
   border-color: var(--brand-blue);
 }
 
+.module-select option {
+  background-color: var(--bg-panel);
+  color: var(--text-main);
+}
+
 /* Progress Text */
 .progress-text {
   font-size: 12px;

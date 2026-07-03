@@ -15,6 +15,13 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [savedFlash, setSavedFlash] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState(null);
+
+  // Sincroniza refs para uso em listeners globais
+  const stateRef = useRef({ pagesData, txtPath, isEditorMode, currentPage, pagesList });
+  useEffect(() => {
+    stateRef.current = { pagesData, txtPath, isEditorMode, currentPage, pagesList };
+  }, [pagesData, txtPath, isEditorMode, currentPage, pagesList]);
 
   // Canvas / Pan & Zoom
   const [zoom, setZoom] = useState(40);
@@ -88,17 +95,57 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
   }, [folderPath, isEditorMode]);
 
   // ── Salvar ────────────────────────────────────────────────────────────────
-  const handleSave = async () => {
+  const handleSave = useCallback(async (showFlash = true) => {
+    const { txtPath, pagesData, isEditorMode } = stateRef.current;
     if (!window.electronAPI || !txtPath) return;
     
     const res = await window.electronAPI.saveStudioData(txtPath, pagesData, isEditorMode);
     if (res.success) {
-      setSavedFlash(true);
-      setTimeout(() => setSavedFlash(false), 2000);
+      const now = new Date();
+      setLastSavedTime(`${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
+      if (showFlash) {
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 2000);
+      }
     } else {
-      alert("Erro ao salvar: " + res.error);
+      if (showFlash) alert("Erro ao salvar: " + res.error);
     }
-  };
+  }, []);
+
+  // ── Auto-Save & Hotkeys ───────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSave(true);
+      }
+      if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          const { pagesList, currentPage } = stateRef.current;
+          if (!pagesList.length || !currentPage) return;
+          const idx = pagesList.indexOf(currentPage);
+          if (e.key === 'ArrowRight' && idx < pagesList.length - 1) {
+            setCurrentPage(pagesList[idx + 1]);
+            setPan({ x: 0, y: 0 });
+          } else if (e.key === 'ArrowLeft' && idx > 0) {
+            setCurrentPage(pagesList[idx - 1]);
+            setPan({ x: 0, y: 0 });
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSave]);
+
+  useEffect(() => {
+    const interval = setInterval(() => handleSave(false), 120000); // 2 mins
+    return () => clearInterval(interval);
+  }, [handleSave]);
+
+  useEffect(() => {
+    handleSave(false); // auto-save on page change
+  }, [currentPage, handleSave]);
 
   // 🖲️ Pan e Zoom 🖲️
   const handleWheel = (e) => {
@@ -286,11 +333,22 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
               {isResuming ? 'Retomando...' : 'Salvar e Continuar Processamento'}
             </button>
           )}
+          {lastSavedTime && (
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', marginRight: '8px', fontStyle: 'italic' }}>
+              Auto-salvo às {lastSavedTime}
+            </span>
+          )}
           <button
             className={`btn-save-studio ${savedFlash ? 'saved' : ''}`}
-            onClick={handleSave}
+            onClick={() => handleSave(true)}
+            title="Atalho: Ctrl + S"
           >
-            {savedFlash ? '[OK] Salvo!' : (isEditorMode ? 'Apenas Salvar' : 'Salvar Tradução')}
+            {savedFlash ? '[OK] Salvo!' : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {isEditorMode ? 'Apenas Salvar' : 'Salvar Tradução'}
+                <kbd style={{ fontSize: '10px', background: 'rgba(255,255,255,0.2)', padding: '2px 5px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>Ctrl+S</kbd>
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -298,7 +356,13 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
       <div className="studio-split-container">
         {/* ── Painel Esquerdo: Páginas ── */}
         <div className="studio-sidebar-pages">
-          <div className="sidebar-pages-header">Páginas</div>
+          <div className="sidebar-pages-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Páginas</span>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <kbd style={{ fontSize: '9px', background: 'var(--bg-dark)', color: 'var(--text-muted)', padding: '2px 4px', borderRadius: '3px', border: '1px solid var(--border-subtle)' }}>←</kbd>
+              <kbd style={{ fontSize: '9px', background: 'var(--bg-dark)', color: 'var(--text-muted)', padding: '2px 4px', borderRadius: '3px', border: '1px solid var(--border-subtle)' }}>→</kbd>
+            </div>
+          </div>
           <div className="sidebar-pages-list">
             {pagesList.map(page => {
               const hasText = pagesData[page] && pagesData[page].length > 0 && pagesData[page].some(b => b.original.trim() || b.translated.trim());

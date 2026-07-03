@@ -20,6 +20,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [explorerError, setExplorerError] = useState('');
   const [isTheaterMode, setIsTheaterMode] = useState(false);
+  const [isDraggingGlobal, setIsDraggingGlobal] = useState(false);
+  const [hoveredImage, setHoveredImage] = useState(null);
 
   // ── Auto-Updater ─────────────────────────────────────────────────────────
   const [updateStatus, setUpdateStatus] = useState(null); // 'available', 'progress', 'downloaded', 'error'
@@ -162,6 +164,11 @@ function App() {
       setActiveTab('estudio');
     });
 
+    const cleanupCanceled = window.electronAPI.onPipelineCanceled && window.electronAPI.onPipelineCanceled(() => {
+      setIsGlobalRunning(false);
+      setGlobalProgress(0);
+    });
+
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
     return () => {
@@ -170,6 +177,7 @@ function App() {
       cleanupPaused();
       cleanupResumed();
       cleanupFinished();
+      if (cleanupCanceled) cleanupCanceled();
     };
   }, []);
 
@@ -298,8 +306,52 @@ function App() {
     navigateTo(finalPath);
   };
 
+  const handleGlobalDragOver = (e) => {
+    e.preventDefault();
+    if (!isDraggingGlobal) setIsDraggingGlobal(true);
+  };
+  
+  const handleGlobalDragLeave = (e) => {
+    e.preventDefault();
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    setIsDraggingGlobal(false);
+  };
+
+  const handleGlobalDrop = async (e) => {
+    e.preventDefault();
+    setIsDraggingGlobal(false);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const path = files[0].path;
+      if (path) {
+        navigateTo(path);
+      }
+    }
+  };
+
   return (
-    <div className="app-container dark-theme">
+    <div 
+      className="app-container dark-theme"
+      onDragOver={handleGlobalDragOver}
+      onDragLeave={handleGlobalDragLeave}
+      onDrop={handleGlobalDrop}
+    >
+      {isDraggingGlobal && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: 'rgba(99, 102, 241, 0.2)', backdropFilter: 'blur(4px)',
+          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: '4px dashed var(--brand-blue)'
+        }}>
+          <h2 style={{color: 'white', textShadow: '0 2px 10px rgba(0,0,0,0.5)'}}>Solte a pasta aqui para abrir no Explorador</h2>
+        </div>
+      )}
+
+      {hoveredImage && (
+        <div className="explorer-image-preview" style={{ display: 'block' }}>
+          <img src={`file:///${hoveredImage.replace(/\\/g, '/')}`} alt="Preview" />
+        </div>
+      )}
 
       {/* ── Custom Titlebar ── */}
       <div className="custom-titlebar">
@@ -320,13 +372,17 @@ function App() {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
               <span>🚀 Atualização pronta para instalar!</span>
               <button 
-                onClick={() => window.electronAPI.installUpdate()} 
+                onClick={() => {
+                  setUpdateStatus('installing');
+                  window.electronAPI.installUpdate();
+                }} 
                 style={{ padding: '4px 10px', background: 'white', color: 'var(--accent-primary)', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
               >
                 Reiniciar e Atualizar
               </button>
             </div>
           )}
+          {updateStatus === 'installing' && "⏳ Fechando aplicativo e instalando atualização... Por favor, aguarde."}
           {updateStatus === 'error' && `Erro na atualização: ${updateError}`}
         </div>
       )}
@@ -427,20 +483,19 @@ function App() {
                 <p>Pasta vazia</p>
               </div>
             ) : (
-              entries.map((entry, idx) => {
+              entries.map((entry, index) => {
                 if (entry.isImage) {
                   return (
                     <div
-                      key={entry.path || idx}
+                      key={entry.path || index}
                       className="file-item is-image"
                       onClick={() => handleEntryClick(entry)}
+                      onMouseEnter={() => setHoveredImage(entry.path)}
+                      onMouseLeave={() => setHoveredImage(null)}
                       style={{ position: 'relative' }}
                     >
                       <div className="file-item-image-wrapper">
-                        <img src={`file:///${entry.path.replace(/\\/g, '/')}`} className="explorer-thumbnail" alt="" />
-                        <div className="explorer-image-preview">
-                          <img src={`file:///${entry.path.replace(/\\/g, '/')}`} alt="" />
-                        </div>
+                        <img src={`file:///${entry.path.replace(/\\/g, '/')}`} className="explorer-thumbnail" alt="" loading="lazy" />
                       </div>
                       <span className="file-name">{entry.name}</span>
                       <button 
@@ -460,7 +515,7 @@ function App() {
 
                 const isExpanded = expandedFolder === entry.path;
                 return (
-                  <div key={entry.path || idx} className="accordion-folder-container">
+                  <div key={entry.path || index} className="accordion-folder-container">
                     <div
                       className={`file-item ${selectedFolder?.path === entry.path ? 'active' : ''} ${entry.hasImages ? 'has-images' : ''}`}
                       onClick={(e) => handleEntryClick(entry, e)}
@@ -494,7 +549,7 @@ function App() {
                         className="file-name clickable-name"
                         onClick={(e) => {
                           if (entry.hasImages) {
-                            e.stopPropagation(); // Não alterna o acordeão se clicou no nome
+                            e.stopPropagation();
                             navigateTo(entry.path);
                           }
                         }}
@@ -568,7 +623,7 @@ function App() {
 
         {/* ── Conteúdo Principal ── */}
         <main className="app-main">
-          <header className="app-header" style={{ display: isTheaterMode ? 'none' : 'flex' }}>
+          <header className="app-header" style={{ display: isTheaterMode ? 'none' : 'flex', position: 'relative' }}>
             <nav className="top-tabs">
               <button 
                 className={`tab-btn ${activeTab === 'processamento' ? 'active' : ''}`}
@@ -601,6 +656,37 @@ function App() {
                 );
               })}
             </nav>
+
+            {/* ── Indicador Global Discreto na Aba Superior ── */}
+            <div style={{ position: 'absolute', right: '20px', top: '16px', display: 'flex', flexDirection: 'column', gap: '8px', width: '200px', zIndex: 10 }}>
+              {isGlobalRunning && activeTab !== 'processamento' && (
+                <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)' }}>
+                    <span style={{ color: 'var(--brand-blue)' }}>⚡ Processando...</span>
+                    <span>{Math.round(globalProgress)}%</span>
+                  </div>
+                  <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${globalProgress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
+                  </div>
+                </div>
+              )}
+
+              {Object.entries(downloadingModels).length > 0 && activeTab !== 'modulos' && (
+                <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {Object.entries(downloadingModels).map(([model, data]) => (
+                    <div key={model} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)' }}>
+                        <span style={{ color: 'var(--brand-blue)' }}>⬇ {model}</span>
+                        <span>{Math.round(data.progress)}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${data.progress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </header>
 
           <section className={`tab-content ${activeTab === 'estudio' ? 'tab-content--fullscreen' : ''}`}>
@@ -630,45 +716,6 @@ function App() {
             {activeTab === 'configuracoes' && (
               <div className="fade-in-tab" style={{ display: 'flex', flexDirection: 'column' }}>
                 <Settings onBaseFolderChange={(p) => navigateTo(p)} />
-              </div>
-            )}
-            
-            {/* ── Mini-Player Global ── */}
-            {isGlobalRunning && activeTab !== 'processamento' && (
-              <div className="global-progress-mini fade-in-tab" style={{
-                position: 'absolute', bottom: '20px', right: '20px', width: '300px', 
-                background: 'var(--bg-panel)', border: '1px solid var(--border-subtle)', 
-                borderRadius: '8px', padding: '12px', boxShadow: 'var(--shadow-lg)', zIndex: 9999
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', fontWeight: 'bold' }}>
-                  <span style={{ color: 'var(--brand-blue)' }}>⚡ Processando...</span>
-                  <span>{Math.round(globalProgress)}%</span>
-                </div>
-                <div style={{ width: '100%', height: '6px', background: 'var(--bg-dark)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${globalProgress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
-                </div>
-              </div>
-            )}
-
-            {/* ── Banner de Download Global ── */}
-            {Object.entries(downloadingModels).length > 0 && activeTab !== 'modulos' && (
-              <div className="global-progress-mini fade-in-tab" style={{
-                position: 'absolute', top: '20px', right: '20px', width: '300px', 
-                background: 'var(--bg-panel)', border: '1px solid var(--border-subtle)', 
-                borderRadius: '8px', padding: '12px', boxShadow: 'var(--shadow-lg)', zIndex: 9999
-              }}>
-                {Object.entries(downloadingModels).map(([model, data]) => (
-                  <div key={model} style={{ marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px', fontWeight: 'bold' }}>
-                      <span style={{ color: 'var(--brand-blue)' }}>⬇ Baixando {model}</span>
-                      <span>{Math.round(data.progress)}%</span>
-                    </div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>{data.text}</div>
-                    <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${data.progress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
-                    </div>
-                  </div>
-                ))}
               </div>
             )}
           </section>

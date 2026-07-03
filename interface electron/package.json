@@ -23,7 +23,9 @@
       {
         "from": "../dist/server",
         "to": "server",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "../",
