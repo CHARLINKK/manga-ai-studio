@@ -16,10 +16,15 @@ jobs:
       - name: 📦 Checando o repositório
         uses: actions/checkout@v4
 
-      - name: ⚙️ Configurando o Node.js 20
+      - name: 📦 Instalar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: 🐍 Compilando Servidor Python Base (Padrão Ouro)
+        run: |
+          pip install pyinstaller fastapi uvicorn websockets pydantic
+          pyinstaller --name server --onedir --noconfirm "interface electron/server.py"
 
       - name: 📥 Instalando Dependências do Vite e Electron
         working-directory: './interface electron'

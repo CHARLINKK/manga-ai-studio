@@ -13,25 +13,27 @@ autoUpdater.logger.transports.file.level = 'info';
 let mainWindow;
 let pythonProcess;
 
-// Inicia o servidor Python
-function startPythonServer() {
-  const isDev = !app.isPackaged;
-  
-  // No ambiente de dev, roda o server.py usando o venv do diretório pai.
-  // Em produção, rodaria o binário compilado.
-  const pythonExecutable = isDev 
-    ? path.join(__dirname, '..', 'venv_ui', 'Scripts', 'python.exe')
-    : path.join(process.resourcesPath, 'server', 'server.exe');
-    
-  const scriptPath = isDev 
-    ? path.join(__dirname, 'server.py') 
-    : ''; // Se for o exe, ele se resolve sozinho
-  
-  const args = isDev ? [scriptPath] : [];
+const getProjectRoot = () => {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'backend')
+    : path.join(__dirname, '..');
+};
 
-  console.log(`Iniciando servidor Python: ${pythonExecutable} ${args.join(' ')}`);
-  
-  pythonProcess = spawn(pythonExecutable, args, { cwd: isDev ? __dirname : process.resourcesPath });
+// Iniciando servidor Python Base (Compiled com PyInstaller)
+function startPythonServer() {
+  if (!app.isPackaged) {
+    const projectRoot = getProjectRoot();
+    const pythonExecutable = path.join(projectRoot, 'venv_ui', 'Scripts', 'python.exe');
+    const scriptPath = path.join(projectRoot, 'interface electron', 'server.py');
+    const args = [scriptPath];
+    console.log(`Iniciando servidor Python (Dev): ${pythonExecutable} ${args.join(' ')}`);
+    pythonProcess = spawn(pythonExecutable, args, { cwd: projectRoot, windowsHide: true });
+  } else {
+    // Em produção, usa o executável compilado do PyInstaller (Padrão Ouro)
+    const serverExe = path.join(process.resourcesPath, 'server', 'server.exe');
+    console.log(`Iniciando servidor Python (Prod): ${serverExe}`);
+    pythonProcess = spawn(serverExe, [], { windowsHide: true });
+  }
   
   pythonProcess.stdout.on('data', (data) => {
     console.log(`Python: ${data.toString()}`);
@@ -195,7 +197,7 @@ ipcMain.handle('get-settings', () => {
       ollamaModels: []
     };
 
-    const projectRoot = path.join(__dirname, '..');
+    const projectRoot = getProjectRoot();
 
     try {
       const ocrTransformers = path.join(projectRoot, 'venv_ocr', 'Lib', 'site-packages', 'transformers');
@@ -340,7 +342,7 @@ ipcMain.handle('get-settings', () => {
   ipcMain.handle('repair-python-venv', async (event, envName) => {
     // envName pode ser 'ocr' ou 'ui'
     const { spawn } = require('child_process');
-    const projectRoot = path.join(__dirname, '..');
+    const projectRoot = getProjectRoot();
     
     // Inicia um terminal visível para o usuário ver o progresso do pip
     try {
@@ -820,7 +822,7 @@ ipcMain.handle('finalize-pipeline', async (event, data) => {
 
 ipcMain.handle('run-pipeline', async (event, config) => {
   const { spawn } = require('child_process');
-  const projectRoot = path.join(__dirname, '..');
+  const projectRoot = getProjectRoot();
   const pythonExeOcr = path.join(projectRoot, 'venv_ocr', 'Scripts', 'python.exe');
   const pythonExeUi = path.join(projectRoot, 'venv_ui', 'Scripts', 'python.exe');
   
