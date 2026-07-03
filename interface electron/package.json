@@ -30,13 +30,6 @@
         ]
       }
     ],
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "CHARLINKK",
-        "repo": "manga-ai-studio"
-      }
-    ],
     "win": {
       "target": "nsis",
       "icon": "public/icon.ico"
