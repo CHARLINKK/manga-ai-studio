@@ -8,7 +8,6 @@ const { autoUpdater } = require('electron-updater');
 
 // Configurar logs básicos para o autoUpdater
 autoUpdater.logger = require('console');
-autoUpdater.logger.transports.file.level = 'info';
 
 let mainWindow;
 let pythonProcess;
