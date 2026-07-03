@@ -20,13 +20,7 @@
       "output": "dist-electron"
     },
     "extraResources": [
-      {
-        "from": "../dist/server",
-        "to": "server",
-        "filter": [
-          "**/*"
-        ]
-      },
+
       {
         "from": "../",
         "to": "backend",
