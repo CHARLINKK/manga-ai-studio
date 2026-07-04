@@ -47,3 +47,8 @@ inject_*.py
 apply_mockup.py
 sweep.py
 revert_setup.py
+
+# Virtual Environments
+venv*
+test_venv
+__pycache__/

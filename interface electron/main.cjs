@@ -356,6 +356,12 @@ ipcMain.handle('get-settings', () => {
       const venvPath = envName === 'ocr' ? path.join(projectRoot, 'venv_ocr') : path.join(projectRoot, 'venv_ui');
       const pipPath = path.join(venvPath, 'Scripts', 'pip.exe');
       
+      if (!fs.existsSync(pipPath)) {
+        event.sender.send('venv-progress', { envName: envName, progress: 10, text: 'Criando ambiente virtual (venv)...' });
+        const { spawnSync } = require('child_process');
+        spawnSync('python', ['-m', 'venv', venvPath], { cwd: projectRoot, windowsHide: true });
+      }
+
       let reqFile = envName === 'ocr' ? 'requirements.txt' : 'requirements_ui.txt';
       const reqPath = path.join(projectRoot, reqFile);
 
@@ -400,6 +406,12 @@ ipcMain.handle('get-settings', () => {
     try {
       const venvPath = path.join(projectRoot, 'venv_ocr');
       const pipPath = path.join(venvPath, 'Scripts', 'pip.exe');
+      
+      if (!fs.existsSync(pipPath)) {
+        event.sender.send('venv-progress', { envName: 'ocr', progress: 10, text: 'Criando ambiente virtual (venv)...' });
+        const { spawnSync } = require('child_process');
+        spawnSync('python', ['-m', 'venv', venvPath], { cwd: projectRoot, windowsHide: true });
+      }
       
       const proc = spawn(pipPath, [
         'install', '--pre', 'torch', 'torchvision', '--upgrade',
