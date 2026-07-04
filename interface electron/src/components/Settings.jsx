@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './Settings.css';
 import pkg from '../../package.json';
+import { useToast } from '../contexts/ToastContext';
 
 const GUIDE_CONTENT = {
   ocr: {
@@ -105,6 +106,7 @@ export default function Settings({ onBaseFolderChange }) {
   const [showGuide, setShowGuide] = useState(false);
   const [stats, setStats] = useState({ pagesProcessed: 0, timeSaved: 0 });
   
+  const { addToast } = useToast();
   const isInitialMount = useRef(true);
 
   // Salva a pasta base imediatamente ao clicar em Aplicar
@@ -118,6 +120,7 @@ export default function Settings({ onBaseFolderChange }) {
     if (onBaseFolderChange) {
       onBaseFolderChange(val);
     }
+    addToast('Pasta base do explorador atualizada!', 'success');
   }
 
   // Carregar do backend (Electron) na montagem

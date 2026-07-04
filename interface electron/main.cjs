@@ -10,7 +10,6 @@ const { autoUpdater } = require('electron-updater');
 autoUpdater.logger = require('console');
 
 let mainWindow;
-let pythonProcess;
 
 const getProjectRoot = () => {
   return app.isPackaged
@@ -18,34 +17,6 @@ const getProjectRoot = () => {
     : path.join(__dirname, '..');
 };
 
-// Iniciando servidor Python Base (Compiled com PyInstaller)
-function startPythonServer() {
-  if (!app.isPackaged) {
-    const projectRoot = getProjectRoot();
-    const pythonExecutable = path.join(projectRoot, 'venv_ui', 'Scripts', 'python.exe');
-    const scriptPath = path.join(projectRoot, 'interface electron', 'server.py');
-    const args = [scriptPath];
-    console.log(`Iniciando servidor Python (Dev): ${pythonExecutable} ${args.join(' ')}`);
-    pythonProcess = spawn(pythonExecutable, args, { cwd: projectRoot, windowsHide: true });
-  } else {
-    // Em produção, usa o executável compilado do PyInstaller (Padrão Ouro)
-    const serverExe = path.join(process.resourcesPath, 'server', 'server.exe');
-    console.log(`Iniciando servidor Python (Prod): ${serverExe}`);
-    pythonProcess = spawn(serverExe, [], { windowsHide: true });
-  }
-  
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`Python: ${data.toString()}`);
-  });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`Python Error: ${data.toString()}`);
-  });
-
-  pythonProcess.on('close', (code) => {
-    console.log(`Processo Python encerrado com código ${code}`);
-  });
-}
 
 function createWindow() {
   app.setAppUserModelId("com.genikasuri.manga-ai-studio");
@@ -661,12 +632,7 @@ ipcMain.handle('list-images', (event, dirPath) => {
 let tray = null;
 
 app.whenReady().then(() => {
-  startPythonServer();
-  
-  // Dar um tempo para o servidor FastAPI subir antes de carregar a janela
-  setTimeout(() => {
-    createWindow();
-  }, 1000);
+  createWindow();
 
   try {
     const iconPath = path.join(__dirname, 'public', 'icon.ico');
@@ -696,13 +662,6 @@ app.on('window-all-closed', function () {
   }
 });
 
-// Ao sair do Electron, matar o processo Python filho
-app.on('will-quit', () => {
-  if (pythonProcess) {
-    console.log('Finalizando servidor Python...');
-    pythonProcess.kill();
-  }
-});
 
 
 // -- Pipeline de IA ----------------------------------------------------------

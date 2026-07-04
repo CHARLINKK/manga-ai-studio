@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ModulesCenter.css';
+import { useToast } from '../contexts/ToastContext';
 
 const AVAILABLE_MODELS = {
   vlm: ['qwen2.5vl:7b', 'llama3.2-vision:11b', 'llava:13b'],
@@ -14,6 +15,8 @@ export default function ModulesCenter() {
     ollama: { state: 'verifying', progress: 0 },
     rag: { state: 'verifying', progress: 0 }
   });
+
+  const { addToast } = useToast();
 
   const [ollamaModels, setOllamaModels] = useState([]);
   const [downloading, setDownloading] = useState({});
@@ -133,13 +136,16 @@ export default function ModulesCenter() {
     setDownloading(prev => ({ ...prev, [modelName]: { progress: 0, text: 'Iniciando download...' } }));
     if (window.electronAPI && window.electronAPI.pullOllamaModel) {
       const result = await window.electronAPI.pullOllamaModel(modelName);
-      if (!result || !result.success) {
+      if (result && result.success) {
+        addToast(`Modelo ${modelName} baixado com sucesso.`, 'success');
+        checkStatus();
+      } else {
         setDownloading(prev => {
           const nd = {...prev};
           delete nd[modelName];
           return nd;
         });
-        window.alert(`O download do modelo ${modelName} falhou ou foi interrompido.`);
+        addToast(`O download do modelo ${modelName} falhou.`, 'error');
       }
       checkStatus();
     }
@@ -150,6 +156,7 @@ export default function ModulesCenter() {
     if (window.electronAPI && window.electronAPI.deleteOllamaModel) {
       setIsChecking(true);
       await window.electronAPI.deleteOllamaModel(modelName);
+      addToast(`Modelo ${modelName} apagado do sistema!`, 'success');
       await checkStatus();
       setIsChecking(false);
     }
