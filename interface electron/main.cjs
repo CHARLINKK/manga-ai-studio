@@ -362,7 +362,7 @@ ipcMain.handle('get-settings', () => {
         spawnSync('python', ['-m', 'venv', venvPath], { cwd: projectRoot, windowsHide: true });
       }
 
-      let reqFile = envName === 'ocr' ? 'requirements.txt' : 'requirements_ui.txt';
+      let reqFile = envName === 'ocr' ? 'requirements-ocr.txt' : 'requirements.txt';
       const reqPath = path.join(projectRoot, reqFile);
 
       // Usar spawn em background enviando o output para o frontend
