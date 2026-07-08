@@ -24,16 +24,25 @@ function App() {
   const [hoveredImage, setHoveredImage] = useState(null);
 
   // ── Auto-Updater ─────────────────────────────────────────────────────────
-  const [updateStatus, setUpdateStatus] = useState(null); // 'available', 'progress', 'downloaded', 'error'
+  const [updateStatus, setUpdateStatus] = useState(null); // 'available', 'progress', 'downloaded', 'error', 'installing'
   const [updateProgress, setUpdateProgress] = useState(null);
   const [updateError, setUpdateError] = useState(null);
+  const [updateInfo, setUpdateInfo] = useState(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
     if (window.electronAPI && window.electronAPI.onUpdaterStatus) {
       const cleanup = window.electronAPI.onUpdaterStatus((data) => {
         setUpdateStatus(data.status);
+        if (data.info) setUpdateInfo(data.info);
+        if (data.status === 'available' || data.status === 'progress' || data.status === 'downloaded') {
+          setShowUpdateModal(true);
+        }
         if (data.status === 'progress') setUpdateProgress(data.progress);
-        if (data.status === 'error') setUpdateError(data.error);
+        if (data.status === 'error') {
+          setUpdateError(data.error);
+          setShowUpdateModal(true);
+        }
       });
       return cleanup;
     }
@@ -356,7 +365,30 @@ function App() {
       {/* ── Custom Titlebar ── */}
       <div className="custom-titlebar">
         <div className="titlebar-drag-region"></div>
-        <div className="titlebar-title">Manga AI Studio</div>
+        <div className="titlebar-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>Manga AI Studio</span>
+          {updateStatus && (
+            <button
+              onClick={() => setShowUpdateModal(true)}
+              style={{
+                background: updateStatus === 'error' ? 'var(--danger)' : 'var(--accent-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '2px 10px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+              }}
+            >
+              🔄 {updateStatus === 'downloaded' ? 'Atualização Pronta!' : updateProgress ? `Atualizando (${Math.round(updateProgress.percent)}%)` : 'Atualização'}
+            </button>
+          )}
+        </div>
         <div className="titlebar-controls">
           <button className="win-btn" title="Minimizar" onClick={handleMinimize}>🗕</button>
           <button className="win-btn" title="Maximizar" onClick={handleMaximize}>🗖</button>
@@ -364,26 +396,136 @@ function App() {
         </div>
       </div>
 
-      {updateStatus && (
-        <div className="update-banner" style={{ background: updateStatus === 'error' ? 'var(--danger)' : 'var(--accent-primary)', color: 'white', padding: '8px', textAlign: 'center', fontSize: '12px', zIndex: 9999 }}>
-          {updateStatus === 'available' && "✨ Nova versão disponível! Baixando em segundo plano..."}
-          {updateStatus === 'progress' && updateProgress && `Baixando atualização: ${Math.round(updateProgress.percent)}%`}
-          {updateStatus === 'downloaded' && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
-              <span>🚀 Atualização pronta para instalar!</span>
-              <button 
-                onClick={() => {
-                  setUpdateStatus('installing');
-                  window.electronAPI.installUpdate();
-                }} 
-                style={{ padding: '4px 10px', background: 'white', color: 'var(--accent-primary)', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-              >
-                Reiniciar e Atualizar
-              </button>
+      {showUpdateModal && updateStatus && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.75)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            width: '480px',
+            padding: '24px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '10px',
+                background: 'rgba(99, 102, 241, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px'
+              }}>
+                🚀
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>Atualização de Software</h3>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  {updateInfo?.version ? `Nova Versão v${updateInfo.version}` : 'Manga AI Studio Updater'}
+                </span>
+              </div>
             </div>
-          )}
-          {updateStatus === 'installing' && "⏳ Fechando aplicativo e instalando atualização... Por favor, aguarde."}
-          {updateStatus === 'error' && `Erro na atualização: ${updateError}`}
+
+            <div style={{
+              background: 'var(--bg-secondary)',
+              padding: '14px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-color)',
+              fontSize: '13px',
+              color: 'var(--text-primary)'
+            }}>
+              {updateStatus === 'available' && "✨ Uma nova versão foi detectada! O download do instalador foi iniciado automaticamente em segundo plano."}
+              {updateStatus === 'progress' && updateProgress && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontWeight: 'bold' }}>
+                    <span>Baixando atualização...</span>
+                    <span>{updateProgress.percent.toFixed(1)}%</span>
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: '10px',
+                    background: 'var(--bg-primary)',
+                    borderRadius: '5px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--border-color)'
+                  }}>
+                    <div style={{
+                      width: `${Math.min(100, Math.max(0, updateProgress.percent))}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #6366f1, #a855f7)',
+                      transition: 'width 0.3s ease'
+                    }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    <span>{((updateProgress.transferred || 0) / 1048576).toFixed(1)} MB / {((updateProgress.total || 0) / 1048576).toFixed(1)} MB</span>
+                    <span>Velocidade: {((updateProgress.bytesPerSecond || 0) / 1048576).toFixed(2)} MB/s</span>
+                  </div>
+                </div>
+              )}
+              {updateStatus === 'downloaded' && (
+                <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>
+                  🎉 Download Concluído! O instalador está pronto para aplicar a nova versão com segurança.
+                </div>
+              )}
+              {updateStatus === 'installing' && "⏳ Encerrando subprocessos e iniciando o instalador da nova versão... Por favor, aguarde."}
+              {updateStatus === 'error' && (
+                <div style={{ color: 'var(--danger)' }}>
+                  ❌ Ocorreu um problema na verificação ou download da atualização: {updateError}
+                </div>
+              )}
+            </div>
+
+            <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              {updateStatus === 'downloaded'
+                ? "Clique em 'Reiniciar e Atualizar' para fechar o aplicativo e iniciar o processo automático de substituição."
+                : "Você pode continuar usando o Manga AI Studio normalmente enquanto o download é preparado em segundo plano."}
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
+              {updateStatus === 'downloaded' ? (
+                <>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => setShowUpdateModal(false)}
+                    style={{ padding: '8px 16px', fontSize: '13px' }}
+                  >
+                    Lembrar Mais Tarde
+                  </button>
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setUpdateStatus('installing');
+                      window.electronAPI.installUpdate();
+                    }}
+                    style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 'bold' }}
+                  >
+                    🚀 Reiniciar e Atualizar Agora
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="btn-secondary"
+                  onClick={() => setShowUpdateModal(false)}
+                  style={{ padding: '8px 16px', fontSize: '13px' }}
+                >
+                  {updateStatus === 'error' ? 'Fechar' : 'Minimizar para o Topo'}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

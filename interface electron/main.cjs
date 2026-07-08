@@ -52,7 +52,7 @@ function createWindow() {
     if (!isDev) {
       const settings = getSettingsSync();
       if (settings.autoUpdate !== false) {
-        autoUpdater.checkForUpdatesAndNotify();
+        autoUpdater.checkForUpdates();
       }
     }
   });
@@ -76,13 +76,19 @@ function createWindow() {
 }
 
 ipcMain.handle('install-update', () => {
-  // Passamos (isSilent = true, isForceRunAfter = true) para que o Auto-Updater
-  // não exiba o wizard clássico durante uma atualização em segundo plano.
-  autoUpdater.quitAndInstall(true, true);
+  app.isQuiting = true;
+  if (activePipelineProcess) {
+    const { exec } = require('child_process');
+    try { exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F'); } catch(e) {}
+    activePipelineProcess = null;
+  }
+  setTimeout(() => {
+    autoUpdater.quitAndInstall(false, true);
+  }, 500);
 });
 
 ipcMain.handle('check-for-updates', () => {
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdates();
 });
 
 // -- Funções de Backend (Interface) ------------------------------------------
@@ -671,6 +677,15 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+app.on('before-quit', () => {
+  app.isQuiting = true;
+  if (activePipelineProcess) {
+    const { exec } = require('child_process');
+    try { exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F'); } catch (e) {}
+    activePipelineProcess = null;
   }
 });
 
