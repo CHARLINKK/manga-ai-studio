@@ -62,51 +62,79 @@ def parse_txt(file_path: Path, sfx_db: dict) -> dict:
                 
     return pages
 
-def fix_ocr_with_ollama(texts: list, model: str, dict_content: str = "", previous_context: str = "") -> list:
-    """Envia todos os balões de uma página de uma vez em batch."""
+def correct_texts(texts: list[str], model: str, dict_content: str = "", context: str = "") -> list[str]:
+    """Usa o Ollama para normalizar os textos OCR em inglês, removendo gírias e corrigindo case."""
     if not texts:
-        return texts
+        return []
+
+    # Auto-split em lotes para páginas com muitos balões (evita overflow de num_ctx)
+    MAX_BATCH_SIZE = 8
+    if len(texts) > MAX_BATCH_SIZE:
+        result = []
+        for batch_start in range(0, len(texts), MAX_BATCH_SIZE):
+            batch = texts[batch_start:batch_start + MAX_BATCH_SIZE]
+            batch_result = correct_texts(
+                texts=batch,
+                model=model,
+                dict_content=dict_content,
+                context=context
+            )
+            result.extend(batch_result)
+        return result
 
     dict_prompt = ""
-    if dict_content.strip():
-        dict_prompt = f"\nCRITICAL DICTIONARY RULES:\nYou MUST NOT 'correct' or alter any of the following terms. They are intentionally kept as is:\n{dict_content.strip()}\n"
-        
+    if dict_content:
+        dict_prompt = f"\n# SFX & FALSE COGNATES TO IGNORE (Must Output [IGNORE]):\n{dict_content}\n"
+
     context_prompt = ""
-    if previous_context.strip():
-        context_prompt = f"\n[PREVIOUS CONTEXT (for continuity)]\nThe previous balloons ended with:\n{previous_context.strip()}\n"
+    if context:
+        context_prompt = f"\n# CONTEXT FOR CORRECTION:\n{context}\n"
 
-    # Monta o bloco numerado de balões
-    numbered_input = "\n".join(f"[{i+1}] {t}" for i, t in enumerate(texts))
+    numbered_input = "\n".join([f"[{i+1}] {text}" for i, text in enumerate(texts)])
 
-    prompt = f"""You are a professional English proofreader specializing in Manga translation.
-The following numbered lines are speech balloon texts extracted from a boxing and martial arts manga page using OCR.
-Each numbered entry is a SEPARATE balloon.
+    prompt = f"""You are an expert English proofreader and normalizer preparing Manga comic OCR text for AI translation.
+The following numbered lines are speech balloons extracted from a manga page. Each numbered entry is a SEPARATE balloon.
 
-OCR may contain:
-1. Minor scanning typos (e.g., 'YO4' instead of 'YOU', '1' instead of 'I', misread punctuation)
-2. Punctuation errors: The OCR frequently mistakes '...' for '_' and '!' for 'I' or 'l' (especially at the end of sentences like 'StopI' -> 'Stop!' or 'What I' -> 'What!'). Always fix these based on context.
-3. MERGED BALLOONS: If a single entry contains multiple sentences that don't logically flow together, split them using || as separator.
-4. GLITCHES/STUTTERING: Fix stuttering/repeated words caused by OCR reading the same area twice (e.g., 'I sold sold it' -> 'I sold it', 'FOUND FOUND' -> 'FOUND').
-5. GLUED PUNCTUATION: Fix glued words and possessives (e.g., 'yonday's' -> 'yonday's', 'KARASYUYAMAP?' -> 'Karasuyama?').
+# CRITICAL NORMALIZATION RULES
+1. DE-SLANG & EXPAND CONTRACTIONS (PRIORITY #1): Manga speech uses heavy slang, dropped letters, and spoken shortcuts that confuse translation AI. You MUST normalize informal slang into clear, complete standard English:
+   - "didja?" / "didn'tcha?" -> "did you?" / "didn't you?"
+   - "whaddaya" / "whatcha" -> "what do you" / "what are you"
+   - "gonna" / "wanna" / "gotta" / "gimme" -> "going to" / "want to" / "have to" / "give me"
+   - "ain't ya" / "ain't it" -> "aren't you" / "isn't it"
+   - "toldja" / "y'didn't" / "y'gonna" -> "I told you" / "you didn't" / "you are going to"
+   - "outta" / "kinda" / "sorta" -> "out of" / "kind of" / "sort of"
+   - Dropped 'g's ("movin'", "gettin'", "somethin'", "nuthin'") -> "moving", "getting", "something", "nothing"
+   - Clipped words ("'em", "'nd", "'s'kinda") -> "them", "and", "it is kind of"
+2. SENTENCE CASE NORMALIZATION: Convert ALL CAPS manga text into proper Sentence case ("HELLO MY FRIEND." -> "Hello my friend.").
+3. FIX OCR GLITCHES & STUTTERING: Fix scanning stutter/repeats ("I sold sold it" -> "I sold it") and misread punctuation ("StopI" -> "Stop!").
+4. PRESERVE JAPANESE PROPER NOUNS: Do NOT alter Japanese proper names or places (e.g., "Harima", "Otodo", "Hanabi", "Genikasuri", "Daimon Gym"). Keep them exact.
+5. ELONGATED GREETINGS: Do not change intentional vocal greetings ("Yoooo" stays "Yoooo", "Heyyy" stays "Heyyy").
+6. SFX & ONOMATOPOEIA DETECTION: If a line is purely a sound effect or visual noise ('POCK!', 'GYAAA', 'BAM', '0'), output EXACTLY [IGNORE].
+7. PRESERVE LINE NUMBERING: Output MUST have the EXACT SAME number of lines as input, each starting with [N].
+8. NO COMMENTS: Output ONLY the normalized English text lines.
 
-CRITICAL RULE (ULTRA-CONSERVATIVE MODE):
-- You MUST BE EXTREMELY CONSERVATIVE.
-- Do NOT hallucinate or "guess" words. If a word looks strange (e.g., "yonday", "Genikasuri", "Yitar"), it is a JAPANESE PROPER NOUN. DO NOT change it into an English word like "yesterday" or "Genius"!
-- ONLY fix visual character-level glitches (like a '4' that should be an 'A', or a '_' that should be '...').
-- PRESERVE all Japanese names and proper nouns EXACTLY as they appear, fixing only their glued punctuation if needed.
-- UPPERCASE NORMALIZATION: Manga OCR text is usually in ALL CAPS. You MUST convert all sentences into proper Sentence case (e.g. 'HELLO MY FRIEND.' -> 'Hello my friend.'). Preserve capitalization for names and acronyms.
-- SLANG EXPANSION (GENERAL): Convert shortened words, slang, and abbreviations into their FULL proper English words so the translation AI can understand them better. Example: "'sup" -> "What's up", "nuthin" -> "nothing", "gonna" -> "going to", "kill 'em" -> "kill them", "a sec" -> "a second".
-- ELONGATED WORDS & GREETINGS: Do NOT confuse elongated conversational words or greetings with typos. NEVER change "Yoooo" to "You" (it means "Yo"). NEVER change "Heey" to "He". Preserve repeated letters that indicate vocal tone (e.g., "Yoooo, Ty", "Whaaat", "Noooo").
-- NEVER translate. Output ONLY corrected English text
-- Output MUST have the SAME number of lines as input, each starting with [N] matching the input
-- If a balloon needs splitting, use || within that line
-- SFX & ONOMATOPOEIA DETECTION: Manga contains many sound effects and screams (e.g., 'Tahtah', 'Gyaaa', 'Pock!', 'Krii', 'BAM', 'Aaaah', or even 'Kill' when it's a rope creaking). If a line is purely a sound effect, visual noise ('0', '##'), or an author credit, you MUST output EXACTLY the literal tag [IGNORE] for that line. DO NOT attempt to correct them into human words.
-- Do not add any notes or explanations
+# EXAMPLES
+Input:
+[1] DIDN'T CATCH THAT, DIDJA?
+[2] SO Y'GONNA PAY ME THE PURSE, OR WHAT?!
+[3] WHADDAYA MEAN GROSS?
+[4] YOU'RE MOVIN' ABOUT LIKE THAT? 'S'KINDA GROSS...
+[5] TOLDJA Y'DIDN'T CATCH IT.
+[6] IF I PUT ON A GOOD SHOW AND WIN YOU'LL GIMME THE PURSE MONEY YEAH?
+[7] POCK!
+Normalized:
+[1] You didn't catch that, did you?
+[2] So are you going to pay me the purse money, or what?!
+[3] What do you mean gross?
+[4] You are moving about like that? It is kind of gross...
+[5] I told you that you didn't catch it.
+[6] If I put on a good show and win, you will give me the purse money, right?
+[7] [IGNORE]
+
 {dict_prompt}{context_prompt}
-INPUT:
+# INPUT TO NORMALIZE:
 {numbered_input}
-
-OUTPUT:"""
+"""
 
     try:
         response = requests.post(
@@ -118,7 +146,7 @@ OUTPUT:"""
                 "options": {
                     "temperature": 0.1,
                     "top_k": 10,
-                    "num_ctx": 2048
+                    "num_ctx": 4096
                 }
             },
             timeout=300
@@ -126,16 +154,60 @@ OUTPUT:"""
         response.raise_for_status()
         raw = response.json().get("response", "").strip()
 
-        # Parseia as linhas numeradas da resposta
-        result = list(texts)  # fallback: retorna original
-        import re
-        for match in re.finditer(r'(?:\[(\d+)\]|(\d+)[\.\:])\s*(.*?)(?=\n(?:\[\d+\]|\d+[\.\:])|$)', raw, re.DOTALL):
+        result = list(texts)
+        parsed_count = 0
+
+        # --- Estratégia 1: Formato padrão numerado ---
+        for match in re.finditer(r'(?:\[(\d+)\]|(\d+)[\.\:\)\-])[\s\:\-\)]*(.*?)(?=\n(?:\[\d+\]|\d+[\.\:\)\-])|$)', raw, re.DOTALL):
             idx_str = match.group(1) or match.group(2)
             if not idx_str: continue
             idx = int(idx_str) - 1
             corrected = match.group(3).strip()
+            corrected = re.sub(r'^[\:\-\)\.\s]+', '', corrected).strip()
             if 0 <= idx < len(result):
                 result[idx] = corrected
+                parsed_count += 1
+
+        # --- Estratégia 2: Formato "Balão [N]" com "Correto:" ---
+        if parsed_count < len(result):
+            balloon_blocks = re.findall(
+                r'(?:Bal[aã]o\s*\[?(\d+)\]?|\*{0,2}Bal[aã]o\s*\[?(\d+)\]?\*{0,2})'
+                r'.*?(?:Correto|Correct|Tradu[çc][ãa]o)\s*:\s*(.+?)(?=\n\n|\n\*{0,2}Bal|\Z)',
+                raw, re.DOTALL | re.IGNORECASE
+            )
+            for grp in balloon_blocks:
+                idx_str = grp[0] or grp[1]
+                if not idx_str: continue
+                idx = int(idx_str) - 1
+                corrected = grp[2].strip().splitlines()[0].strip()
+                if 0 <= idx < len(result) and result[idx] == texts[idx]:
+                    result[idx] = corrected
+                    parsed_count += 1
+
+        # --- Estratégia 3: "Correto: [N] texto" ou "Correto: texto" sequencial ---
+        if parsed_count < len(result):
+            correto_matches = re.findall(r'(?:Correto|Correct)\s*:\s*(?:\[(\d+)\]\s*)?(.+?)(?=\n|$)', raw, re.IGNORECASE)
+            if correto_matches:
+                seq_idx = 0
+                for m in correto_matches:
+                    idx = int(m[0]) - 1 if m[0] else seq_idx
+                    corrected = m[1].strip()
+                    if 0 <= idx < len(result) and result[idx] == texts[idx]:
+                        result[idx] = corrected
+                        parsed_count += 1
+                    seq_idx += 1
+
+        # --- Estratégia 4: Fallback linha por linha ---
+        if parsed_count == 0:
+            lines = [l.strip() for l in raw.splitlines() if l.strip()
+                     and not re.match(r'^\*+$', l.strip())
+                     and not l.strip().lower().startswith(('observ', 'nota', 'tradu'))
+                     ]
+            if len(lines) == len(texts):
+                for idx, line in enumerate(lines):
+                    clean_line = re.sub(r'^(?:\[?\d+\]?[\.\:\-\)\s]*)', '', line).strip()
+                    result[idx] = clean_line
+
         return result
     except Exception as e:
         print(f"Erro na API Ollama: {e}")

@@ -1,0 +1,1399 @@
+{
+  "description": "Banco de Dados Ultra-Massivo de Localização de Diálogo de Mangá (EN -> PT-BR Coloquial)",
+  "version": "1.1.0",
+  "vocatives_and_titles": {
+    "tell me kid": {
+      "wrong_pt": [
+        "Fala comigo garoto",
+        "Me fala kid",
+        "Diga-me garoto"
+      ],
+      "correct_pt": [
+        "Diz aí, garoto",
+        "Me fala, moleque",
+        "Me diz uma coisa, moleque"
+      ],
+      "note": "Interpelação informal a um jovem"
+    },
+    "tell me, kid": {
+      "wrong_pt": [
+        "Fala comigo, garoto",
+        "Diga-me, garoto"
+      ],
+      "correct_pt": [
+        "Diz aí, garoto",
+        "Me fala, moleque"
+      ],
+      "note": "Interpelação informal a um jovem"
+    },
+    "hey kid": {
+      "wrong_pt": [
+        "Ei kid",
+        "Olá garoto"
+      ],
+      "correct_pt": [
+        "Ei, moleque!",
+        "E aí, garoto!",
+        "Opa, moleque!"
+      ],
+      "note": "Chamada informal"
+    },
+    "listen kid": {
+      "wrong_pt": [
+        "Ouça kid",
+        "Escute garoto"
+      ],
+      "correct_pt": [
+        "Se liga, garoto!",
+        "Escuta aqui, moleque!",
+        "Presta atenção, moleque!"
+      ],
+      "note": "Atenção informal/desafio"
+    },
+    "old man": {
+      "wrong_pt": [
+        "homem velho"
+      ],
+      "correct_pt": [
+        "coroa",
+        "velho",
+        "tiozão"
+      ],
+      "note": "Tratamento informal para alguém mais velho"
+    },
+    "coach": {
+      "wrong_pt": [
+        "treinador (em contexto formal excessivo)"
+      ],
+      "correct_pt": [
+        "treinador",
+        "mestre"
+      ],
+      "note": "Tratamento esportivo/boxe"
+    },
+    "boss": {
+      "wrong_pt": [
+        "chefe (literal burocrático)"
+      ],
+      "correct_pt": [
+        "chefe",
+        "patrão"
+      ],
+      "note": "Tratamento respeitoso ou irônico"
+    },
+    "big guy": {
+      "wrong_pt": [
+        "cara grande"
+      ],
+      "correct_pt": [
+        "grandão"
+      ],
+      "note": "Tratamento para homem alto/forte"
+    },
+    "tough guy": {
+      "wrong_pt": [
+        "cara durão"
+      ],
+      "correct_pt": [
+        "valentão",
+        "brabão",
+        "durão"
+      ],
+      "note": "Provocação"
+    },
+    "little guy": {
+      "wrong_pt": [
+        "cara pequeno"
+      ],
+      "correct_pt": [
+        "nanico",
+        "baixinho"
+      ],
+      "note": "Provocação por estatura"
+    },
+    "bastard": {
+      "wrong_pt": [
+        "bastardo (em contexto de xingamento)"
+      ],
+      "correct_pt": [
+        "desgraçado",
+        "maldito",
+        "filho da mãe",
+        "canalha"
+      ],
+      "note": "Xingamento comum em mangá"
+    },
+    "son of a bitch": {
+      "wrong_pt": [
+        "filho de uma cadela"
+      ],
+      "correct_pt": [
+        "filho da puta",
+        "desgraçado"
+      ],
+      "note": "Xingamento pesado"
+    },
+    "punk": {
+      "wrong_pt": [
+        "punk (estilo musical)"
+      ],
+      "correct_pt": [
+        "pirralho",
+        "moleque",
+        "otário",
+        "merdinha"
+      ],
+      "note": "Provocação de rua"
+    },
+    "brat": {
+      "wrong_pt": [
+        "brat"
+      ],
+      "correct_pt": [
+        "pirralho",
+        "pestinha",
+        "mimado"
+      ],
+      "note": "Criança ou jovem imaturo"
+    },
+    "rookie": {
+      "wrong_pt": [
+        "recruta"
+      ],
+      "correct_pt": [
+        "novato",
+        "iniciante",
+        "cabaço"
+      ],
+      "note": "Alguém sem experiência"
+    },
+    "champion": {
+      "wrong_pt": [
+        "campeão (se formal demais)"
+      ],
+      "correct_pt": [
+        "campeão"
+      ],
+      "note": "Título esportivo"
+    },
+    "champ": {
+      "wrong_pt": [
+        "champ"
+      ],
+      "correct_pt": [
+        "campeão"
+      ],
+      "note": "Tratamento informal no boxe"
+    },
+    "pal": {
+      "wrong_pt": [
+        "pal"
+      ],
+      "correct_pt": [
+        "parceiro",
+        "camarada",
+        "amigão"
+      ],
+      "note": "Pode ser provocação sarcástica"
+    },
+    "buddy": {
+      "wrong_pt": [
+        "buddy"
+      ],
+      "correct_pt": [
+        "parceiro",
+        "chapa",
+        "amigão"
+      ],
+      "note": "Comum em ameaças disfarçadas"
+    },
+    "dude": {
+      "wrong_pt": [
+        "dude"
+      ],
+      "correct_pt": [
+        "cara",
+        "mano",
+        "velho"
+      ],
+      "note": "Gíria de camaradagem"
+    },
+    "bro": {
+      "wrong_pt": [
+        "bro"
+      ],
+      "correct_pt": [
+        "mano",
+        "irmão",
+        "parceiro"
+      ],
+      "note": "Gíria informal"
+    },
+    "chief": {
+      "wrong_pt": [
+        "cacique"
+      ],
+      "correct_pt": [
+        "chefe",
+        "comandante"
+      ],
+      "note": "Tratamento informal"
+    },
+    "master": {
+      "wrong_pt": [
+        "senhor dono"
+      ],
+      "correct_pt": [
+        "mestre"
+      ],
+      "note": "Tratamento a mentor marcial"
+    },
+    "kiddo": {
+      "wrong_pt": [
+        "kiddo"
+      ],
+      "correct_pt": [
+        "garotão",
+        "moleque",
+        "menino"
+      ],
+      "note": "Tratamento afetuoso ou condescendente"
+    },
+    "coward": {
+      "wrong_pt": [
+        "covarde formal"
+      ],
+      "correct_pt": [
+        "covarde",
+        "medroso",
+        "frouxo"
+      ],
+      "note": "Insulto de combate"
+    },
+    "scum": {
+      "wrong_pt": [
+        "escória formal"
+      ],
+      "correct_pt": [
+        "lixo",
+        "escória",
+        "verme"
+      ],
+      "note": "Insulto pesado"
+    },
+    "trash": {
+      "wrong_pt": [
+        "lixo de rua"
+      ],
+      "correct_pt": [
+        "lixo",
+        "escória"
+      ],
+      "note": "Insulto a lutador fraco"
+    },
+    "monster": {
+      "wrong_pt": [
+        "monstro de fantasia se for lutador"
+      ],
+      "correct_pt": [
+        "monstro",
+        "aberração",
+        "fera"
+      ],
+      "note": "Lutador de força sobre-humana"
+    },
+    "freak": {
+      "wrong_pt": [
+        "freak"
+      ],
+      "correct_pt": [
+        "aberração",
+        "esquisitão",
+        "monstro"
+      ],
+      "note": "Insulto ou espanto"
+    },
+    "young master": {
+      "wrong_pt": [
+        "jovem mestre literal"
+      ],
+      "correct_pt": [
+        "jovem mestre",
+        "patrozinho"
+      ],
+      "note": "Herdeiro de clã ou família rica"
+    },
+    "senior": {
+      "wrong_pt": [
+        "sênior"
+      ],
+      "correct_pt": [
+        "veterano",
+        "senpai"
+      ],
+      "note": "Mais experiente"
+    },
+    "junior": {
+      "wrong_pt": [
+        "júnior"
+      ],
+      "correct_pt": [
+        "calouro",
+        "novato"
+      ],
+      "note": "Menos experiente"
+    }
+  },
+  "imperatives_and_interpellations": {
+    "tell me": {
+      "wrong_pt": [
+        "Diga-me",
+        "Fala comigo"
+      ],
+      "correct_pt": [
+        "Diz aí",
+        "Me fala",
+        "Me diz uma coisa"
+      ],
+      "note": "Pedido de informação coloquial"
+    },
+    "listen up": {
+      "wrong_pt": [
+        "Ouçam",
+        "Escutem acima"
+      ],
+      "correct_pt": [
+        "Se liga",
+        "Escuta aqui",
+        "Prestem atenção"
+      ],
+      "note": "Chamada de atenção"
+    },
+    "listen to me": {
+      "wrong_pt": [
+        "Ouça para mim"
+      ],
+      "correct_pt": [
+        "Me escuta",
+        "Escuta aqui",
+        "Se liga no que tô falando"
+      ],
+      "note": "Atenção urgente"
+    },
+    "look here": {
+      "wrong_pt": [
+        "Olhe aqui"
+      ],
+      "correct_pt": [
+        "Olha só",
+        "Vê bem",
+        "Se liga"
+      ],
+      "note": "Introdução de argumento ou ameaça"
+    },
+    "look": {
+      "wrong_pt": [
+        "Olhe"
+      ],
+      "correct_pt": [
+        "Olha só",
+        "Vê bem",
+        "Se liga"
+      ],
+      "note": "Interjeição explicativa"
+    },
+    "shut up": {
+      "wrong_pt": [
+        "Cale a boca",
+        "Feche-se"
+      ],
+      "correct_pt": [
+        "Cala a boca!",
+        "Cala essa boca!",
+        "Quieto!"
+      ],
+      "note": "Imperativo informal"
+    },
+    "shut your trap": {
+      "wrong_pt": [
+        "feche sua armadilha"
+      ],
+      "correct_pt": [
+        "Cala a boca!",
+        "Cala essa matraca!"
+      ],
+      "note": "Gíria agressiva"
+    },
+    "come on": {
+      "wrong_pt": [
+        "Vamos lá (em contexto de desafio)"
+      ],
+      "correct_pt": [
+        "Pode vir!",
+        "Bora!",
+        "Vem logo!",
+        "Cai dentro!"
+      ],
+      "note": "Provocação de combate"
+    },
+    "bring it on": {
+      "wrong_pt": [
+        "Traga isso"
+      ],
+      "correct_pt": [
+        "Pode vir!",
+        "Cai dentro!",
+        "Manda ver!"
+      ],
+      "note": "Desafio de luta"
+    },
+    "bring it": {
+      "wrong_pt": [
+        "Traga"
+      ],
+      "correct_pt": [
+        "Pode vir!",
+        "Cai dentro!"
+      ],
+      "note": "Desafio curto"
+    },
+    "get out of here": {
+      "wrong_pt": [
+        "Saia daqui (formal)"
+      ],
+      "correct_pt": [
+        "Cai fora!",
+        "Dá no pé!",
+        "Soma daqui!",
+        "Rala!"
+      ],
+      "note": "Expulsão informal"
+    },
+    "get lost": {
+      "wrong_pt": [
+        "Perca-se"
+      ],
+      "correct_pt": [
+        "Cai fora!",
+        "Soma daqui!",
+        "Desaparece!"
+      ],
+      "note": "Mandando embora com raiva"
+    },
+    "back off": {
+      "wrong_pt": [
+        "costas fora"
+      ],
+      "correct_pt": [
+        "Recua!",
+        "Para trás!",
+        "Se afasta!"
+      ],
+      "note": "Aviso de distância"
+    },
+    "stay down": {
+      "wrong_pt": [
+        "fique baixo"
+      ],
+      "correct_pt": [
+        "Fica no chão!",
+        "Não levanta!"
+      ],
+      "note": "Lutador no chão"
+    },
+    "hold on": {
+      "wrong_pt": [
+        "Segure em cima"
+      ],
+      "correct_pt": [
+        "Peraí!",
+        "Espera aí!",
+        "Calma aí!"
+      ],
+      "note": "Pedido de pausa interjeitivo"
+    },
+    "wait up": {
+      "wrong_pt": [
+        "Espere acima"
+      ],
+      "correct_pt": [
+        "Peraí!",
+        "Espera aí!"
+      ],
+      "note": "Pedindo para esperar"
+    },
+    "don't mess with me": {
+      "wrong_pt": [
+        "Não bagunce comigo"
+      ],
+      "correct_pt": [
+        "Não mexe comigo!",
+        "Não tira onda comigo!",
+        "Nem tenta a sorte!"
+      ],
+      "note": "Aviso/Ameaça"
+    },
+    "watch out": {
+      "wrong_pt": [
+        "Assista fora"
+      ],
+      "correct_pt": [
+        "Cuidado!",
+        "Se liga!",
+        "Olha lá!"
+      ],
+      "note": "Alerta de perigo"
+    },
+    "look out": {
+      "wrong_pt": [
+        "olhe fora"
+      ],
+      "correct_pt": [
+        "Cuidado!",
+        "Olha lá!"
+      ],
+      "note": "Alerta imediato"
+    },
+    "get up": {
+      "wrong_pt": [
+        "Levante-se (formal)"
+      ],
+      "correct_pt": [
+        "Levanta!",
+        "Fica de pé!",
+        "Bora, levanta!"
+      ],
+      "note": "Em luta ou queda"
+    },
+    "give me a break": {
+      "wrong_pt": [
+        "Me dê uma quebra"
+      ],
+      "correct_pt": [
+        "Dá um tempo!",
+        "Me poupe!",
+        "Fala sério!"
+      ],
+      "note": "Incredulidade/irritação"
+    },
+    "show me what you got": {
+      "wrong_pt": [
+        "mostre-me o que você tem"
+      ],
+      "correct_pt": [
+        "Mostra do que você é capaz!",
+        "Mostra o que sabe fazer!"
+      ],
+      "note": "Provocação pré-luta"
+    },
+    "take this": {
+      "wrong_pt": [
+        "tome isto"
+      ],
+      "correct_pt": [
+        "Toma essa!",
+        "Receba isso!"
+      ],
+      "note": "Grito de ataque"
+    },
+    "eat this": {
+      "wrong_pt": [
+        "coma isto"
+      ],
+      "correct_pt": [
+        "Engole essa!",
+        "Toma essa!"
+      ],
+      "note": "Grito ao desferir golpe"
+    },
+    "step aside": {
+      "wrong_pt": [
+        "passo ao lado"
+      ],
+      "correct_pt": [
+        "Sai da frente!",
+        "Abre caminho!"
+      ],
+      "note": "Exigindo passagem"
+    },
+    "calm down": {
+      "wrong_pt": [
+        "acalme-se formal"
+      ],
+      "correct_pt": [
+        "Calma aí!",
+        "Fica frio!",
+        "Se acalma!"
+      ],
+      "note": "Pedindo calma"
+    },
+    "hurry up": {
+      "wrong_pt": [
+        "apresse-se"
+      ],
+      "correct_pt": [
+        "Anda logo!",
+        "Bora logo!",
+        "Acelera!"
+      ],
+      "note": "Apressando"
+    },
+    "leave me alone": {
+      "wrong_pt": [
+        "deixe-me sozinho"
+      ],
+      "correct_pt": [
+        "Me deixa em paz!",
+        "Me erra!",
+        "Sai do meu pé!"
+      ],
+      "note": "Pedindo distância"
+    }
+  },
+  "exclamations_and_cursing": {
+    "what the hell": {
+      "wrong_pt": [
+        "O que diabos"
+      ],
+      "correct_pt": [
+        "Que merda é essa?",
+        "Que porra é essa?",
+        "Mas o quê?!"
+      ],
+      "note": "Reação de choque/revolta"
+    },
+    "what the fuck": {
+      "wrong_pt": [
+        "O que diabos"
+      ],
+      "correct_pt": [
+        "Que porra é essa?",
+        "Puta que pariu, o que é isso?",
+        "Mas que caralho?!"
+      ],
+      "note": "Choque extremo/adulto"
+    },
+    "are you kidding me": {
+      "wrong_pt": [
+        "Você está brincando comigo"
+      ],
+      "correct_pt": [
+        "Tá de sacanagem?",
+        "Tá brincando?",
+        "Tá zoando com a minha cara?"
+      ],
+      "note": "Indignação informal"
+    },
+    "you gotta be kidding me": {
+      "wrong_pt": [
+        "Você tem que estar brincando comigo"
+      ],
+      "correct_pt": [
+        "Só pode tá de sacanagem!",
+        "Tá de brincadeira comigo!"
+      ],
+      "note": "Indignação"
+    },
+    "damn it": {
+      "wrong_pt": [
+        "Maldição"
+      ],
+      "correct_pt": [
+        "Merda!",
+        "Porra!",
+        "Droga!"
+      ],
+      "note": "Frustração"
+    },
+    "goddamn it": {
+      "wrong_pt": [
+        "Maldito seja"
+      ],
+      "correct_pt": [
+        "Puta merda!",
+        "Porra!",
+        "Que merda!"
+      ],
+      "note": "Frustração intensa"
+    },
+    "for god's sake": {
+      "wrong_pt": [
+        "Pelo bem de Deus"
+      ],
+      "correct_pt": [
+        "Pelo amor de Deus!",
+        "Fala sério!"
+      ],
+      "note": "Exasperação"
+    },
+    "holy shit": {
+      "wrong_pt": [
+        "Santa merda"
+      ],
+      "correct_pt": [
+        "Puta merda!",
+        "Caralho!",
+        "Nossa!"
+      ],
+      "note": "Espanto"
+    },
+    "holy crap": {
+      "wrong_pt": [
+        "Santa porcaria"
+      ],
+      "correct_pt": [
+        "Caramba!",
+        "Puta merda!",
+        "Nossa senhora!"
+      ],
+      "note": "Espanto"
+    },
+    "no way": {
+      "wrong_pt": [
+        "Sem caminho"
+      ],
+      "correct_pt": [
+        "Nem fodendo!",
+        "De jeito nenhum!",
+        "Mentira!",
+        "Sem chance!"
+      ],
+      "note": "Incredulidade ou recusa"
+    },
+    "who the hell": {
+      "wrong_pt": [
+        "Quem diabos"
+      ],
+      "correct_pt": [
+        "Quem caralhos...",
+        "Quem é que...",
+        "Que porra de pessoa..."
+      ],
+      "note": "Pergunta indignada"
+    },
+    "why the hell": {
+      "wrong_pt": [
+        "por que diabos"
+      ],
+      "correct_pt": [
+        "Por que caralhos...",
+        "Por que cargas d'água..."
+      ],
+      "note": "Pergunta revoltada"
+    },
+    "where the hell": {
+      "wrong_pt": [
+        "onde diabos"
+      ],
+      "correct_pt": [
+        "Onde caralhos...",
+        "Onde é que..."
+      ],
+      "note": "Pergunta revoltada"
+    },
+    "son of a gun": {
+      "wrong_pt": [
+        "filho de uma arma"
+      ],
+      "correct_pt": [
+        "Filho da mãe!",
+        "Maldito!"
+      ],
+      "note": "Exclamação de espanto ou raiva leve"
+    },
+    "what on earth": {
+      "wrong_pt": [
+        "o que na terra"
+      ],
+      "correct_pt": [
+        "Mas o que é isso?!",
+        "Que raios é isso?!"
+      ],
+      "note": "Espanto"
+    },
+    "screw you": {
+      "wrong_pt": [
+        "parafuse você"
+      ],
+      "correct_pt": [
+        "Vá se ferrar!",
+        "Vai se foder!",
+        "Danou-se!"
+      ],
+      "note": "Xingamento direto"
+    },
+    "fuck you": {
+      "wrong_pt": [
+        "dane-se"
+      ],
+      "correct_pt": [
+        "Vai se foder!",
+        "Vai tomar no cu!"
+      ],
+      "note": "Xingamento adulto"
+    },
+    "bullshit": {
+      "wrong_pt": [
+        "merda de touro"
+      ],
+      "correct_pt": [
+        "Mentira!",
+        "Conversa fiada!",
+        "Que besteira!"
+      ],
+      "note": "Rejeitando mentira"
+    }
+  },
+  "combat_and_boxing_slang": {
+    "purse money": {
+      "wrong_pt": [
+        "dinheiro da bolsa de mulher"
+      ],
+      "correct_pt": [
+        "bolsa da luta",
+        "prêmio da luta",
+        "grana da bolsa"
+      ],
+      "note": "Remuneração de boxe/luta"
+    },
+    "fight purse": {
+      "wrong_pt": [
+        "bolsa de luta"
+      ],
+      "correct_pt": [
+        "bolsa da luta",
+        "prêmio da luta"
+      ],
+      "note": "Prêmio financeiro do lutador"
+    },
+    "slugfest": {
+      "wrong_pt": [
+        "festa de lesmas"
+      ],
+      "correct_pt": [
+        "trocação franca",
+        "quebra-pau",
+        "porrada pura",
+        "pancadaria insana"
+      ],
+      "note": "Luta intensa sem guarda"
+    },
+    "fired up": {
+      "wrong_pt": [
+        "pegando fogo (literal)"
+      ],
+      "correct_pt": [
+        "com sangue nos olhos",
+        "pilhado",
+        "empolgado pra caramba"
+      ],
+      "note": "Lutador animado/determinado"
+    },
+    "knocked out cold": {
+      "wrong_pt": [
+        "nocauteado frio"
+      ],
+      "correct_pt": [
+        "apagado",
+        "nocauteado na hora",
+        "dormiu no ringue"
+      ],
+      "note": "Nocaute instantâneo"
+    },
+    "out cold": {
+      "wrong_pt": [
+        "fora frio"
+      ],
+      "correct_pt": [
+        "apagado",
+        "desmaiado na hora"
+      ],
+      "note": "Inconsciente"
+    },
+    "glass jaw": {
+      "wrong_pt": [
+        "mandíbula de vidro"
+      ],
+      "correct_pt": [
+        "queixo de vidro"
+      ],
+      "note": "Lutador sensível a golpes no queixo"
+    },
+    "glass chin": {
+      "wrong_pt": [
+        "queixo de vidro literal"
+      ],
+      "correct_pt": [
+        "queixo de vidro"
+      ],
+      "note": "Fragilidade no queixo"
+    },
+    "throw the towel": {
+      "wrong_pt": [
+        "atirar a toalha"
+      ],
+      "correct_pt": [
+        "jogar a toalha"
+      ],
+      "note": "Desistir/parar a luta"
+    },
+    "on the ropes": {
+      "wrong_pt": [
+        "sobre as cordas"
+      ],
+      "correct_pt": [
+        "contra as cordas",
+        "no sufoco",
+        "em perigo"
+      ],
+      "note": "Situação desfavorável no ringue"
+    },
+    "sucker punch": {
+      "wrong_pt": [
+        "soco de trouxa"
+      ],
+      "correct_pt": [
+        "golpe traiçoeiro",
+        "porrada na covardia",
+        "golpe surpresa"
+      ],
+      "note": "Ataque sem aviso"
+    },
+    "beat the crap out of": {
+      "wrong_pt": [
+        "bater a porcaria fora"
+      ],
+      "correct_pt": [
+        "encher de porrada",
+        "quebrar na porrada",
+        "dar uma surra em"
+      ],
+      "note": "Agressão intensa"
+    },
+    "beat the shit out of": {
+      "wrong_pt": [
+        "bater a merda fora"
+      ],
+      "correct_pt": [
+        "arrebentar na porrada",
+        "encher de porrada",
+        "moer na pancada"
+      ],
+      "note": "Surra violenta"
+    },
+    "kick your ass": {
+      "wrong_pt": [
+        "chutar sua bunda"
+      ],
+      "correct_pt": [
+        "quebrar sua cara",
+        "te encher de porrada",
+        "acabar com você"
+      ],
+      "note": "Ameaça comum em lutas"
+    },
+    "pay up": {
+      "wrong_pt": [
+        "pague acima"
+      ],
+      "correct_pt": [
+        "paga logo",
+        "passa a grana",
+        "paga o que deve"
+      ],
+      "note": "Cobrança financeira"
+    },
+    "haymaker": {
+      "wrong_pt": [
+        "fazedor de feno"
+      ],
+      "correct_pt": [
+        "cruzado violentíssimo",
+        "mata-cobra",
+        "pancada devastadora"
+      ],
+      "note": "Soco amplo e poderoso"
+    },
+    "upper": {
+      "wrong_pt": [
+        "superior"
+      ],
+      "correct_pt": [
+        "uppercut",
+        "gancho de baixo pra cima"
+      ],
+      "note": "Golpe de boxe"
+    },
+    "jab": {
+      "wrong_pt": [
+        "cutucada"
+      ],
+      "correct_pt": [
+        "jab"
+      ],
+      "note": "Golpe reto rápido"
+    },
+    "hook": {
+      "wrong_pt": [
+        "gancho literal de pendurar"
+      ],
+      "correct_pt": [
+        "cruzado",
+        "gancho"
+      ],
+      "note": "Golpe lateral no boxe"
+    },
+    "southpaw": {
+      "wrong_pt": [
+        "pata do sul"
+      ],
+      "correct_pt": [
+        "canhoto"
+      ],
+      "note": "Postura de lutador canhoto"
+    },
+    "orthodox": {
+      "wrong_pt": [
+        "ortodoxo religioso"
+      ],
+      "correct_pt": [
+        "destro (postura de boxe)"
+      ],
+      "note": "Postura padrão no boxe"
+    },
+    "clinch": {
+      "wrong_pt": [
+        "abraço"
+      ],
+      "correct_pt": [
+        "clinch",
+        "agarração"
+      ],
+      "note": "Travamento no ringue"
+    },
+    "footwork": {
+      "wrong_pt": [
+        "trabalho de pés"
+      ],
+      "correct_pt": [
+        "jogo de pernas",
+        "movimentação"
+      ],
+      "note": "Agilidade nos pés"
+    },
+    "down for the count": {
+      "wrong_pt": [
+        "abaixo para a contagem"
+      ],
+      "correct_pt": [
+        "nocauteado",
+        "no chão esperando a contagem"
+      ],
+      "note": "Queda no ringue"
+    },
+    "saved by the bell": {
+      "wrong_pt": [
+        "salvo pelo sino literal"
+      ],
+      "correct_pt": [
+        "salvo pelo gongo"
+      ],
+      "note": "Fim do round no momento crítico"
+    },
+    "in the zone": {
+      "wrong_pt": [
+        "na zona"
+      ],
+      "correct_pt": [
+        "no fluxo",
+        "extremamente concentrado"
+      ],
+      "note": "Estado de foco absoluto"
+    },
+    "corner": {
+      "wrong_pt": [
+        "canto qualquer"
+      ],
+      "correct_pt": [
+        "corner",
+        "canto do ringue"
+      ],
+      "note": "Equipe do lutador"
+    },
+    "sparring": {
+      "wrong_pt": [
+        "esparramando"
+      ],
+      "correct_pt": [
+        "sparring",
+        "treino de luta"
+      ],
+      "note": "Luta de treino"
+    }
+  },
+  "conversational_fillers_and_questions": {
+    "didja": {
+      "wrong_pt": [
+        "ouviste",
+        "fizeste"
+      ],
+      "correct_pt": [
+        "não foi?",
+        "né?",
+        "ouviu?"
+      ],
+      "note": "Tag question informal em PT-BR"
+    },
+    "didn'tcha": {
+      "wrong_pt": [
+        "não fizeste"
+      ],
+      "correct_pt": [
+        "não foi?",
+        "né?"
+      ],
+      "note": "Pergunta de confirmação informal"
+    },
+    "got it?": {
+      "wrong_pt": [
+        "Obtido?"
+      ],
+      "correct_pt": [
+        "Entendeu?",
+        "Sacou?",
+        "Pegou a visão?"
+      ],
+      "note": "Verificando compreensão"
+    },
+    "understand?": {
+      "wrong_pt": [
+        "Entendido? (formal)"
+      ],
+      "correct_pt": [
+        "Entendeu?",
+        "Sacou?"
+      ],
+      "note": "Coloquial"
+    },
+    "what's up": {
+      "wrong_pt": [
+        "o que está acima"
+      ],
+      "correct_pt": [
+        "E aí?",
+        "Beleza?",
+        "Qual é?"
+      ],
+      "note": "Saudação coloquial"
+    },
+    "who cares": {
+      "wrong_pt": [
+        "quem se importa (formal)"
+      ],
+      "correct_pt": [
+        "Quem se importa?",
+        "E daí?",
+        "Que se foda"
+      ],
+      "note": "Desdém"
+    },
+    "so what": {
+      "wrong_pt": [
+        "então o que"
+      ],
+      "correct_pt": [
+        "E daí?",
+        "E o que que tem?"
+      ],
+      "note": "Desafio retórico"
+    },
+    "my bad": {
+      "wrong_pt": [
+        "meu mau"
+      ],
+      "correct_pt": [
+        "Foi mal",
+        "Erro meu",
+        "Vacilo meu"
+      ],
+      "note": "Pedido de desculpa informal"
+    },
+    "big deal": {
+      "wrong_pt": [
+        "grande acordo"
+      ],
+      "correct_pt": [
+        "Grande coisa",
+        "E daí?"
+      ],
+      "note": "Ironia/desprezo"
+    },
+    "piece of cake": {
+      "wrong_pt": [
+        "pedaço de bolo"
+      ],
+      "correct_pt": [
+        "Moleza",
+        "Mamão com açúcar",
+        "Fácil demais"
+      ],
+      "note": "Algo muito fácil"
+    },
+    "no problem": {
+      "wrong_pt": [
+        "nenhum problema formal"
+      ],
+      "correct_pt": [
+        "Sem problema",
+        "Tranquilo",
+        "De boa"
+      ],
+      "note": "Aceitação informal"
+    },
+    "fair enough": {
+      "wrong_pt": [
+        "justo o suficiente"
+      ],
+      "correct_pt": [
+        "Justo",
+        "Tá certo",
+        "Faz sentido"
+      ],
+      "note": "Concordando com argumento"
+    },
+    "you bet": {
+      "wrong_pt": [
+        "você aposta"
+      ],
+      "correct_pt": [
+        "Pode apostar",
+        "Com certeza",
+        "Pode crer"
+      ],
+      "note": "Afirmação confiante"
+    },
+    "no doubt": {
+      "wrong_pt": [
+        "sem dúvida formal"
+      ],
+      "correct_pt": [
+        "Sem dúvida",
+        "Pode crer"
+      ],
+      "note": "Certeza"
+    },
+    "no sweat": {
+      "wrong_pt": [
+        "sem suor"
+      ],
+      "correct_pt": [
+        "Tranquilo",
+        "Sem esforço"
+      ],
+      "note": "Fácil"
+    },
+    "beats me": {
+      "wrong_pt": [
+        "me bate"
+      ],
+      "correct_pt": [
+        "Sei lá",
+        "Nem faço ideia",
+        "Não faço a menor ideia"
+      ],
+      "note": "Desconhecimento"
+    }
+  },
+  "battle_taunts_and_threats": {
+    "is that all you got": {
+      "wrong_pt": [
+        "é tudo que você tem"
+      ],
+      "correct_pt": [
+        "É só isso que você tem?",
+        "É só isso que sabe fazer?"
+      ],
+      "note": "Provocação no ringue"
+    },
+    "you're dead meat": {
+      "wrong_pt": [
+        "você é carne morta"
+      ],
+      "correct_pt": [
+        "Você já era!",
+        "Você tá morto!"
+      ],
+      "note": "Ameaça mortal"
+    },
+    "you're history": {
+      "wrong_pt": [
+        "você é história"
+      ],
+      "correct_pt": [
+        "Você já era!",
+        "Seu fim chegou!"
+      ],
+      "note": "Ameaça de derrota"
+    },
+    "make my day": {
+      "wrong_pt": [
+        "faça meu dia"
+      ],
+      "correct_pt": [
+        "Tenta a sorte!",
+        "Me dá esse prazer!"
+      ],
+      "note": "Desafio arrogante"
+    },
+    "now you've done it": {
+      "wrong_pt": [
+        "agora você fez isso"
+      ],
+      "correct_pt": [
+        "Agora você passou dos limites!",
+        "Agora você pediu para morrer!"
+      ],
+      "note": "Fúria prestes a explodir"
+    },
+    "you asked for it": {
+      "wrong_pt": [
+        "você pediu por isso"
+      ],
+      "correct_pt": [
+        "Você quem pediu!",
+        "Agora aguenta!"
+      ],
+      "note": "Iniciando contra-ataque"
+    },
+    "know your place": {
+      "wrong_pt": [
+        "conheça seu lugar"
+      ],
+      "correct_pt": [
+        "Se põe no seu lugar!",
+        "Reconheça seu lugar!"
+      ],
+      "note": "Arrogância de vilão ou superior"
+    },
+    "don't make me laugh": {
+      "wrong_pt": [
+        "não me faça rir"
+      ],
+      "correct_pt": [
+        "Não me faça rir!",
+        "Conta outra!"
+      ],
+      "note": "Desprezo por oponente"
+    },
+    "don't underestimate me": {
+      "wrong_pt": [
+        "não me subestime formal"
+      ],
+      "correct_pt": [
+        "Não me subestima!",
+        "Não me menospreza!"
+      ],
+      "note": "Determinação"
+    }
+  }
+}

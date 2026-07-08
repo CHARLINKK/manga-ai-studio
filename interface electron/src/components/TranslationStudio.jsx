@@ -5,7 +5,7 @@ const ZOOM_MIN = 20;
 const ZOOM_MAX = 300;
 const ZOOM_STEP = 10;
 
-export default function TranslationStudio({ folderPath, folderName, isEditorMode, isPipelinePaused, isTheaterMode, onToggleTheaterMode }) {
+export default function TranslationStudio({ folderPath, folderName, isEditorMode, isPipelinePaused, isTheaterMode, onToggleTheaterMode, onContinueProcessing }) {
   const [pagesData, setPagesData] = useState({}); 
   const [imagesPaths, setImagesPaths] = useState({});
   const [pagesList, setPagesList] = useState([]);
@@ -193,13 +193,18 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
   };
 
   const [isResuming, setIsResuming] = useState(false);
+  const [showConfirmOverwrite, setShowConfirmOverwrite] = useState(false);
 
   const handleSaveAndContinue = async () => {
     try {
       setIsResuming(true);
       await handleSave();
+      let resumed = false;
       if (window.electronAPI && window.electronAPI.resumePipeline) {
-        await window.electronAPI.resumePipeline();
+        resumed = await window.electronAPI.resumePipeline();
+      }
+      if (!resumed && onContinueProcessing) {
+        setShowConfirmOverwrite(true);
       }
     } finally {
       setIsResuming(false);
@@ -241,12 +246,14 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
 
   // 🖱️ Drag and Drop Vivo (Swap) 🖱️
   const handleDragStart = (e, idx) => {
+    e.stopPropagation();
     setDraggedIndex(idx);
     e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragEnter = (e, targetIdx) => {
     e.preventDefault();
+    e.stopPropagation();
     if (draggedIndex === null || draggedIndex === targetIdx) return;
 
     setPagesData(prev => {
@@ -264,14 +271,17 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setDraggedIndex(null);
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     setDraggedIndex(null);
   };
 
@@ -323,14 +333,15 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
           >
             {isTheaterMode ? 'Sair do Modo Teatro' : 'Modo Teatro'}
           </button>
-          {isEditorMode && isPipelinePaused && (
+          {isEditorMode && (
             <button
               className="btn-save-studio"
               style={{ backgroundColor: '#d97706', borderColor: '#b45309', opacity: isResuming ? 0.7 : 1 }}
               onClick={handleSaveAndContinue}
               disabled={isResuming}
+              title="Salva as edições do OCR e inicia as etapas seguintes da pipeline (Correção/Tradução)"
             >
-              {isResuming ? 'Retomando...' : 'Salvar e Continuar Processamento'}
+              {isResuming ? 'Iniciando...' : 'Salvar e Continuar Processamento'}
             </button>
           )}
           {lastSavedTime && (
@@ -486,6 +497,43 @@ export default function TranslationStudio({ folderPath, folderName, isEditorMode
 
         </div>
       </div>
+
+      {showConfirmOverwrite && (
+        <div className="modal-overlay" onClick={() => setShowConfirmOverwrite(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', padding: '26px' }}>
+            <h3 style={{ marginTop: 0, color: '#fff', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ color: '#EAB308' }}>⚠️</span> Reprocessar e Sobrescrever?
+            </h3>
+            <p style={{ fontSize: '14px', color: '#d4d4d4', lineHeight: '1.6', margin: '14px 0' }}>
+              Você solicitou continuar o processamento para este capítulo.
+            </p>
+            <p style={{ fontSize: '13px', color: '#a3a3a3', lineHeight: '1.5', margin: '0 0 22px 0', backgroundColor: 'rgba(234, 179, 8, 0.08)', borderLeft: '3px solid #EAB308', padding: '12px 14px', borderRadius: '4px' }}>
+              Deseja executar novamente as etapas de IA (Polimento de Inglês, Diretor de Cena e Tradução PT-BR) e <strong>sobrescrever os arquivos anteriores</strong> usando o texto original salvo?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button 
+                className="btn-secondary"
+                style={{ padding: '9px 18px', borderRadius: '6px', border: '1px solid #404040', background: '#262626', color: '#ccc', cursor: 'pointer', fontWeight: '500' }}
+                onClick={() => setShowConfirmOverwrite(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-primary"
+                style={{ padding: '9px 20px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #EAB308 0%, #CA8A04 100%)', color: '#000', fontWeight: 'bold', cursor: 'pointer' }}
+                onClick={() => {
+                  setShowConfirmOverwrite(false);
+                  if (onContinueProcessing) {
+                    onContinueProcessing(folderPath, true);
+                  }
+                }}
+              >
+                Sim, Sobrescrever e Reprocessar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

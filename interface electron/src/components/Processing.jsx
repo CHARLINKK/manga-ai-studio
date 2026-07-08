@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './Processing.css';
 
-export default function Processing({ initialInputPath }) {
+export default function Processing({ initialInputPath, autoRunFromOcr }) {
   const [inputPath, setInputPath] = useState(initialInputPath || '');
   const [outputPath, setOutputPath] = useState('');
   
@@ -149,6 +149,49 @@ export default function Processing({ initialInputPath }) {
       setInputPath(initialInputPath);
     }
   }, [initialInputPath]);
+
+  useEffect(() => {
+    if (autoRunFromOcr && autoRunFromOcr.path) {
+      const pPath = autoRunFromOcr.path;
+      setInputPath(pPath);
+      const ocrFreeSteps = {
+        ocr: false,
+        pauseOcr: false,
+        vlmDirector: false,
+        correct: true,
+        pageDirector: true,
+        translate: true,
+        exportBilingual: steps.exportBilingual || false,
+        openStudio: true
+      };
+      setSteps(ocrFreeSteps);
+
+      setIsRunning(true);
+      setProgress(0);
+      setConsoleText(`[${new Date().toLocaleTimeString()}] Retomando pipeline a partir do OCR salvo em: ${pPath}...\n`);
+      const config = {
+        inputPath: pPath, outputPath, steps: ocrFreeSteps, tone, dictGlobal, dictLocal, models, overwrite: autoRunFromOcr.overwrite || false
+      };
+      if (window.electronAPI && window.electronAPI.runPipeline) {
+        window.electronAPI.runPipeline(config).then(async res => {
+          if (res && res.success) {
+            if (res.needsName) {
+              setPromptData({ res, folderName: res.folderName });
+              return;
+            } else if (res.existingName) {
+              await window.electronAPI.finalizePipeline({ ...res, finalName: res.existingName });
+              setConsoleText(prev => prev + `\n[OK] Auto-atualização: Biblioteca Central atualizada automaticamente!`);
+            } else {
+              setConsoleText(prev => prev + '\n[OK] Pipeline de Tradução concluída com sucesso!');
+            }
+          } else if (res) {
+            setConsoleText(prev => prev + '\n[ERRO] Falha na pipeline: ' + res.error);
+          }
+          setIsRunning(false);
+        });
+      }
+    }
+  }, [autoRunFromOcr]);
 
   async function handleStart() {
     setIsRunning(true);

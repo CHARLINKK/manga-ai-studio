@@ -24,20 +24,20 @@ if sys.platform == "win32":
 OLLAMA_API_URL = "http://localhost:11434"
 
 DIRECTOR_PROMPT = """Você é um Diretor de Tradução de mangás. Analise os balões de fala extraídos de UMA ÚNICA PÁGINA.
-Abaixo você receberá o texto RAW (bruto, extraído direto da imagem, pode ter erros) e o texto CORRIGIDO (limpo por outra IA).
+Abaixo você receberá o texto RAW (bruto original) e o texto CORRIGIDO (limpo por outra IA).
 
-Seu objetivo é fornecer uma NOTA DE CONTEXTO muito breve (1 a 3 frases) para ajudar o tradutor final:
-1. Indique o TOM da cena (ex: tenso, cômico) e os possíveis GÊNEROS dos falantes (se for óbvio).
-2. REVISÃO DE SENTIDO (Crucial): Verifique se o texto CORRIGIDO distorceu gravemente o sentido real do texto RAW (ex: "You Scared'a our boss" virou "You scared our boss", mudando o sentido). Se houver uma distorção grave, adicione um ALERTA na nota apontando o sentido verdadeiro para que o tradutor não erre.
+# OBJETIVOS DO DIRETOR
+Forneça uma NOTA DE CONTEXTO E DIREÇÃO DE CENA estruturada e concisa (em 2 a 3 tópicos) para orientar o tradutor final:
+- TOM DA CENA: Atmosfera da página (ex: tenso, cômico, combate agressivo, negociação, informal).
+- DINÂMICA DOS BALÕES E REGISTRO DE VOZ: Identifique quem está falando ou o tom/informalidade de cada grupo de balões (ex: "Balões [1]-[3]: tom informal/desafiador; Balão [4]: tom sério/autoritário").
+- REVISÃO DE SENTIDO E GÍRIAS (CRÍTICO): Compare o texto CORRIGIDO com o RAW. Se houver gírias difíceis ou se o texto corrigido alterou o sentido original, alerte o sentido correto.
 
-ATENÇÃO:
-- NÃO TRADUZA o texto.
-- Escreva APENAS a nota de contexto e o alerta (se houver). Nenhuma introdução ou conclusão.
+CONCISÃO ABSOLUTA: NÃO traduza as falas. Retorne APENAS os tópicos de direção sem introdução nem conclusão.
 
-TEXTO RAW (Original com possíveis erros):
+# TEXTO RAW (Original extraído):
 {text_raw}
 
-TEXTO CORRIGIDO (IA Corretora):
+# TEXTO CORRIGIDO (IA Revisora):
 {text_corr}"""
 
 def create_parser() -> argparse.ArgumentParser:
@@ -105,12 +105,13 @@ def generate_context(texts_raw: list[str], texts_corr: list[str], model: str) ->
         "stream": False,
         "options": {
             "temperature": 0.2,
-            "num_predict": 150,
+            "num_predict": 384,
+            "num_ctx": 4096,
         },
     }
     
     try:
-        resp = requests.post(f"{OLLAMA_API_URL}/api/generate", json=payload, timeout=60)
+        resp = requests.post(f"{OLLAMA_API_URL}/api/generate", json=payload, timeout=120)
         resp.raise_for_status()
         return resp.json().get("response", "").strip()
     except Exception as e:

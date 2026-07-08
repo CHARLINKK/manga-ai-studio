@@ -22,9 +22,15 @@ function App() {
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isDraggingGlobal, setIsDraggingGlobal] = useState(false);
   const [hoveredImage, setHoveredImage] = useState(null);
+  const [autoRunFromOcrPath, setAutoRunFromOcrPath] = useState(null);
+
+  const handleContinueProcessingFromOcr = (folderPath, overwrite = false) => {
+    setActiveTab('processamento');
+    setAutoRunFromOcrPath({ path: folderPath || selectedFolder?.path, overwrite, timestamp: Date.now() });
+  };
 
   // ── Auto-Updater ─────────────────────────────────────────────────────────
-  const [updateStatus, setUpdateStatus] = useState(null); // 'available', 'progress', 'downloaded', 'error', 'installing'
+  const [updateStatus, setUpdateStatus] = useState(null); // 'checking', 'not-available', 'available', 'progress', 'downloaded', 'error', 'installing'
   const [updateProgress, setUpdateProgress] = useState(null);
   const [updateError, setUpdateError] = useState(null);
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -35,10 +41,9 @@ function App() {
       const cleanup = window.electronAPI.onUpdaterStatus((data) => {
         setUpdateStatus(data.status);
         if (data.info) setUpdateInfo(data.info);
-        if (data.status === 'available' || data.status === 'progress' || data.status === 'downloaded') {
-          setShowUpdateModal(true);
-        }
         if (data.status === 'progress') setUpdateProgress(data.progress);
+        // O modal só abrirá automaticamente em caso de erro.
+        // Para os outros status, o usuário verá o botão discreto na barra de título (estilo Discord).
         if (data.status === 'error') {
           setUpdateError(data.error);
           setShowUpdateModal(true);
@@ -315,7 +320,13 @@ function App() {
     navigateTo(finalPath);
   };
 
+  const isExternalFileDrag = (e) => {
+    const types = e.dataTransfer && e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+    return types.includes('Files');
+  };
+
   const handleGlobalDragOver = (e) => {
+    if (!isExternalFileDrag(e) || activeTab !== 'explorer') return;
     e.preventDefault();
     if (!isDraggingGlobal) setIsDraggingGlobal(true);
   };
@@ -329,6 +340,7 @@ function App() {
   const handleGlobalDrop = async (e) => {
     e.preventDefault();
     setIsDraggingGlobal(false);
+    if (!isExternalFileDrag(e) || activeTab !== 'explorer') return;
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const path = files[0].path;
@@ -362,37 +374,16 @@ function App() {
         </div>
       )}
 
-      {/* ── Custom Titlebar ── */}
+      {/* 🟢 Custom Titlebar 🟢 */}
       <div className="custom-titlebar">
         <div className="titlebar-drag-region"></div>
         <div className="titlebar-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>Manga AI Studio</span>
-          {updateStatus && (
-            <button
-              onClick={() => setShowUpdateModal(true)}
-              style={{
-                background: updateStatus === 'error' ? 'var(--danger)' : 'var(--accent-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '2px 10px',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-              }}
-            >
-              🔄 {updateStatus === 'downloaded' ? 'Atualização Pronta!' : updateProgress ? `Atualizando (${Math.round(updateProgress.percent)}%)` : 'Atualização'}
-            </button>
-          )}
         </div>
         <div className="titlebar-controls">
           <button className="win-btn" title="Minimizar" onClick={handleMinimize}>🗕</button>
           <button className="win-btn" title="Maximizar" onClick={handleMaximize}>🗖</button>
-          <button className="win-btn close" title="Fechar" onClick={handleClose}>✕</button>
+          <button className="win-btn close" title="Fechar" onClick={handleClose}>🗙</button>
         </div>
       </div>
 
@@ -408,7 +399,7 @@ function App() {
           justifyContent: 'center'
         }}>
           <div style={{
-            background: 'var(--bg-card)',
+            background: 'var(--bg-surface-elevated)',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             width: '480px',
@@ -420,16 +411,20 @@ function App() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '10px',
-                background: 'rgba(99, 102, 241, 0.15)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: 'var(--bg-surface)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '24px'
+                color: 'var(--brand-blue)'
               }}>
-                🚀
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
               </div>
               <div>
                 <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>Atualização de Software</h3>
@@ -440,14 +435,16 @@ function App() {
             </div>
 
             <div style={{
-              background: 'var(--bg-secondary)',
-              padding: '14px',
+              background: 'var(--bg-surface)',
+              padding: '16px',
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
               fontSize: '13px',
               color: 'var(--text-primary)'
             }}>
-              {updateStatus === 'available' && "✨ Uma nova versão foi detectada! O download do instalador foi iniciado automaticamente em segundo plano."}
+              {updateStatus === 'checking' && "Buscando atualizações nos servidores..."}
+              {updateStatus === 'not-available' && <span style={{ color: 'var(--text-muted)' }}>Você já está utilizando a versão mais recente do Manga AI Studio.</span>}
+              {updateStatus === 'available' && "Uma nova versão foi detectada! O download do instalador foi iniciado automaticamente em segundo plano."}
               {updateStatus === 'progress' && updateProgress && (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontWeight: 'bold' }}>
@@ -476,14 +473,18 @@ function App() {
                 </div>
               )}
               {updateStatus === 'downloaded' && (
-                <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>
-                  🎉 Download Concluído! O instalador está pronto para aplicar a nova versão com segurança.
+                <div style={{ color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  Download Concluído! O instalador está pronto para aplicar a nova versão com segurança.
                 </div>
               )}
-              {updateStatus === 'installing' && "⏳ Encerrando subprocessos e iniciando o instalador da nova versão... Por favor, aguarde."}
+              {updateStatus === 'installing' && <span style={{ color: 'var(--brand-blue)' }}>Encerrando subprocessos e iniciando o instalador da nova versão... Por favor, aguarde.</span>}
               {updateStatus === 'error' && (
                 <div style={{ color: 'var(--danger)' }}>
-                  ❌ Ocorreu um problema na verificação ou download da atualização: {updateError}
+                  Ocorreu um problema na verificação ou download da atualização: {updateError}
                 </div>
               )}
             </div>
@@ -512,7 +513,7 @@ function App() {
                     }}
                     style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 'bold' }}
                   >
-                    🚀 Reiniciar e Atualizar Agora
+                    Reiniciar e Atualizar Agora
                   </button>
                 </>
               ) : (
@@ -799,15 +800,48 @@ function App() {
               })}
             </nav>
 
-            {/* ── Indicador Global Discreto na Aba Superior ── */}
-            <div style={{ position: 'absolute', right: '20px', top: '16px', display: 'flex', flexDirection: 'column', gap: '8px', width: '200px', zIndex: 10 }}>
-              {isGlobalRunning && activeTab !== 'processamento' && (
+              {/* ── Botão de Atualização (Alinhado com as Abas) ── */}
+              <div style={{ position: 'absolute', right: '24px', top: '14px', display: 'flex', alignItems: 'center', zIndex: 11 }}>
+                {updateStatus && (
+                  <button
+                    onClick={() => setShowUpdateModal(true)}
+                    style={{
+                      background: updateStatus === 'error' ? 'rgba(239, 68, 68, 0.15)' : updateStatus === 'downloaded' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.15)',
+                      color: updateStatus === 'error' ? '#ef4444' : updateStatus === 'downloaded' ? '#10b981' : 'var(--brand-blue)',
+                      border: `1px solid ${updateStatus === 'error' ? 'rgba(239, 68, 68, 0.3)' : updateStatus === 'downloaded' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.3)'}`,
+                      borderRadius: '8px',
+                      padding: '6px 14px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: updateStatus === 'downloaded' ? '0 0 12px rgba(16, 185, 129, 0.1)' : 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = updateStatus === 'error' ? 'rgba(239, 68, 68, 0.25)' : updateStatus === 'downloaded' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(99, 102, 241, 0.25)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = updateStatus === 'error' ? 'rgba(239, 68, 68, 0.15)' : updateStatus === 'downloaded' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.15)';
+                    }}
+                  >
+                    <span style={{ fontSize: '14px' }}>⬇</span>
+                    {updateStatus === 'downloaded' ? 'Atualização Pronta!' : updateProgress ? `Atualizando (${Math.round(updateProgress.percent)}%)` : updateStatus === 'checking' ? 'Buscando...' : updateStatus === 'not-available' ? 'Software Atualizado' : 'Atualização'}
+                  </button>
+                )}
+              </div>
+
+              {/* ── Indicador Global Discreto ── */}
+              <div style={{ position: 'absolute', right: '24px', top: '60px', display: 'flex', flexDirection: 'column', gap: '8px', width: '220px', zIndex: 10, alignItems: 'flex-end' }}>
+                {isGlobalRunning && activeTab !== 'processamento' && (
                 <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)' }}>
                     <span style={{ color: 'var(--brand-blue)' }}>⚡ Processando...</span>
                     <span>{Math.round(globalProgress)}%</span>
                   </div>
-                  <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: '4px', background: 'var(--bg-base)', borderRadius: '2px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${globalProgress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
                   </div>
                 </div>
@@ -821,7 +855,7 @@ function App() {
                         <span style={{ color: 'var(--brand-blue)' }}>⬇ {model}</span>
                         <span>{Math.round(data.progress)}%</span>
                       </div>
-                      <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ width: '100%', height: '4px', background: 'var(--bg-base)', borderRadius: '2px', overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${data.progress}%`, background: 'var(--brand-blue)', transition: 'width 0.3s ease' }} />
                       </div>
                     </div>
@@ -833,7 +867,7 @@ function App() {
 
           <section className={`tab-content ${activeTab === 'estudio' ? 'tab-content--fullscreen' : ''}`}>
             <div className="fade-in-tab" style={{ display: activeTab === 'processamento' ? 'flex' : 'none', flexDirection: 'column' }}>
-              <Processing initialInputPath={selectedFolder?.path} />
+              <Processing initialInputPath={selectedFolder?.path} autoRunFromOcr={autoRunFromOcrPath} />
             </div>
             {activeTab === 'biblioteca' && (
               <div className="fade-in-tab" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -849,6 +883,7 @@ function App() {
                   isPipelinePaused={isPipelinePaused}
                   isTheaterMode={isTheaterMode}
                   onToggleTheaterMode={() => setIsTheaterMode(!isTheaterMode)}
+                  onContinueProcessing={handleContinueProcessingFromOcr}
                 />
               </div>
             )}

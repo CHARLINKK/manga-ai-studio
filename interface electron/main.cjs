@@ -9,12 +9,35 @@ const { autoUpdater } = require('electron-updater');
 // Configurar logs básicos para o autoUpdater
 autoUpdater.logger = require('console');
 
+// 🧪 HACK PARA TESTES LOCAIS DO AUTO-UPDATER 🧪
+// Se rodarmos com cross-env LOCAL_TEST=true, ele vai procurar o release num servidor local na porta 8080
+if (process.env.LOCAL_TEST === 'true') {
+  autoUpdater.setFeedURL({
+    provider: 'generic',
+    url: 'http://localhost:8080'
+  });
+  // Força checagem de atualizações mesmo no ambiente dev/não empacotado
+  autoUpdater.forceDevUpdateConfig = true;
+  
+  // Como o modo dev não chama a atualização automática, forçamos aqui
+  setTimeout(() => {
+    autoUpdater.checkForUpdates();
+  }, 2000);
+}
+
 let mainWindow;
 
 const getProjectRoot = () => {
-  return app.isPackaged
-    ? path.join(process.resourcesPath, 'backend')
-    : path.join(__dirname, '..');
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'backend');
+  }
+  const localRepo = path.join(__dirname, '..');
+  const installedBackend = path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'Manga AI Studio', 'resources', 'backend');
+  if (!fs.existsSync(path.join(localRepo, 'venv_ui', 'Scripts', 'python.exe')) &&
+      fs.existsSync(path.join(installedBackend, 'venv_ui', 'Scripts', 'python.exe'))) {
+    return installedBackend;
+  }
+  return localRepo;
 };
 
 
@@ -27,6 +50,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     frame: false, // Frameless window para design moderno
+    show: false, // Não mostrar a janela até que esteja pronta e maximizada
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -48,6 +72,7 @@ function createWindow() {
   }
 
   mainWindow.once('ready-to-show', () => {
+    mainWindow.maximize();
     mainWindow.show();
     if (!isDev) {
       const settings = getSettingsSync();
@@ -58,8 +83,16 @@ function createWindow() {
   });
 
   // -- Auto-Updater Events --
+  autoUpdater.on('checking-for-update', () => {
+    if (mainWindow) mainWindow.webContents.send('updater-status', { status: 'checking' });
+  });
+
   autoUpdater.on('update-available', (info) => {
     if (mainWindow) mainWindow.webContents.send('updater-status', { status: 'available', info });
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    if (mainWindow) mainWindow.webContents.send('updater-status', { status: 'not-available', info });
   });
 
   autoUpdater.on('download-progress', (progressObj) => {
@@ -77,11 +110,19 @@ function createWindow() {
 
 ipcMain.handle('install-update', () => {
   app.isQuiting = true;
+  
+  // Esconde a janela imediatamente para tirar a sensação de "travamento"
+  if (mainWindow) {
+    mainWindow.hide();
+  }
+
   if (activePipelineProcess) {
     const { exec } = require('child_process');
     try { exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F'); } catch(e) {}
     activePipelineProcess = null;
   }
+  
+  // Dá um tempinho rápido pro processo fechar e dispara o instalador silencioso (que com oneClick=true mostrará só a barra)
   setTimeout(() => {
     autoUpdater.quitAndInstall(false, true);
   }, 500);
@@ -204,10 +245,27 @@ ipcMain.handle('get-settings', () => {
 
     const projectRoot = getProjectRoot();
 
+    const checkModuleExists = (venvName, moduleName) => {
+      const venvSite = path.join(projectRoot, venvName, 'Lib', 'site-packages', moduleName);
+      if (fs.existsSync(venvSite)) return true;
+      try {
+        const cfgPath = path.join(projectRoot, venvName, 'pyvenv.cfg');
+        if (fs.existsSync(cfgPath)) {
+          const cfg = fs.readFileSync(cfgPath, 'utf8');
+          if (cfg.includes('include-system-site-packages = true')) {
+            const homeMatch = cfg.match(/home\s*=\s*(.+)/);
+            if (homeMatch && homeMatch[1]) {
+              const homeSite = path.join(homeMatch[1].trim(), 'Lib', 'site-packages', moduleName);
+              if (fs.existsSync(homeSite)) return true;
+            }
+          }
+        }
+      } catch(e) {}
+      return false;
+    };
+
     try {
-      const ocrTransformers = path.join(projectRoot, 'venv_ocr', 'Lib', 'site-packages', 'transformers');
-      const ocrEinops = path.join(projectRoot, 'venv_ocr', 'Lib', 'site-packages', 'einops');
-      if (fs.existsSync(ocrTransformers) && fs.existsSync(ocrEinops)) {
+      if (checkModuleExists('venv_ocr', 'transformers') && checkModuleExists('venv_ocr', 'einops')) {
         status.ocr.state = 'installed';
         status.ocr.progress = 100;
       }
@@ -215,17 +273,14 @@ ipcMain.handle('get-settings', () => {
 
     try {
       const pythonExe = path.join(projectRoot, 'venv_ocr', 'Scripts', 'python.exe');
-      const torchDir = path.join(projectRoot, 'venv_ocr', 'Lib', 'site-packages', 'torch');
-      if (fs.existsSync(pythonExe) && fs.existsSync(torchDir)) {
+      if (fs.existsSync(pythonExe) && checkModuleExists('venv_ocr', 'torch')) {
         status.cuda.state = 'installed';
         status.cuda.progress = 100;
       }
     } catch(e) {}
 
     try {
-      const ragChroma = path.join(projectRoot, 'venv_ui', 'Lib', 'site-packages', 'chromadb');
-      const ragSentence = path.join(projectRoot, 'venv_ui', 'Lib', 'site-packages', 'sentence_transformers');
-      if (fs.existsSync(ragChroma) && fs.existsSync(ragSentence)) {
+      if (checkModuleExists('venv_ui', 'chromadb') && checkModuleExists('venv_ui', 'sentence_transformers')) {
         status.rag.state = 'installed';
         status.rag.progress = 100;
       }
@@ -963,8 +1018,15 @@ ipcMain.handle('run-pipeline', async (event, config) => {
   isPipelineCanceled = false;
   const { spawn } = require('child_process');
   const projectRoot = getProjectRoot();
-  const pythonExeOcr = path.join(projectRoot, 'venv_ocr', 'Scripts', 'python.exe');
-  const pythonExeUi = path.join(projectRoot, 'venv_ui', 'Scripts', 'python.exe');
+  let pythonExeOcr = path.join(projectRoot, 'venv_ocr', 'Scripts', 'python.exe');
+  let pythonExeUi = path.join(projectRoot, 'venv_ui', 'Scripts', 'python.exe');
+  const installedBackend = path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'Manga AI Studio', 'resources', 'backend');
+  if (!fs.existsSync(pythonExeOcr) && fs.existsSync(path.join(installedBackend, 'venv_ocr', 'Scripts', 'python.exe'))) {
+    pythonExeOcr = path.join(installedBackend, 'venv_ocr', 'Scripts', 'python.exe');
+  }
+  if (!fs.existsSync(pythonExeUi) && fs.existsSync(path.join(installedBackend, 'venv_ui', 'Scripts', 'python.exe'))) {
+    pythonExeUi = path.join(installedBackend, 'venv_ui', 'Scripts', 'python.exe');
+  }
   
   // Dicionários Globais e Locais
   const configDir = path.join(os.homedir(), 'AppData', 'Local', 'MangaAIStudio');
@@ -1005,8 +1067,17 @@ ipcMain.handle('run-pipeline', async (event, config) => {
       if (isPipelineCanceled) {
         return reject(new Error('Cancelado pelo usuário.'));
       }
-      activePipelineProcess = spawn(exe, [scriptName, ...args], { 
-        cwd: projectRoot, 
+      const instBackend = path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'Manga AI Studio', 'resources', 'backend');
+      let targetExe = exe;
+      if (!fs.existsSync(targetExe)) {
+        const altExe = path.join(instBackend, path.basename(path.dirname(path.dirname(exe))), 'Scripts', 'python.exe');
+        if (fs.existsSync(altExe)) targetExe = altExe;
+      }
+      const actualRoot = fs.existsSync(path.join(projectRoot, scriptName)) ? projectRoot : instBackend;
+      const scriptFullPath = path.join(actualRoot, scriptName);
+
+      activePipelineProcess = spawn(targetExe, [scriptFullPath, ...args], { 
+        cwd: actualRoot, 
         windowsHide: true,
         env: { ...process.env, PYTHONUNBUFFERED: "1" }
       });
@@ -1092,7 +1163,30 @@ ipcMain.handle('run-pipeline', async (event, config) => {
       }
     } else {
       expectedTxtPath = path.join(tempDir, baseName + '_raw.txt');
-      if (fs.existsSync(expectedTxtPath)) currentTarget = expectedTxtPath;
+      if (existingEntry && existingEntry.raw && fs.existsSync(existingEntry.raw)) {
+        currentTarget = existingEntry.raw;
+      } else if (fs.existsSync(expectedTxtPath)) {
+        currentTarget = expectedTxtPath;
+      } else {
+        const outRaw = path.join(inputPath, 'output_raw', `${baseName}_raw.txt`);
+        const directRaw = path.join(inputPath, `${baseName}_raw.txt`);
+        if (fs.existsSync(outRaw)) {
+          currentTarget = outRaw;
+        } else if (fs.existsSync(directRaw)) {
+          currentTarget = directRaw;
+        }
+      }
+      sendLog(event, `\n [INFO] Usando OCR existente em: ${path.basename(currentTarget)}`);
+    }
+
+    if (config.overwrite) {
+      sendLog(event, '\n [INFO] Modo Sobrescrever ativo: Limpando arquivos intermediários antigos para reprocessamento...');
+      try {
+        const corrCandidate = path.join(tempDir, baseName + '_corrigido.txt');
+        const transCandidate = path.join(tempDir, baseName + '_traduzido.txt');
+        if (fs.existsSync(corrCandidate)) fs.unlinkSync(corrCandidate);
+        if (fs.existsSync(transCandidate)) fs.unlinkSync(transCandidate);
+      } catch(e) {}
     }
 
     // ETAPA 2: Correção
@@ -1195,7 +1289,7 @@ ipcMain.handle('run-pipeline', async (event, config) => {
     return { 
       success: true, 
       finalTarget: currentTarget,
-      needsName: !(existingEntry && existingEntry.nome_final) && currentTarget.endsWith('_traduzido.txt'),
+      needsName: !(existingEntry && existingEntry.nome_final) && (currentTarget.endsWith('_traduzido.txt') || config.steps.translate),
       existingName: existingEntry ? existingEntry.nome_final : null,
       folderName,
       inputPath

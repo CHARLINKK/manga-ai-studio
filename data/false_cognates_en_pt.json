@@ -1,15 +1,13 @@
 {
-  "_description": "English → Brazilian Portuguese False Cognates & Common Mistranslation Database for Manga Translation",
-  "_version": "1.0",
-  "_total_entries": 330,
+  "_description": "Comprehensive English -> PT-BR False Cognates & Tricky Idioms for Manga Localization (v1.1.0)",
+  "_version": "1.1.0",
+  "_total_entries": 365,
   "_last_updated": "2026-06-26",
   "_notes": "This database covers false cognates, idiomatic expressions, and context-dependent words commonly encountered in manga, anime, light novel, and entertainment translation from English to Brazilian Portuguese.",
-
   "false_cognates": {
     "actually": {
       "wrong_pt": "atualmente",
-      "correct_pt": "na verdade / de fato",
-      "context": "'Atualmente' means 'currently/nowadays'. 'Actually' means 'na verdade'."
+      "correct_pt": "na verdade / de fato"
     },
     "agenda": {
       "wrong_pt": "agenda (caderneta)",
@@ -33,13 +31,11 @@
     },
     "appointment": {
       "wrong_pt": "apontamento",
-      "correct_pt": "consulta / compromisso / hora marcada",
-      "context": "'Apontamento' means 'note/annotation'. 'Appointment' is a scheduled meeting."
+      "correct_pt": "compromisso marcado / consulta"
     },
     "assist": {
-      "wrong_pt": "assistir",
-      "correct_pt": "ajudar / auxiliar",
-      "context": "'Assistir' means 'to watch/attend'. 'Assist' means 'ajudar'."
+      "wrong_pt": "assistir (ver)",
+      "correct_pt": "ajudar / dar assistência"
     },
     "assume": {
       "wrong_pt": "assumir",
@@ -48,8 +44,7 @@
     },
     "attend": {
       "wrong_pt": "atender",
-      "correct_pt": "comparecer / participar de / frequentar",
-      "context": "'Atender' means 'to answer (phone)/serve (customer)'. 'Attend' means 'to be present at'."
+      "correct_pt": "comparecer / frequentar"
     },
     "balcony": {
       "wrong_pt": "balcão",
@@ -57,9 +52,8 @@
       "context": "'Balcão' means 'counter/countertop'. 'Balcony' is a projecting platform on a building."
     },
     "beef": {
-      "wrong_pt": "bife",
-      "correct_pt": "carne bovina / carne de boi",
-      "context": "'Bife' means 'steak (a cut)'. 'Beef' is the general term for cattle meat."
+      "wrong_pt": "bife apenas",
+      "correct_pt": "treta / briga / rixa (ex: We got beef = Temos uma rixa)"
     },
     "brave": {
       "wrong_pt": "bravo",
@@ -78,8 +72,7 @@
     },
     "casualty": {
       "wrong_pt": "casualidade",
-      "correct_pt": "vítima / baixa (militar)",
-      "context": "'Casualidade' means 'chance/coincidence'. 'Casualty' means a person killed or injured."
+      "correct_pt": "baixa / ferido em combate"
     },
     "cigar": {
       "wrong_pt": "cigarro",
@@ -92,9 +85,8 @@
       "context": "'Colégio' means 'high school/secondary school'. 'College' is higher education."
     },
     "collar": {
-      "wrong_pt": "colar",
-      "correct_pt": "gola / coleira / colarinho",
-      "context": "'Colar' means 'necklace' or 'to glue'. 'Collar' is the part around the neck of a shirt or a pet collar."
+      "wrong_pt": "colar de joia",
+      "correct_pt": "gola / coleira"
     },
     "commodity": {
       "wrong_pt": "comodidade",
@@ -103,13 +95,11 @@
     },
     "comprehensive": {
       "wrong_pt": "compreensivo",
-      "correct_pt": "abrangente / completo / detalhado",
-      "context": "'Compreensivo' means 'understanding (empathetic)'. 'Comprehensive' means 'thorough/complete'."
+      "correct_pt": "abrangente / completo"
     },
     "compromise": {
-      "wrong_pt": "compromisso",
-      "correct_pt": "acordo / meio-termo / concessão mútua",
-      "context": "'Compromisso' means 'commitment/appointment'. 'Compromise' is reaching a middle ground."
+      "wrong_pt": "compromisso de agenda",
+      "correct_pt": "entendimento / acordo / ceder"
     },
     "contest": {
       "wrong_pt": "contestar",
@@ -117,9 +107,8 @@
       "context": "'Contestar' means 'to dispute/challenge'. 'Contest' (noun) is a competition."
     },
     "costume": {
-      "wrong_pt": "costume",
-      "correct_pt": "fantasia / traje",
-      "context": "'Costume' in Portuguese means 'habit/custom'. English 'costume' is clothing worn for a role."
+      "wrong_pt": "costume / hábito",
+      "correct_pt": "fantasia / traje de luta"
     },
     "data": {
       "wrong_pt": "data",
@@ -128,8 +117,7 @@
     },
     "deception": {
       "wrong_pt": "decepção",
-      "correct_pt": "engano / fraude / embuste",
-      "context": "'Decepção' means 'disappointment'. 'Deception' means deliberate trickery."
+      "correct_pt": "engano / fraude / farsa"
     },
     "defendant": {
       "wrong_pt": "defendente",
@@ -142,9 +130,8 @@
       "context": "'Diário' in Portuguese can also mean 'daily newspaper'. English 'diary' is a personal journal."
     },
     "disgrace": {
-      "wrong_pt": "desgraça",
-      "correct_pt": "vergonha / desonra",
-      "context": "'Desgraça' means 'misfortune/calamity'. 'Disgrace' means 'shame/dishonor'."
+      "wrong_pt": "desgraça fatal",
+      "correct_pt": "vergonha / desonra"
     },
     "educated": {
       "wrong_pt": "educado",
@@ -167,9 +154,8 @@
       "context": "'Enrolar' means 'to roll up / to stall / to deceive'. 'Enroll' means 'to register'."
     },
     "eventually": {
-      "wrong_pt": "eventualmente",
-      "correct_pt": "finalmente / por fim / no final das contas",
-      "context": "'Eventualmente' means 'occasionally/possibly'. 'Eventually' means 'in the end'."
+      "wrong_pt": "eventualmente (às vezes)",
+      "correct_pt": "no fim das contas / finalmente / com o tempo"
     },
     "excited": {
       "wrong_pt": "excitado",
@@ -178,8 +164,7 @@
     },
     "exit": {
       "wrong_pt": "êxito",
-      "correct_pt": "saída",
-      "context": "'Êxito' means 'success'. 'Exit' means 'way out'."
+      "correct_pt": "saída"
     },
     "expert": {
       "wrong_pt": "esperto",
@@ -193,8 +178,7 @@
     },
     "fabric": {
       "wrong_pt": "fábrica",
-      "correct_pt": "tecido / pano",
-      "context": "'Fábrica' means 'factory'. 'Fabric' is cloth/textile material."
+      "correct_pt": "tecido"
     },
     "figure": {
       "wrong_pt": "figura",
@@ -218,8 +202,7 @@
     },
     "hazard": {
       "wrong_pt": "azar",
-      "correct_pt": "perigo / risco",
-      "context": "'Azar' means 'bad luck'. 'Hazard' means 'danger/risk'."
+      "correct_pt": "perigo / risco"
     },
     "humor": {
       "wrong_pt": "humor (estado de ânimo)",
@@ -237,14 +220,12 @@
       "context": "The act of pretending to be someone else."
     },
     "injury": {
-      "wrong_pt": "injúria",
-      "correct_pt": "lesão / ferimento / machucado",
-      "context": "'Injúria' means 'insult/offense (legal term)'. 'Injury' is physical harm."
+      "wrong_pt": "injúria (ofensa verbal)",
+      "correct_pt": "ferimento / lesão"
     },
     "intend": {
       "wrong_pt": "entender",
-      "correct_pt": "pretender / ter a intenção de / tencionar",
-      "context": "'Entender' means 'to understand'. 'Intend' means 'to plan/purpose'."
+      "correct_pt": "pretender / ter intenção"
     },
     "intoxication": {
       "wrong_pt": "intoxicação (alimentar)",
@@ -262,14 +243,12 @@
       "context": "'Leitura' means 'reading'. 'Lecture' is a talk/presentation or a scolding."
     },
     "legend": {
-      "wrong_pt": "legenda",
-      "correct_pt": "lenda",
-      "context": "'Legenda' means 'subtitle/caption'. 'Legend' is a mythical story = 'lenda'. Though 'lenda' also exists in PT."
+      "wrong_pt": "legenda de filme",
+      "correct_pt": "lenda"
     },
     "library": {
       "wrong_pt": "livraria",
-      "correct_pt": "biblioteca",
-      "context": "'Livraria' means 'bookstore'. 'Library' is where you borrow books = 'biblioteca'."
+      "correct_pt": "biblioteca"
     },
     "local": {
       "wrong_pt": "local (lugar)",
@@ -308,13 +287,11 @@
     },
     "notice": {
       "wrong_pt": "notícia",
-      "correct_pt": "aviso / perceber (verb)",
-      "context": "'Notícia' means 'news'. 'Notice' is a warning/announcement or to become aware of."
+      "correct_pt": "perceber / notar"
     },
     "novel": {
-      "wrong_pt": "novela",
-      "correct_pt": "romance (literário)",
-      "context": "'Novela' means 'soap opera/telenovela'. A 'novel' is a long fictional book = 'romance'."
+      "wrong_pt": "novela de TV",
+      "correct_pt": "romance (livro) / inédito"
     },
     "obligation": {
       "wrong_pt": "obrigação (always correct but...)",
@@ -353,13 +330,11 @@
     },
     "policy": {
       "wrong_pt": "polícia",
-      "correct_pt": "política / norma / apólice (insurance)",
-      "context": "'Polícia' means 'police'. 'Policy' is a set of rules or an insurance document."
+      "correct_pt": "política / diretriz"
     },
     "prejudice": {
-      "wrong_pt": "prejuízo",
-      "correct_pt": "preconceito",
-      "context": "'Prejuízo' means 'financial loss/damage'. 'Prejudice' is bias against a group."
+      "wrong_pt": "prejuízo financeiro",
+      "correct_pt": "preconceito"
     },
     "preservative": {
       "wrong_pt": "preservativo",
@@ -368,8 +343,7 @@
     },
     "pretend": {
       "wrong_pt": "pretender",
-      "correct_pt": "fingir / fazer de conta",
-      "context": "'Pretender' means 'to intend/plan'. 'Pretend' means 'to fake/act as if'."
+      "correct_pt": "fingir"
     },
     "private": {
       "wrong_pt": "privado (banheiro)",
@@ -402,9 +376,8 @@
       "context": "In slang, 'rat' means 'traitor/snitch'. Very common in manga crime/yakuza context."
     },
     "realize": {
-      "wrong_pt": "realizar",
-      "correct_pt": "perceber / dar-se conta de",
-      "context": "'Realizar' means 'to accomplish/carry out'. 'Realize' means 'to become aware of'."
+      "wrong_pt": "realizar (fazer)",
+      "correct_pt": "perceber / se dar conta"
     },
     "recipe": {
       "wrong_pt": "receita (médica)",
@@ -427,9 +400,8 @@
       "context": "'Reportar' is narrower in Portuguese. 'Report' can mean to inform, to file a complaint, or a document."
     },
     "resume": {
-      "wrong_pt": "resumo",
-      "correct_pt": "currículo",
-      "context": "'Resumo' means 'summary'. 'Resume' (CV) is 'currículo'."
+      "wrong_pt": "resumir",
+      "correct_pt": "retomar / continuar"
     },
     "retire": {
       "wrong_pt": "retirar",
@@ -443,8 +415,7 @@
     },
     "sensible": {
       "wrong_pt": "sensível",
-      "correct_pt": "sensato / prudente / razoável",
-      "context": "'Sensível' means 'sensitive'. 'Sensible' means 'practical/reasonable'."
+      "correct_pt": "sensato / ajuizado"
     },
     "service": {
       "wrong_pt": "serviço (always correct but...)",
@@ -462,19 +433,16 @@
       "context": "'Estampa' means 'print/pattern on fabric'. 'Stamp' is a postage stamp or rubber stamp."
     },
     "support": {
-      "wrong_pt": "suportar",
-      "correct_pt": "apoiar / dar suporte a",
-      "context": "'Suportar' means 'to endure/bear/tolerate'. 'Support' means 'to help/back up'."
+      "wrong_pt": "suportar (aturar)",
+      "correct_pt": "apoiar / dar suporte"
     },
     "sympathy": {
-      "wrong_pt": "simpatia",
-      "correct_pt": "compaixão / solidariedade / pêsames",
-      "context": "'Simpatia' means 'friendliness/charm'. 'Sympathy' means 'compassion for suffering'."
+      "wrong_pt": "simpatia alegre",
+      "correct_pt": "compadecimento / solidariedade"
     },
     "tax": {
-      "wrong_pt": "taxa",
-      "correct_pt": "imposto",
-      "context": "'Taxa' means 'fee/rate'. 'Tax' is a government-imposed charge = 'imposto'."
+      "wrong_pt": "táxi",
+      "correct_pt": "imposto"
     },
     "turn": {
       "wrong_pt": "turno",
@@ -573,8 +541,7 @@
     },
     "estate": {
       "wrong_pt": "estado",
-      "correct_pt": "propriedade / patrimônio / herança",
-      "context": "'Estado' means 'state'. 'Estate' is property, especially in legal/inheritance contexts."
+      "correct_pt": "propriedade / patrimônio"
     },
     "expense": {
       "wrong_pt": "experiência",
@@ -633,8 +600,7 @@
     },
     "ingenious": {
       "wrong_pt": "ingênuo",
-      "correct_pt": "engenhoso / genial / criativo",
-      "context": "'Ingênuo' means 'naive/innocent'. 'Ingenious' means 'cleverly inventive'."
+      "correct_pt": "engenhoso / brilhante"
     },
     "introduce": {
       "wrong_pt": "introduzir",
@@ -733,8 +699,7 @@
     },
     "stranger": {
       "wrong_pt": "estrangeiro",
-      "correct_pt": "desconhecido / estranho",
-      "context": "'Estrangeiro' means 'foreigner'. 'Stranger' means 'someone unknown' = 'desconhecido'."
+      "correct_pt": "desconhecido / estranho"
     },
     "tenure": {
       "wrong_pt": "tenura",
@@ -760,9 +725,36 @@
       "wrong_pt": "ventura",
       "correct_pt": "empreendimento / aventura comercial / arriscar-se",
       "context": "'Ventura' means 'luck/fortune'. 'Venture' is a business undertaking or to dare."
+    },
+    "currently": {
+      "wrong_pt": "correntemente",
+      "correct_pt": "atualmente / no momento"
+    },
+    "factory": {
+      "wrong_pt": "fator",
+      "correct_pt": "fábrica"
+    },
+    "stand": {
+      "wrong_pt": "ficar de pé apenas",
+      "correct_pt": "aguentar / suportar (ex: I can't stand it = Não aguento isso)"
+    },
+    "balance": {
+      "wrong_pt": "balança",
+      "correct_pt": "equilíbrio"
+    },
+    "confident": {
+      "wrong_pt": "confidente",
+      "correct_pt": "confiante"
+    },
+    "Mayor": {
+      "wrong_pt": "maior",
+      "correct_pt": "prefeito"
+    },
+    "reclaim": {
+      "wrong_pt": "reclamar",
+      "correct_pt": "recuperar"
     }
   },
-
   "expression_corrections": {
     "box cutter": {
       "wrong_pt": "cortador de caixa / faca de caixa",
@@ -830,24 +822,20 @@
       "context": "Illicit/secret dealings, especially bribery."
     },
     "piece of cake": {
-      "wrong_pt": "pedaço de bolo / fatia de bolo",
-      "correct_pt": "moleza / mamão com açúcar / fichinha / barbada",
-      "context": "Something very easy to do."
+      "wrong_pt": "pedaço de bolo",
+      "correct_pt": "moleza / muito fácil"
     },
     "break a leg": {
-      "wrong_pt": "quebre uma perna / quebre a perna",
-      "correct_pt": "boa sorte / merda (theater tradition) / arrebenta!",
-      "context": "Wishing good luck, especially before a performance."
+      "wrong_pt": "quebre uma perna",
+      "correct_pt": "boa sorte / arrebenta"
     },
     "hit the sack": {
-      "wrong_pt": "bata no saco / acerte o saco",
-      "correct_pt": "ir dormir / cair na cama / ir pra cama / ir deitar",
-      "context": "To go to sleep. NEVER translate literally — 'bata no saco' is vulgar in Portuguese."
+      "wrong_pt": "bater no saco",
+      "correct_pt": "ir dormir / capotar"
     },
     "spill the beans": {
-      "wrong_pt": "derrame os feijões / entorne os feijões",
-      "correct_pt": "abrir o bico / entregar o ouro / contar tudo / dar com a língua nos dentes",
-      "context": "To reveal a secret."
+      "wrong_pt": "derramar os feijões",
+      "correct_pt": "abrir o bico / contar o segredo"
     },
     "cost an arm and a leg": {
       "wrong_pt": "custar um braço e uma perna",
@@ -990,9 +978,8 @@
       "context": "To agree with someone."
     },
     "cut to the chase": {
-      "wrong_pt": "corte para a perseguição",
-      "correct_pt": "ir direto ao ponto / sem rodeios / desembucha",
-      "context": "Get to the point. Very common in action manga dialogue."
+      "wrong_pt": "cortar para a caça",
+      "correct_pt": "ir direto ao ponto / sem enrolação"
     },
     "to call it a day": {
       "wrong_pt": "chamar isso de um dia",
@@ -1348,9 +1335,64 @@
       "wrong_pt": "levantar sobrancelhas",
       "correct_pt": "causar estranhamento / dar o que falar / chamar atenção",
       "context": "To cause surprise or suspicion."
+    },
+    "call it a day": {
+      "wrong_pt": "chamar de dia",
+      "correct_pt": "encerrar por hoje / parar por aqui"
+    },
+    "under the weather": {
+      "wrong_pt": "sob o clima",
+      "correct_pt": "passando mal / indisposto"
+    },
+    "bite the bullet": {
+      "wrong_pt": "morder a bala",
+      "correct_pt": "engolir o choro / encarar de frente"
+    },
+    "barking up the wrong tree": {
+      "wrong_pt": "latindo na árvore errada",
+      "correct_pt": "procurando no lugar errado / acusando a pessoa errada"
+    },
+    "on thin ice": {
+      "wrong_pt": "no gelo fino",
+      "correct_pt": "pisando em ovos / arriscando a pele"
+    },
+    "play with fire": {
+      "wrong_pt": "brincar com fogo",
+      "correct_pt": "brincar com o perigo"
+    },
+    "keep your eyes peeled": {
+      "wrong_pt": "mantenha os olhos descascados",
+      "correct_pt": "fique bem atento / olhos bem abertos"
+    },
+    "off the hook": {
+      "wrong_pt": "fora do gancho",
+      "correct_pt": "livre da culpa / safou-se"
+    },
+    "out of the blue": {
+      "wrong_pt": "fora do azul",
+      "correct_pt": "do nada / de repente"
+    },
+    "pull someone's leg": {
+      "wrong_pt": "puxar a perna",
+      "correct_pt": "zoar / brincar com alguém"
+    },
+    "ring a bell": {
+      "wrong_pt": "tocar um sino",
+      "correct_pt": "soar familiar / lembrar algo"
+    },
+    "rule of thumb": {
+      "wrong_pt": "regra do polegar",
+      "correct_pt": "regra geral / regra prática"
+    },
+    "take it for granted": {
+      "wrong_pt": "tomar como garantido",
+      "correct_pt": "dar como certo / não valorizar"
+    },
+    "up in the air": {
+      "wrong_pt": "acima no ar",
+      "correct_pt": "indefinido / incerto"
     }
   },
-
   "manga_specific": {
     "master (martial arts)": {
       "wrong_pt": "mestre (always)",
@@ -1661,6 +1703,62 @@
       "wrong_pt": "ficar de pé / suporte",
       "correct_pt": "stand (JoJo term - always kept)",
       "context": "JoJo's Bizarre Adventure power system. Never translated."
+    },
+    "aura": {
+      "wrong_pt": "aura esotérica apenas",
+      "correct_pt": "pressão espiritual / aura de combate"
+    },
+    "killing intent": {
+      "wrong_pt": "intenção matadora",
+      "correct_pt": "intenção assassina / sede de sangue"
+    },
+    "bloodlust": {
+      "wrong_pt": "luxúria de sangue",
+      "correct_pt": "sede de sangue / instinto assassino"
+    },
+    "finishing move": {
+      "wrong_pt": "movimento finalizador",
+      "correct_pt": "golpe de misericórdia / golpe final"
+    },
+    "trump card": {
+      "wrong_pt": "cartão do Trump",
+      "correct_pt": "carta na manga / trunfo"
+    },
+    "underdog": {
+      "wrong_pt": "cachorro de baixo",
+      "correct_pt": "azarão"
+    },
+    "dark horse": {
+      "wrong_pt": "cavalo escuro",
+      "correct_pt": "candidato surpresa / azarão"
+    },
+    "point-blank": {
+      "wrong_pt": "ponto em branco",
+      "correct_pt": "à queima-roupa"
+    },
+    "second wind": {
+      "wrong_pt": "segundo vento",
+      "correct_pt": "fôlego renovado / segundo fôlego"
+    },
+    "power level": {
+      "wrong_pt": "nível de força literal",
+      "correct_pt": "nível de poder"
+    },
+    "technique": {
+      "wrong_pt": "técnica acadêmica",
+      "correct_pt": "técnica de luta / golpe"
+    },
+    "stance": {
+      "wrong_pt": "estância",
+      "correct_pt": "postura de combate / base"
+    },
+    "counterattack": {
+      "wrong_pt": "contra-ataque simples",
+      "correct_pt": "contra-ataque / contra-golpe"
+    },
+    "blind spot": {
+      "wrong_pt": "ponto cego literal",
+      "correct_pt": "ponto cego"
     }
   }
 }
