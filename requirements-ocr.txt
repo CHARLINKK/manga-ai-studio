@@ -6,3 +6,4 @@ Pillow
 einops
 timm
 opencv-python>=4.8
+accelerate

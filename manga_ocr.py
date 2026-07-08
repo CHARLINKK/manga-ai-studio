@@ -1302,7 +1302,8 @@ def main():
             model_id, 
             torch_dtype=torch_dtype, 
             trust_remote_code=True,
-            device_map=device
+            device_map=device,
+            attn_implementation="sdpa"
         )
     except Exception as e:
         print(f"❌ Erro ao inicializar Florence-2: {e}")
