@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu } = requir
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { spawn } = require('child_process');
+
 
 const { autoUpdater } = require('electron-updater');
 
@@ -389,7 +389,7 @@ ipcMain.handle('get-settings', () => {
         if (code === 0) {
           event.sender.send('venv-progress', { envName: envName, progress: 100, text: 'Instalação concluída com sucesso!' });
         } else {
-          event.sender.send('venv-progress', { envName: envName, progress: 100, text: 'Erro na instalaÃ§Ã£o. Verifique o console.' });
+          event.sender.send('venv-progress', { envName: envName, progress: 100, text: 'Erro na instalação. Verifique o console.' });
         }
       });
       
@@ -680,17 +680,33 @@ app.on('window-all-closed', function () {
 let activePipelineProcess = null;
 let pipelinePaused = false;
 let pipelineResumeCallback = null;
+let isPipelineCanceled = false;
 
 const sendLog = (event, msg, progress = null, isError = false) => {
   event.sender.send('pipeline-log', { text: msg, progress, isError });
 };
 
 ipcMain.handle('cancel-pipeline', (event) => {
+  isPipelineCanceled = true;
+  const { exec } = require('child_process');
   if (activePipelineProcess) {
-    const { exec } = require('child_process');
-    exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F');
+    try {
+      exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F');
+    } catch (e) {}
     activePipelineProcess = null;
   }
+  if (pipelinePaused && pipelineResumeCallback) {
+    pipelinePaused = false;
+    pipelineResumeCallback();
+    pipelineResumeCallback = null;
+  }
+  // Libera VRAM do Ollama se estiver rodando tradução
+  try {
+    const http = require('http');
+    const req = http.request('http://localhost:11434/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    req.write(JSON.stringify({ model: '', keep_alive: 0 }));
+    req.end();
+  } catch (e) {}
   if (event && event.sender) {
     event.sender.send('pipeline-canceled');
   }
@@ -898,9 +914,13 @@ ipcMain.handle('finalize-pipeline', async (event, data) => {
     // Copy to original folder if possible
     let destScanlator = null;
     if (inputPath) {
-      const scanlatorDir = fs.statSync(inputPath).isDirectory() ? inputPath : path.dirname(inputPath);
-      destScanlator = path.join(scanlatorDir, path.basename(destBiblioteca));
-      fs.copyFileSync(finalTarget, destScanlator);
+      try {
+        const scanlatorDir = fs.statSync(inputPath).isDirectory() ? inputPath : path.dirname(inputPath);
+        destScanlator = path.join(scanlatorDir, path.basename(destBiblioteca));
+        fs.copyFileSync(finalTarget, destScanlator);
+      } catch (copyErr) {
+        console.warn('Aviso: Não foi possível copiar para o diretório de origem:', copyErr.message);
+      }
     }
 
     // Update status.json
@@ -925,6 +945,7 @@ ipcMain.handle('finalize-pipeline', async (event, data) => {
 });
 
 ipcMain.handle('run-pipeline', async (event, config) => {
+  isPipelineCanceled = false;
   const { spawn } = require('child_process');
   const projectRoot = getProjectRoot();
   const pythonExeOcr = path.join(projectRoot, 'venv_ocr', 'Scripts', 'python.exe');
@@ -966,6 +987,9 @@ ipcMain.handle('run-pipeline', async (event, config) => {
   
   const runScript = (exe, scriptName, args) => {
     return new Promise((resolve, reject) => {
+      if (isPipelineCanceled) {
+        return reject(new Error('Cancelado pelo usuário.'));
+      }
       activePipelineProcess = spawn(exe, [scriptName, ...args], { 
         cwd: projectRoot, 
         windowsHide: true,
@@ -1163,6 +1187,10 @@ ipcMain.handle('run-pipeline', async (event, config) => {
     };
 
   } catch (err) {
+    if (isPipelineCanceled) {
+      sendLog(event, '\n[CANCELADO] Processamento interrompido pelo usuário.', null, false);
+      return { success: false, canceled: true };
+    }
     sendLog(event, '\n[ERRO] ERRO: ' + err.message, null, true);
     if (getSettingsSync().systemNotifications !== false) {
       new Notification({

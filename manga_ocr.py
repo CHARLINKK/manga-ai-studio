@@ -805,7 +805,7 @@ def process_image(
         image = Image.open(image_path).convert("RGB")
     except Exception as e:
         print(f"  ⚠️  Não foi possível carregar: {image_path.name}")
-        return []
+        return [], ""
 
     # Prompt para Florence-2
     task_prompt = "<OCR_WITH_REGION>"
@@ -1302,8 +1302,7 @@ def main():
             model_id, 
             torch_dtype=torch_dtype, 
             trust_remote_code=True,
-            device_map=device,
-            attn_implementation="sdpa"
+            device_map=device
         )
     except Exception as e:
         print(f"❌ Erro ao inicializar Florence-2: {e}")

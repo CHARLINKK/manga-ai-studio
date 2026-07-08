@@ -27,8 +27,7 @@ def sync_memory_from_txts(workspace_path: Path, txt_files_paths: list):
             with open(txt_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            lines = content.split('
-')
+            lines = content.split('\n')
             
             current_en = None
             for line in lines:
