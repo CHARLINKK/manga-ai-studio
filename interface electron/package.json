@@ -1,7 +1,7 @@
 {
   "name": "manga-ai-studio",
   "private": true,
-  "version": "2.1.7",
+  "version": "2.2.0",
   "type": "module",
   "main": "main.cjs",
   "scripts": {
@@ -20,7 +20,6 @@
       "output": "dist-electron"
     },
     "extraResources": [
-
       {
         "from": "../",
         "to": "backend",
