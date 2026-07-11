@@ -1,17 +1,30 @@
 name: Build and Release
 
 on:
-  workflow_dispatch: # Permite rodar o botão manualmente no site!
   push:
-    tags:
-      - 'v*' # Aciona quando você criar uma tag que comece com 'v', como v2.0.0
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+
   build-and-release:
     runs-on: windows-latest
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     permissions:
       contents: write
-
     steps:
       - name: 📦 Checando o repositório
         uses: actions/checkout@v4
@@ -20,8 +33,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-
 
       - name: 📥 Instalando Dependências do Vite e Electron
         working-directory: './interface electron'

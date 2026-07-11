@@ -1037,9 +1037,29 @@ ipcMain.handle('run-pipeline', async (event, config) => {
   fs.writeFileSync(globalDictPath, config.dictGlobal || '', 'utf8');
   fs.writeFileSync(localDictPath, config.dictLocal || '', 'utf8');
 
-  // Determinar base name e destino
-  const inputPath = config.inputPath;
-  const pInput = path.parse(inputPath);
+    // Determinar base name e destino
+    const inputPath = config.inputPath;
+    if (!inputPath || !fs.existsSync(inputPath)) {
+      return { success: false, error: 'O caminho selecionado não existe mais no disco. Verifique se a pasta foi apagada ou movida.' };
+    }
+    
+    // Validar Ollama se necessário
+    if (config.steps && (config.steps.vlmDirector || config.steps.translation)) {
+      const isOllamaRunning = await new Promise((resolve) => {
+        const http = require('http');
+        const req = http.request('http://localhost:11434/api/tags', { method: 'GET', timeout: 2000 }, (res) => {
+          resolve(res.statusCode === 200);
+        });
+        req.on('error', () => resolve(false));
+        req.on('timeout', () => { req.destroy(); resolve(false); });
+        req.end();
+      });
+      if (!isOllamaRunning) {
+        return { success: false, error: 'O serviço Ollama não está rodando no seu computador. Abra o aplicativo Ollama no seu PC e tente novamente.' };
+      }
+    }
+
+    const pInput = path.parse(inputPath);
   let baseName = pInput.name;
   if (!fs.statSync(inputPath).isDirectory() && pInput.ext.toLowerCase() !== '.txt') {
     baseName = path.basename(path.dirname(inputPath));
@@ -1075,6 +1095,14 @@ ipcMain.handle('run-pipeline', async (event, config) => {
       }
       const actualRoot = fs.existsSync(path.join(projectRoot, scriptName)) ? projectRoot : instBackend;
       const scriptFullPath = path.join(actualRoot, scriptName);
+
+      if (!fs.existsSync(targetExe)) {
+        return reject(new Error(`MÓDULO NÃO ENCONTRADO! O ambiente virtual não está instalado.\nExecutável ausente: ${targetExe}\n\nCOMO RESOLVER: Vá até a aba "Central de Módulos" na tela inicial e instale as dependências para esta inteligência.`));
+      }
+
+      if (!fs.existsSync(scriptFullPath)) {
+        return reject(new Error(`SCRIPT PYTHON NÃO ENCONTRADO!\nArquivo ausente: ${scriptFullPath}\n\nCOMO RESOLVER: A instalação do Manga AI Studio pode estar corrompida. Tente reinstalar a versão mais recente.`));
+      }
 
       activePipelineProcess = spawn(targetExe, [scriptFullPath, ...args], { 
         cwd: actualRoot, 
@@ -1238,7 +1266,7 @@ ipcMain.handle('run-pipeline', async (event, config) => {
     try {
       let currentSt = {};
       if (fs.existsSync(statusPath)) {
-        currentSt = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+        try { currentSt = JSON.parse(fs.readFileSync(statusPath, 'utf8')); } catch(e) { currentSt = {}; }
       }
       if (!currentSt[folderName]) currentSt[folderName] = {};
       
