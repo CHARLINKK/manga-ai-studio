@@ -1,8 +1,0 @@
-{
-  "packages": {
-    "interface electron": {
-      "release-type": "node",
-      "package-name": "manga-ai-studio"
-    }
-  }
-}
