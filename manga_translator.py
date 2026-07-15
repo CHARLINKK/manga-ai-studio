@@ -419,85 +419,98 @@ def translate_texts(
         },
     }
 
-    try:
-        resp = requests.post(
-            f"{OLLAMA_API_URL}/api/generate",
-            json=payload,
-            timeout=300, # Aumentado para suportar páginas inteiras
-        )
-        resp.raise_for_status()
-        result = resp.json()
-        raw_output = result.get("response", "").strip()
-        
-        # Parseia as linhas numeradas da resposta
-        translated = list(texts)  # Inicializa com os originais como fallback
-        import re
-        parsed_count = 0
-
-        # --- Estratégia 1: Formato padrão numerado ---
-        # Suporta [1] texto, 1. texto, 1) texto, 1: texto, [1] - texto
-        for match in re.finditer(r'(?:\[(\d+)\]|(\d+)[\.\:\)\-])[\s\:\-\)]*(.*?)(?=\n(?:\[\d+\]|\d+[\.\:\)\-])|$)', raw_output, re.DOTALL):
-            idx_str = match.group(1) or match.group(2)
-            if not idx_str: continue
-            idx = int(idx_str) - 1
-            translation = match.group(3).strip()
-            translation = re.sub(r'^[\:\-\)\.\s]+', '', translation).strip()
-            if 0 <= idx < len(translated):
-                translated[idx] = post_filter_translation(texts[idx], translation)
-                parsed_count += 1
-
-        # --- Estratégia 2: Formato "Balão [N]" com "Correto:" (llama3.1 não-padrão) ---
-        # Ex: **Balão [1]**\nOriginal: ...\nCorreto: tradução\n\n**Balão [2]**\n...
-        if parsed_count < len(translated):
-            balloon_blocks = re.findall(
-                r'(?:Bal[aã]o\s*\[?(\d+)\]?|\*{0,2}Bal[aã]o\s*\[?(\d+)\]?\*{0,2})'
-                r'.*?(?:Correto|Correct|Tradu[çc][ãa]o)\s*:\s*(.+?)(?=\n\n|\n\*{0,2}Bal|\Z)',
-                raw_output, re.DOTALL | re.IGNORECASE
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(
+                f"{OLLAMA_API_URL}/api/generate",
+                json=payload,
+                timeout=300, # Aumentado para suportar páginas inteiras
             )
-            for grp in balloon_blocks:
-                idx_str = grp[0] or grp[1]
+            resp.raise_for_status()
+            result = resp.json()
+            raw_output = result.get("response", "").strip()
+            
+            # Parseia as linhas numeradas da resposta
+            translated = list(texts)  # Inicializa com os originais como fallback
+            import re
+            parsed_count = 0
+    
+            # --- Estratégia 1: Formato padrão numerado ---
+            # Suporta [1] texto, 1. texto, 1) texto, 1: texto, [1] - texto
+            for match in re.finditer(r'(?:\[(\d+)\]|(\d+)[\.\:\)\-])[\s\:\-\)]*(.*?)(?=\n(?:\[\d+\]|\d+[\.\:\)\-])|$)', raw_output, re.DOTALL):
+                idx_str = match.group(1) or match.group(2)
                 if not idx_str: continue
                 idx = int(idx_str) - 1
-                translation = grp[2].strip().splitlines()[0].strip()  # só 1ª linha do Correto
-                if 0 <= idx < len(translated) and translated[idx] == texts[idx]:
+                translation = match.group(3).strip()
+                translation = re.sub(r'^[\:\-\)\.\s]+', '', translation).strip()
+                if 0 <= idx < len(translated):
                     translated[idx] = post_filter_translation(texts[idx], translation)
                     parsed_count += 1
-
-        # --- Estratégia 3: "Correto: [N] texto" ou "Correto: texto" sequencial (gap-filler) ---
-        if parsed_count < len(translated):
-            correto_matches = re.findall(r'(?:Correto|Correct)\s*:\s*(?:\[(\d+)\]\s*)?(.+?)(?=\n|$)', raw_output, re.IGNORECASE)
-            if correto_matches:
-                seq_idx = 0
-                for m in correto_matches:
-                    if m[0]:
-                        idx = int(m[0]) - 1
-                    else:
-                        idx = seq_idx
-                    translation = m[1].strip()
+    
+            # --- Estratégia 2: Formato "Balão [N]" com "Correto:" (llama3.1 não-padrão) ---
+            # Ex: **Balão [1]**\nOriginal: ...\nCorreto: tradução\n\n**Balão [2]**\n...
+            if parsed_count < len(translated):
+                balloon_blocks = re.findall(
+                    r'(?:Bal[aã]o\s*\[?(\d+)\]?|\*{0,2}Bal[aã]o\s*\[?(\d+)\]?\*{0,2})'
+                    r'.*?(?:Correto|Correct|Tradu[çc][ãa]o)\s*:\s*(.+?)(?=\n\n|\n\*{0,2}Bal|\Z)',
+                    raw_output, re.DOTALL | re.IGNORECASE
+                )
+                for grp in balloon_blocks:
+                    idx_str = grp[0] or grp[1]
+                    if not idx_str: continue
+                    idx = int(idx_str) - 1
+                    translation = grp[2].strip().splitlines()[0].strip()  # só 1ª linha do Correto
                     if 0 <= idx < len(translated) and translated[idx] == texts[idx]:
                         translated[idx] = post_filter_translation(texts[idx], translation)
                         parsed_count += 1
-                    seq_idx += 1
-
-        # --- Estratégia 4: Fallback linha por linha (N linhas = N balões) ---
-        if parsed_count == 0:
-            lines = [l.strip() for l in raw_output.splitlines() if l.strip()
-                     and not re.match(r'^\*+$', l.strip())
-                     and not l.strip().lower().startswith(('observ', 'nota', 'tradu'))
-                     ]
-            if len(lines) == len(texts):
-                for idx, line in enumerate(lines):
-                    clean_line = re.sub(r'^(?:\[?\d+\]?[\.\:\-\)\s]*)', '', line).strip()
-                    translated[idx] = post_filter_translation(texts[idx], clean_line)
-                
-        return translated
-    except requests.ConnectionError:
-        print("  ❌ Erro: Ollama nao esta rodando. Inicie com 'ollama serve'.")
-        sys.exit(1)
-    except requests.Timeout:
-        return ["[ERRO: Timeout na traducao]"] * len(texts)
-    except Exception as e:
-        return [f"[ERRO: {e}]"] * len(texts)
+    
+            # --- Estratégia 3: "Correto: [N] texto" ou "Correto: texto" sequencial (gap-filler) ---
+            if parsed_count < len(translated):
+                correto_matches = re.findall(r'(?:Correto|Correct)\s*:\s*(?:\[(\d+)\]\s*)?(.+?)(?=\n|$)', raw_output, re.IGNORECASE)
+                if correto_matches:
+                    seq_idx = 0
+                    for m in correto_matches:
+                        if m[0]:
+                            idx = int(m[0]) - 1
+                        else:
+                            idx = seq_idx
+                        translation = m[1].strip()
+                        if 0 <= idx < len(translated) and translated[idx] == texts[idx]:
+                            translated[idx] = post_filter_translation(texts[idx], translation)
+                            parsed_count += 1
+                        seq_idx += 1
+    
+            # --- Estratégia 4: Fallback linha por linha (N linhas = N balões) ---
+            if parsed_count == 0:
+                lines = [l.strip() for l in raw_output.splitlines() if l.strip()
+                         and not re.match(r'^\*+$', l.strip())
+                         and not l.strip().lower().startswith(('observ', 'nota', 'tradu'))
+                         ]
+                if len(lines) == len(texts):
+                    for idx, line in enumerate(lines):
+                        clean_line = re.sub(r'^(?:\[?\d+\]?[\.\:\-\)\s]*)', '', line).strip()
+                        translated[idx] = post_filter_translation(texts[idx], clean_line)
+                    
+            return translated
+        except requests.ConnectionError:
+            print("  ❌ Erro: Ollama nao esta rodando. Inicie com 'ollama serve'.")
+            import sys
+            sys.exit(1)
+        except requests.Timeout:
+            if attempt < max_retries - 1:
+                print(f"  [!] Timeout no Ollama (Tentativa {attempt + 1}/{max_retries}). Retentando...")
+                import time
+                time.sleep(2)
+                continue
+            return ["[ERRO: Timeout na traducao]"] * len(texts)
+        except Exception as e:
+            if attempt < max_retries - 1:
+                print(f"  [!] Erro no Ollama (Tentativa {attempt + 1}/{max_retries}): {e}")
+                import time
+                time.sleep(2)
+                continue
+            return [f"[ERRO: {e}]"] * len(texts)
 
 
 def parse_ocr_file(file_path: Path) -> list[dict]:

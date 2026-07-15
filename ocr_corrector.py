@@ -136,82 +136,97 @@ Normalized:
 {numbered_input}
 """
 
-    try:
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "stream": False,
-                "options": {
-                    "temperature": 0.1,
-                    "top_k": 10,
-                    "num_ctx": 4096
-                }
-            },
-            timeout=300
-        )
-        response.raise_for_status()
-        raw = response.json().get("response", "").strip()
-
-        result = list(texts)
-        parsed_count = 0
-
-        # --- Estratégia 1: Formato padrão numerado ---
-        for match in re.finditer(r'(?:\[(\d+)\]|(\d+)[\.\:\)\-])[\s\:\-\)]*(.*?)(?=\n(?:\[\d+\]|\d+[\.\:\)\-])|$)', raw, re.DOTALL):
-            idx_str = match.group(1) or match.group(2)
-            if not idx_str: continue
-            idx = int(idx_str) - 1
-            corrected = match.group(3).strip()
-            corrected = re.sub(r'^[\:\-\)\.\s]+', '', corrected).strip()
-            if 0 <= idx < len(result):
-                result[idx] = corrected
-                parsed_count += 1
-
-        # --- Estratégia 2: Formato "Balão [N]" com "Correto:" ---
-        if parsed_count < len(result):
-            balloon_blocks = re.findall(
-                r'(?:Bal[aã]o\s*\[?(\d+)\]?|\*{0,2}Bal[aã]o\s*\[?(\d+)\]?\*{0,2})'
-                r'.*?(?:Correto|Correct|Tradu[çc][ãa]o)\s*:\s*(.+?)(?=\n\n|\n\*{0,2}Bal|\Z)',
-                raw, re.DOTALL | re.IGNORECASE
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.1,
+                        "top_k": 10,
+                        "num_ctx": 4096
+                    }
+                },
+                timeout=300
             )
-            for grp in balloon_blocks:
-                idx_str = grp[0] or grp[1]
+            response.raise_for_status()
+            raw = response.json().get("response", "").strip()
+    
+            result = list(texts)
+            parsed_count = 0
+    
+            # --- Estratégia 1: Formato padrão numerado ---
+            for match in re.finditer(r'(?:\[(\d+)\]|(\d+)[\.\:\)\-])[\s\:\-\)]*(.*?)(?=\n(?:\[\d+\]|\d+[\.\:\)\-])|$)', raw, re.DOTALL):
+                idx_str = match.group(1) or match.group(2)
                 if not idx_str: continue
                 idx = int(idx_str) - 1
-                corrected = grp[2].strip().splitlines()[0].strip()
-                if 0 <= idx < len(result) and result[idx] == texts[idx]:
+                corrected = match.group(3).strip()
+                corrected = re.sub(r'^[\:\-\)\.\s]+', '', corrected).strip()
+                if 0 <= idx < len(result):
                     result[idx] = corrected
                     parsed_count += 1
-
-        # --- Estratégia 3: "Correto: [N] texto" ou "Correto: texto" sequencial ---
-        if parsed_count < len(result):
-            correto_matches = re.findall(r'(?:Correto|Correct)\s*:\s*(?:\[(\d+)\]\s*)?(.+?)(?=\n|$)', raw, re.IGNORECASE)
-            if correto_matches:
-                seq_idx = 0
-                for m in correto_matches:
-                    idx = int(m[0]) - 1 if m[0] else seq_idx
-                    corrected = m[1].strip()
+    
+            # --- Estratégia 2: Formato "Balão [N]" com "Correto:" ---
+            if parsed_count < len(result):
+                balloon_blocks = re.findall(
+                    r'(?:Bal[aã]o\s*\[?(\d+)\]?|\*{0,2}Bal[aã]o\s*\[?(\d+)\]?\*{0,2})'
+                    r'.*?(?:Correto|Correct|Tradu[çc][ãa]o)\s*:\s*(.+?)(?=\n\n|\n\*{0,2}Bal|\Z)',
+                    raw, re.DOTALL | re.IGNORECASE
+                )
+                for grp in balloon_blocks:
+                    idx_str = grp[0] or grp[1]
+                    if not idx_str: continue
+                    idx = int(idx_str) - 1
+                    corrected = grp[2].strip().splitlines()[0].strip()
                     if 0 <= idx < len(result) and result[idx] == texts[idx]:
                         result[idx] = corrected
                         parsed_count += 1
-                    seq_idx += 1
-
-        # --- Estratégia 4: Fallback linha por linha ---
-        if parsed_count == 0:
-            lines = [l.strip() for l in raw.splitlines() if l.strip()
-                     and not re.match(r'^\*+$', l.strip())
-                     and not l.strip().lower().startswith(('observ', 'nota', 'tradu'))
-                     ]
-            if len(lines) == len(texts):
-                for idx, line in enumerate(lines):
-                    clean_line = re.sub(r'^(?:\[?\d+\]?[\.\:\-\)\s]*)', '', line).strip()
-                    result[idx] = clean_line
-
-        return result
-    except Exception as e:
-        print(f"Erro na API Ollama: {e}")
-        return texts
+    
+            # --- Estratégia 3: "Correto: [N] texto" ou "Correto: texto" sequencial ---
+            if parsed_count < len(result):
+                correto_matches = re.findall(r'(?:Correto|Correct)\s*:\s*(?:\[(\d+)\]\s*)?(.+?)(?=\n|$)', raw, re.IGNORECASE)
+                if correto_matches:
+                    seq_idx = 0
+                    for m in correto_matches:
+                        idx = int(m[0]) - 1 if m[0] else seq_idx
+                        corrected = m[1].strip()
+                        if 0 <= idx < len(result) and result[idx] == texts[idx]:
+                            result[idx] = corrected
+                            parsed_count += 1
+                        seq_idx += 1
+    
+            # --- Estratégia 4: Fallback linha por linha ---
+            if parsed_count == 0:
+                lines = [l.strip() for l in raw.splitlines() if l.strip()
+                         and not re.match(r'^\*+$', l.strip())
+                         and not l.strip().lower().startswith(('observ', 'nota', 'tradu'))
+                         ]
+                if len(lines) == len(texts):
+                    for idx, line in enumerate(lines):
+                        clean_line = re.sub(r'^(?:\[?\d+\]?[\.\:\-\)\s]*)', '', line).strip()
+                        result[idx] = clean_line
+    
+            return result
+        except requests.exceptions.Timeout:
+            if attempt < max_retries - 1:
+                print(f"  [!] Timeout na API Ollama (Tentativa {attempt + 1}/{max_retries}). Retentando...")
+                import time
+                time.sleep(2)
+                continue
+            print(f"Erro na API Ollama: Timeout após {max_retries} tentativas")
+            return texts
+        except Exception as e:
+            if attempt < max_retries - 1:
+                print(f"  [!] Erro na API Ollama (Tentativa {attempt + 1}/{max_retries}): {e}")
+                import time
+                time.sleep(2)
+                continue
+            print(f"Erro na API Ollama: {e}")
+            return texts
 
 def main():
     parser = argparse.ArgumentParser(description="Corrige o texto OCR em inglês usando o modelo LLM")

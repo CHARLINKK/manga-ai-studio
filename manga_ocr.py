@@ -29,6 +29,7 @@ os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "huggingface")
 
 import cv2
 import numpy as np
@@ -1020,6 +1021,10 @@ def process_image(
     
     import torch
     if torch.cuda.is_available():
+        try:
+            del inputs, generated_ids, generated_text, results
+        except NameError:
+            pass
         torch.cuda.empty_cache()
 
     return texts, page_caption
@@ -1359,7 +1364,12 @@ def main():
         print()
         print(f"🎬 Iniciando Diretor Visual ({args.vlm_model})...")
         for page in pages:
-            img = Image.open(collect_images(args.input)[pages.index(page)]).convert("RGB")
+            try:
+                img = Image.open(collect_images(args.input)[pages.index(page)]).convert("RGB")
+            except Exception as e:
+                print(f"  [SKIP] Imagem ignorada no Diretor Visual (erro de carregamento): {e}")
+                continue
+                
             page["texts"] = apply_vlm_reading_director(
                 image=img,
                 ordered_texts=page["texts"],

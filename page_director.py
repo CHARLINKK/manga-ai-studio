@@ -110,13 +110,28 @@ def generate_context(texts_raw: list[str], texts_corr: list[str], model: str) ->
         },
     }
     
-    try:
-        resp = requests.post(f"{OLLAMA_API_URL}/api/generate", json=payload, timeout=120)
-        resp.raise_for_status()
-        return resp.json().get("response", "").strip()
-    except Exception as e:
-        print(f"    ⚠️ Falha ao gerar contexto: {e}")
-        return ""
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(f"{OLLAMA_API_URL}/api/generate", json=payload, timeout=120)
+            resp.raise_for_status()
+            return resp.json().get("response", "").strip()
+        except requests.exceptions.Timeout:
+            if attempt < max_retries - 1:
+                print(f"    [!] Timeout no Diretor (Tentativa {attempt + 1}/{max_retries}). Retentando...")
+                import time
+                time.sleep(2)
+                continue
+            print(f"    ⚠️ Falha ao gerar contexto: Timeout após {max_retries} tentativas")
+            return ""
+        except Exception as e:
+            if attempt < max_retries - 1:
+                print(f"    [!] Erro no Diretor (Tentativa {attempt + 1}/{max_retries}): {e}")
+                import time
+                time.sleep(2)
+                continue
+            print(f"    ⚠️ Falha ao gerar contexto: {e}")
+            return ""
 
 def main():
     parser = create_parser()

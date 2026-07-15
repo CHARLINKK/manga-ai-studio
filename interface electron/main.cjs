@@ -111,21 +111,31 @@ function createWindow() {
 ipcMain.handle('install-update', () => {
   app.isQuiting = true;
   
-  // Esconde a janela imediatamente para tirar a sensação de "travamento"
+  // 1. Destrói a janela imediatamente (força bruta, não passa por eventos de fechamento)
   if (mainWindow) {
-    mainWindow.hide();
+    mainWindow.destroy();
   }
 
+  // 2. Destrói o ícone da bandeja do sistema (evita que o processo fique preso em background)
+  if (tray && !tray.isDestroyed()) {
+    tray.destroy();
+  }
+
+  // 3. Mata processos filhos de forma SÍNCRONA (espera morrer antes de continuar)
+  const { execSync } = require('child_process');
   if (activePipelineProcess) {
-    const { exec } = require('child_process');
-    try { exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F'); } catch(e) {}
+    try { execSync('taskkill /pid ' + activePipelineProcess.pid + ' /T /F', { windowsHide: true }); } catch(e) {}
     activePipelineProcess = null;
   }
+  if (global.ollamaServerProcess) {
+    try { execSync('taskkill /pid ' + global.ollamaServerProcess.pid + ' /T /F', { windowsHide: true }); } catch (e) {}
+    global.ollamaServerProcess = null;
+  }
   
-  // Dá um tempinho rápido pro processo fechar e dispara o instalador silencioso (que com oneClick=true mostrará só a barra)
+  // 4. Dá 1 segundo de respiro para o Windows soltar os arquivos da memória e chama o instalador
   setTimeout(() => {
     autoUpdater.quitAndInstall(false, true);
-  }, 500);
+  }, 1000);
 });
 
 ipcMain.handle('check-for-updates', () => {
@@ -320,9 +330,9 @@ ipcMain.handle('get-settings', () => {
   });
 
   ipcMain.handle('check-ollama-model', async (event, modelName) => {
-    const { exec } = require('child_process');
+    const { execFile } = require('child_process');
     return new Promise((resolve) => {
-      exec(`ollama show ${modelName}`, { windowsHide: true }, (error) => {
+      execFile('ollama', ['show', modelName], { windowsHide: true }, (error) => {
         resolve(!error);
       });
     });
@@ -391,16 +401,16 @@ ipcMain.handle('get-settings', () => {
     const { spawn } = require('child_process');
     const localAppPath = path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'Ollama', 'ollama app.exe');
     if (fs.existsSync(localAppPath)) {
-      spawn(`"${localAppPath}"`, { shell: true, detached: true, stdio: 'ignore', windowsHide: true });
+      global.ollamaServerProcess = spawn(`"${localAppPath}"`, { shell: true, detached: true, stdio: 'ignore', windowsHide: true });
     } else {
-      spawn('ollama', ['serve'], { detached: true, stdio: 'ignore', windowsHide: true });
+      global.ollamaServerProcess = spawn('ollama', ['serve'], { detached: true, stdio: 'ignore', windowsHide: true });
     }
   });
 
   ipcMain.handle('delete-ollama-model', async (event, modelName) => {
-    const { execSync } = require('child_process');
+    const { execFileSync } = require('child_process');
     try {
-      execSync(`ollama rm "${modelName}"`, { stdio: 'ignore' });
+      execFileSync('ollama', ['rm', modelName], { stdio: 'ignore', windowsHide: true });
       return { success: true };
     } catch(e) {
       return { success: false, error: e.message };
@@ -738,9 +748,14 @@ app.on('window-all-closed', function () {
 app.on('before-quit', () => {
   app.isQuiting = true;
   if (activePipelineProcess) {
-    const { exec } = require('child_process');
-    try { exec('taskkill /pid ' + activePipelineProcess.pid + ' /T /F'); } catch (e) {}
+    const { execSync } = require('child_process');
+    try { execSync('taskkill /pid ' + activePipelineProcess.pid + ' /T /F', { windowsHide: true }); } catch (e) {}
     activePipelineProcess = null;
+  }
+  if (global.ollamaServerProcess) {
+    const { execSync } = require('child_process');
+    try { execSync('taskkill /pid ' + global.ollamaServerProcess.pid + ' /T /F', { windowsHide: true }); } catch (e) {}
+    global.ollamaServerProcess = null;
   }
 });
 
@@ -774,6 +789,7 @@ ipcMain.handle('cancel-pipeline', (event) => {
   try {
     const http = require('http');
     const req = http.request('http://localhost:11434/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    req.on('error', () => { /* Ignora se o Ollama estiver offline */ });
     req.write(JSON.stringify({ model: '', keep_alive: 0 }));
     req.end();
   } catch (e) {}
@@ -796,18 +812,20 @@ ipcMain.handle('resume-pipeline', (event) => {
 
 // -- Explorador de Arquivos ----------------------------------------------------
 
-// Lista drives disponÃ­veis no Windows (C:\, D:\, ...)
+// Lista drives disponíveis no Windows (C:\, D:\, ...)
 ipcMain.handle('list-drives', async () => {
   const drives = [];
+  const promises = [];
   for (let i = 65; i <= 90; i++) { // A-Z
     const letter = String.fromCharCode(i);
     const drivePath = letter + ':\\';
-    try {
-      fs.accessSync(drivePath);
-      drives.push({ name: letter + ':', path: drivePath, isDrive: true });
-    } catch { /* drive nÃ£o existe */ }
+    const p = fs.promises.access(drivePath)
+      .then(() => drives.push({ name: letter + ':', path: drivePath, isDrive: true }))
+      .catch(() => {});
+    promises.push(p);
   }
-  return drives;
+  await Promise.all(promises);
+  return drives.sort((a, b) => a.name.localeCompare(b.name));
 });
 
 // Retorna o diretório pai de um caminho
