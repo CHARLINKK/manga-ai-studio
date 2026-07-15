@@ -111,17 +111,7 @@ function createWindow() {
 ipcMain.handle('install-update', () => {
   app.isQuiting = true;
   
-  // 1. Destrói a janela imediatamente (força bruta, não passa por eventos de fechamento)
-  if (mainWindow) {
-    mainWindow.destroy();
-  }
-
-  // 2. Destrói o ícone da bandeja do sistema (evita que o processo fique preso em background)
-  if (tray && !tray.isDestroyed()) {
-    tray.destroy();
-  }
-
-  // 3. Mata processos filhos de forma SÍNCRONA (espera morrer antes de continuar)
+  // 1. Mata processos filhos de forma SÍNCRONA para soltar os arquivos
   const { execSync } = require('child_process');
   if (activePipelineProcess) {
     try { execSync('taskkill /pid ' + activePipelineProcess.pid + ' /T /F', { windowsHide: true }); } catch(e) {}
@@ -132,10 +122,14 @@ ipcMain.handle('install-update', () => {
     global.ollamaServerProcess = null;
   }
   
-  // 4. Dá 1 segundo de respiro para o Windows soltar os arquivos da memória e chama o instalador
+  // 2. Chama o autoUpdater imediatamente (ele dispara o instalador em background)
+  autoUpdater.quitAndInstall(false, true);
+
+  // 3. FAILSAFE: Força a morte absoluta do processo pai 500ms depois
+  // Isso garante que o Manga AI Studio.exe solte todos os arquivos a tempo do instalador sobrescrever
   setTimeout(() => {
-    autoUpdater.quitAndInstall(false, true);
-  }, 1000);
+    app.exit(0);
+  }, 500);
 });
 
 ipcMain.handle('check-for-updates', () => {
