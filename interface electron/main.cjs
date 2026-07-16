@@ -122,14 +122,17 @@ ipcMain.handle('install-update', () => {
     global.ollamaServerProcess = null;
   }
   
-  // 2. Chama o autoUpdater imediatamente (ele dispara o instalador em background)
+  // 2. Chama o autoUpdater (ele faz o spawn do instalador de forma síncrona)
   autoUpdater.quitAndInstall(false, true);
 
-  // 3. FAILSAFE: Força a morte absoluta do processo pai 500ms depois
-  // Isso garante que o Manga AI Studio.exe solte todos os arquivos a tempo do instalador sobrescrever
+  // 3. Destrói a interface e força o encerramento IMEDIATO do Node.js
+  // Se esperarmos o app.quit() natural, o instalador (que é muito rápido) vai bater de frente com a janela ainda aberta.
+  if (mainWindow) mainWindow.destroy();
+  if (tray && !tray.isDestroyed()) tray.destroy();
+  
   setTimeout(() => {
     app.exit(0);
-  }, 500);
+  }, 10); // 10ms é o suficiente para o evento do spawn ser despachado no OS
 });
 
 ipcMain.handle('check-for-updates', () => {
