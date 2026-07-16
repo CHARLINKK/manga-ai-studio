@@ -111,28 +111,25 @@ function createWindow() {
 ipcMain.handle('install-update', () => {
   app.isQuiting = true;
   
-  // 1. Mata processos filhos de forma SÍNCRONA para soltar os arquivos
-  const { execSync } = require('child_process');
+  // 1. Mata processos filhos de forma ASSÍNCRONA DESANEXADA para não travar a thread principal
+  const { spawn } = require('child_process');
   if (activePipelineProcess) {
-    try { execSync('taskkill /pid ' + activePipelineProcess.pid + ' /T /F', { windowsHide: true }); } catch(e) {}
+    try { 
+      const tk = spawn('taskkill', ['/pid', activePipelineProcess.pid, '/T', '/F'], { windowsHide: true, detached: true, stdio: 'ignore' });
+      tk.unref();
+    } catch(e) {}
     activePipelineProcess = null;
   }
   if (global.ollamaServerProcess) {
-    try { execSync('taskkill /pid ' + global.ollamaServerProcess.pid + ' /T /F', { windowsHide: true }); } catch (e) {}
+    try { 
+      const tk = spawn('taskkill', ['/pid', global.ollamaServerProcess.pid, '/T', '/F'], { windowsHide: true, detached: true, stdio: 'ignore' });
+      tk.unref();
+    } catch (e) {}
     global.ollamaServerProcess = null;
   }
   
-  // 2. Chama o autoUpdater (ele faz o spawn do instalador de forma síncrona)
+  // 2. Chama o autoUpdater normalmente. Como o processo Node não tem mais delays síncronos, o fechamento natural (app.quit) será instantâneo
   autoUpdater.quitAndInstall(false, true);
-
-  // 3. Destrói a interface e força o encerramento IMEDIATO do Node.js
-  // Se esperarmos o app.quit() natural, o instalador (que é muito rápido) vai bater de frente com a janela ainda aberta.
-  if (mainWindow) mainWindow.destroy();
-  if (tray && !tray.isDestroyed()) tray.destroy();
-  
-  setTimeout(() => {
-    app.exit(0);
-  }, 10); // 10ms é o suficiente para o evento do spawn ser despachado no OS
 });
 
 ipcMain.handle('check-for-updates', () => {
@@ -744,14 +741,19 @@ app.on('window-all-closed', function () {
 
 app.on('before-quit', () => {
   app.isQuiting = true;
+  const { spawn } = require('child_process');
   if (activePipelineProcess) {
-    const { execSync } = require('child_process');
-    try { execSync('taskkill /pid ' + activePipelineProcess.pid + ' /T /F', { windowsHide: true }); } catch (e) {}
+    try { 
+      const tk = spawn('taskkill', ['/pid', activePipelineProcess.pid, '/T', '/F'], { windowsHide: true, detached: true, stdio: 'ignore' });
+      tk.unref();
+    } catch (e) {}
     activePipelineProcess = null;
   }
   if (global.ollamaServerProcess) {
-    const { execSync } = require('child_process');
-    try { execSync('taskkill /pid ' + global.ollamaServerProcess.pid + ' /T /F', { windowsHide: true }); } catch (e) {}
+    try { 
+      const tk = spawn('taskkill', ['/pid', global.ollamaServerProcess.pid, '/T', '/F'], { windowsHide: true, detached: true, stdio: 'ignore' });
+      tk.unref();
+    } catch (e) {}
     global.ollamaServerProcess = null;
   }
 });
